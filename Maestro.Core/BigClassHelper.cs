@@ -31,7 +31,11 @@ namespace Maestro.Core
 
         private IEnumerable<FunctionNode> GetFunctionNodes(CompilationUnitSyntax root)
         {
-            return Enumerable.Empty<FunctionNode>();
+            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();
+
+            foreach (var method in methods)
+                yield return new FunctionNode(method.Identifier.ValueText);
         }
     }
 

@@ -14,24 +14,32 @@ namespace Maestro.Core
             var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
             var root = tree.GetCompilationUnitRoot();
 
-            return new InternalClassDiagram(GetVariableNodes(root).ToList());
+            return new InternalClassDiagram(GetVariableNodes(root).ToList(), GetFunctionNodes(root).ToList());
         }
 
         private IEnumerable<VariableNode> GetVariableNodes(CompilationUnitSyntax root)
         {
             return Enumerable.Empty<VariableNode>();
         }
+
+        private IEnumerable<FunctionNode> GetFunctionNodes(CompilationUnitSyntax root)
+        {
+            return Enumerable.Empty<FunctionNode>();
+        }
     }
 
     public class InternalClassDiagram
     {
         public readonly List<VariableNode> VariableNodes;
+        public readonly List<FunctionNode> FunctionNodes;
 
-        public bool IsEmpty => !VariableNodes.Any();
+        public bool IsEmpty => !VariableNodes.Any() && !FunctionNodes.Any();
 
-        public InternalClassDiagram(List<VariableNode> variableNodes)
+        public InternalClassDiagram(List<VariableNode> variableNodes,
+            List<FunctionNode> functionNodes)
         {
             VariableNodes = variableNodes;
+            FunctionNodes = functionNodes;
         }
     }
 
@@ -40,6 +48,16 @@ namespace Maestro.Core
         public readonly string Name;
         
         public VariableNode(string name)
+        {
+            Name = name;
+        }
+    }
+
+    public class FunctionNode
+    {
+        public readonly string Name;
+
+        public FunctionNode(string name)
         {
             Name = name;
         }

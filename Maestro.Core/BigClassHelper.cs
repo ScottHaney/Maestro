@@ -11,12 +11,12 @@ namespace Maestro.Core
             var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
             var root = tree.GetCompilationUnitRoot();
 
-            throw new NotImplementedException();
+            return new InternalClassDiagram();
         }
     }
 
     public class InternalClassDiagram
     {
-
+        public bool IsEmpty => true;
     }
 }

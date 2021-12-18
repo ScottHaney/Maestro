@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Core", "Maestro.Core\Maestro.Core.csproj", "{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maestro.Core", "Maestro.Core\Maestro.Core.csproj", "{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2C366D02-7E8F-45E0-9C1D-34E5534D69B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Core.Tests", "Maestro.Core.Tests\Maestro.Core.Tests.csproj", "{80E954FC-E08C-4B21-BEDB-A16376B3A286}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80E954FC-E08C-4B21-BEDB-A16376B3A286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80E954FC-E08C-4B21-BEDB-A16376B3A286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80E954FC-E08C-4B21-BEDB-A16376B3A286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80E954FC-E08C-4B21-BEDB-A16376B3A286}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{80E954FC-E08C-4B21-BEDB-A16376B3A286} = {2C366D02-7E8F-45E0-9C1D-34E5534D69B5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6B4894AB-910F-4812-99EE-6B7D3235D35A}

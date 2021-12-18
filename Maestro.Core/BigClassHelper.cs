@@ -14,7 +14,10 @@ namespace Maestro.Core
             var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
             var root = tree.GetCompilationUnitRoot();
 
-            return new InternalClassDiagram(GetVariableNodes(root).ToList(), GetFunctionNodes(root).ToList());
+            var variables = GetVariableNodes(root).ToList();
+            var methods = GetFunctionNodes(root, variables).ToList();
+
+            return new InternalClassDiagram(variables, methods);
         }
 
         private IEnumerable<VariableNode> GetVariableNodes(CompilationUnitSyntax root)
@@ -29,13 +32,24 @@ namespace Maestro.Core
             }
         }
 
-        private IEnumerable<FunctionNode> GetFunctionNodes(CompilationUnitSyntax root)
+        private IEnumerable<FunctionNode> GetFunctionNodes(CompilationUnitSyntax root, IEnumerable<VariableNode> variables)
         {
             var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
             var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();
 
             foreach (var method in methods)
+            {
+                var references = GetReferencedVariables(method, variables).ToList();
                 yield return new FunctionNode(method.Identifier.ValueText);
+            }
+        }
+
+        private IEnumerable<VariableNode> GetReferencedVariables(MethodDeclarationSyntax method, IEnumerable<VariableNode> nodes)
+        {
+            var refs = method.DescendantNodes().OfType<IdentifierNameSyntax>().ToList();
+
+            var names = new HashSet<string>(refs.Select(x => x.Identifier.ValueText).Distinct());
+            return nodes.Where(x => names.Contains(x.Name));
         }
     }
 

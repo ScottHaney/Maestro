@@ -19,7 +19,14 @@ namespace Maestro.Core
 
         private IEnumerable<VariableNode> GetVariableNodes(CompilationUnitSyntax root)
         {
-            return Enumerable.Empty<VariableNode>();
+            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var fields = classNode.ChildNodes().OfType<FieldDeclarationSyntax>();
+
+            foreach (var field in fields)
+            {
+                var variable = field.Declaration.Variables.Single();
+                yield return new VariableNode(variable.Identifier.ValueText);
+            }
         }
 
         private IEnumerable<FunctionNode> GetFunctionNodes(CompilationUnitSyntax root)

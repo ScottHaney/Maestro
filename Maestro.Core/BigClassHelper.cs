@@ -68,17 +68,46 @@ namespace Maestro.Core
         }
     }
 
-    public class VariableNode
+    public class VariableNode : IEquatable<VariableNode>
     {
         public readonly string Name;
         
         public VariableNode(string name)
         {
-            Name = name;
+            Name = name ?? string.Empty;
+        }
+
+        public static bool operator==(VariableNode lhs, VariableNode rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(VariableNode lhs, VariableNode rhs)
+            => !(lhs == rhs);
+
+        public bool Equals(VariableNode other)
+        {
+            if (other == null)
+                return false;
+
+            return Name == other.Name;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as VariableNode);
+        }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode();
         }
     }
 
-    public class FunctionNode
+    public class FunctionNode : IEquatable<FunctionNode>
     {
         public readonly string Name;
         public readonly List<VariableNode> References;
@@ -88,6 +117,42 @@ namespace Maestro.Core
         {
             Name = name;
             References = references;
+        }
+
+        public static bool operator==(FunctionNode lhs, FunctionNode rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(FunctionNode lhs, FunctionNode rhs)
+            => !(lhs == rhs);
+
+        public bool Equals(FunctionNode other)
+        {
+            if (other == null)
+                return false;
+
+            return Name == other.Name && References.SequenceEqual(other.References);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as FunctionNode);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var result = Name?.GetHashCode() ?? 11;
+                foreach (var reference in (References ?? Enumerable.Empty<VariableNode>()))
+                    result += reference.GetHashCode();
+
+                return result;
+            }
         }
     }
 }

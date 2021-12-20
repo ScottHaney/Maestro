@@ -40,7 +40,7 @@ namespace Maestro.Core
             foreach (var method in methods)
             {
                 var references = GetReferencedVariables(method, variables).ToList();
-                yield return new FunctionNode(method.Identifier.ValueText);
+                yield return new FunctionNode(method.Identifier.ValueText, references);
             }
         }
 
@@ -81,10 +81,13 @@ namespace Maestro.Core
     public class FunctionNode
     {
         public readonly string Name;
+        public readonly List<VariableNode> References;
 
-        public FunctionNode(string name)
+        public FunctionNode(string name,
+            List<VariableNode> references)
         {
             Name = name;
+            References = references;
         }
     }
 }

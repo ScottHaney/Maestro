@@ -37,5 +37,21 @@ namespace Maestro.Core.Tests
                 Assert.AreEqual(expected, result);
             }
         }
+
+        [Test]
+        public void Handles_A_Class_With_No_References_Between_Variables_And_Methods()
+        {
+            var emptyClass = @"public class Test { public readonly int Field; public void TestMethod() { 1; }}";
+
+            using (var mock = AutoMock.GetLoose())
+            {
+                var instance = mock.Create<BigClassHelper>();
+
+                var result = instance.CreateDiagram(emptyClass);
+                var expected = new InternalClassDiagram(new List<VariableNode>() { new VariableNode("Field") }, new List<FunctionNode>() { new FunctionNode("TestMethod", new List<VariableNode>()) });
+
+                Assert.AreEqual(expected, result);
+            }
+        }
     }
 }

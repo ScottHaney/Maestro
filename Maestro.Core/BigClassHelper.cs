@@ -53,7 +53,7 @@ namespace Maestro.Core
         }
     }
 
-    public class InternalClassDiagram
+    public class InternalClassDiagram : IEquatable<InternalClassDiagram>
     {
         public readonly List<VariableNode> VariableNodes;
         public readonly List<FunctionNode> FunctionNodes;
@@ -65,6 +65,46 @@ namespace Maestro.Core
         {
             VariableNodes = variableNodes;
             FunctionNodes = functionNodes;
+        }
+
+        public static bool operator==(InternalClassDiagram lhs, InternalClassDiagram rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(InternalClassDiagram lhs, InternalClassDiagram rhs)
+            => !(lhs == rhs);
+
+        public bool Equals(InternalClassDiagram other)
+        {
+            if (other == null)
+                return false;
+
+            return VariableNodes.SequenceEqual(other.VariableNodes) && FunctionNodes.SequenceEqual(other.FunctionNodes);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassDiagram);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var result = 0;
+
+                foreach (var node in VariableNodes)
+                    result += node.GetHashCode();
+
+                foreach (var node in FunctionNodes)
+                    result += node.GetHashCode();
+
+                return result;
+            }
         }
     }
 

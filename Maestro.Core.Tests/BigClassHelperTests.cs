@@ -1,5 +1,6 @@
 using Autofac.Extras.Moq;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Maestro.Core.Tests
 {
@@ -29,7 +30,11 @@ namespace Maestro.Core.Tests
                 var instance = mock.Create<BigClassHelper>();
 
                 var result = instance.CreateDiagram(emptyClass);
-                Assert.IsFalse(result.IsEmpty);
+
+                var expectedVariables = new List<VariableNode>() { new VariableNode("Field") };
+                var expected = new InternalClassDiagram(expectedVariables, new List<FunctionNode>() { new FunctionNode("TestMethod", expectedVariables) });
+
+                Assert.AreEqual(expected, result);
             }
         }
     }

@@ -242,9 +242,44 @@ namespace Maestro.Core
             else
                 _map[source] = new HashSet<InternalClassNode>(neighbors);
         }
+
+        public bool AreTheSame(InternalClassNodeAdjacencyMatrix other)
+        {
+            if (_map.Count != other._map.Count)
+                return false;
+
+            foreach (var item in _map)
+            {
+                if (other._map.TryGetValue(item.Key, out var otherValue))
+                {
+                    if (!item.Value.SequenceEqual(otherValue))
+                        return false;
+                }
+                else
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var result = 0;
+                foreach (var entry in _map)
+                {
+                    result += entry.Key.GetHashCode();
+                    foreach (var item in entry.Value)
+                        result += item.GetHashCode();
+                }
+
+                return result;
+            }
+        }
     }
 
-    public class InternalClassGraph
+    public class InternalClassGraph : IEquatable<InternalClassGraph>
     {
         public readonly List<InternalClassNode> Nodes;
         private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;
@@ -259,6 +294,32 @@ namespace Maestro.Core
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
             return _adjacencyMatrix.GetNeighbors(node);
+        }
+
+        public bool Equals(InternalClassGraph other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return Nodes.SequenceEqual(other.Nodes) && _adjacencyMatrix.AreTheSame(other._adjacencyMatrix);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassGraph);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var result = 0;
+                foreach (var node in Nodes)
+                    result += node.GetHashCode();
+
+                result += _adjacencyMatrix.GetHashCode();
+                return result;
+            }
         }
     }
 

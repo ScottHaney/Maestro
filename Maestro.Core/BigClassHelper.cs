@@ -43,13 +43,54 @@ namespace Maestro.Core
                 yield return new FunctionNode(method.Identifier.ValueText, references);
             }
         }
-
         private IEnumerable<VariableNode> GetReferencedVariables(MethodDeclarationSyntax method, IEnumerable<VariableNode> nodes)
         {
             var refs = method.DescendantNodes().OfType<IdentifierNameSyntax>().ToList();
 
             var names = new HashSet<string>(refs.Select(x => x.Identifier.ValueText).Distinct());
             return nodes.Where(x => names.Contains(x.Name));
+        }
+
+        public InternalClassGraph CreateDiagram2(string csFileWithClass)
+        {
+            var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
+            var root = tree.GetCompilationUnitRoot();
+
+            var variables = GetVariableNodes2(root).ToList();
+            var methods = GetFunctionNodes2(root).ToList();
+
+            var builder = new InternalClassGraphBuilder(variables.Concat(methods).ToList());
+            AddAdjacencies(builder);
+
+            return builder.Build();
+        }
+
+        private IEnumerable<InternalClassNode> GetVariableNodes2(CompilationUnitSyntax root)
+        {
+            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var fields = classNode.ChildNodes().OfType<FieldDeclarationSyntax>();
+
+            foreach (var field in fields)
+            {
+                var variable = field.Declaration.Variables.Single();
+                yield return new InternalClassNode(variable.Identifier.ValueText, InternalClassNodeType.Variable);
+            }
+        }
+
+        private IEnumerable<InternalClassNode> GetFunctionNodes2(CompilationUnitSyntax root)
+        {
+            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();
+
+            foreach (var method in methods)
+            {
+                yield return new InternalClassNode(method.Identifier.ValueText, InternalClassNodeType.Function);
+            }
+        }
+
+        private void AddAdjacencies(InternalClassGraphBuilder builder)
+        {
+            throw new NotImplementedException();
         }
     }
 

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    public class ConnectedComponentsFinder
+    /*public class ConnectedComponentsFinder
     {
         public List<ConnectedComponent> Find(InternalClassDiagram diagram)
         {
@@ -25,5 +25,5 @@ namespace Maestro.Core
         {
             Nodes = nodes;
         }
-    }
+    }*/
 }

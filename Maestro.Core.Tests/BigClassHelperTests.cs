@@ -16,7 +16,7 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram2(emptyClass);
+                var result = instance.CreateDiagram(emptyClass);
                 var expectedResult = new InternalClassGraph(new List<InternalClassNode>(), new InternalClassNodeAdjacencyMatrix(new Dictionary<InternalClassNode, HashSet<InternalClassNode>>()));
 
                 Assert.AreEqual(expectedResult, result);
@@ -32,7 +32,7 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram2(emptyClass);
+                var result = instance.CreateDiagram(emptyClass);
 
                 var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
                 var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };
@@ -56,7 +56,7 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram2(emptyClass);
+                var result = instance.CreateDiagram(emptyClass);
 
                 var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
                 var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };

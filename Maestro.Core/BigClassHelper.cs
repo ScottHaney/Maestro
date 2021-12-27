@@ -196,7 +196,7 @@ namespace Maestro.Core
         }
     }
 
-    public class InternalClassNode
+    public class InternalClassNode : IEquatable<InternalClassNode>
     {
         public readonly string Name;
         public readonly InternalClassNodeType Type;
@@ -206,6 +206,40 @@ namespace Maestro.Core
         {
             Name = name;
             Type = type;
+        }
+
+        public static bool operator==(InternalClassNode lhs, InternalClassNode rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(InternalClassNode lhs, InternalClassNode rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public bool Equals(InternalClassNode other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return Name == other.Name && Type == other.Type;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassNode);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Name?.GetHashCode() ?? 3 + Type.GetHashCode();
+            }
         }
     }
 

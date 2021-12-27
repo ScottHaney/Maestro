@@ -196,6 +196,61 @@ namespace Maestro.Core
         }
     }
 
+
+
+    public class InternalClassGraphBuilder
+    {
+        private readonly List<InternalClassNode> _nodes;
+        private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;
+
+        public InternalClassGraphBuilder(List<InternalClassNode> nodes)
+        {
+            _nodes = nodes;
+            _adjacencyMatrix = new InternalClassNodeAdjacencyMatrix();
+        }
+
+        public void AddAdjacency(InternalClassNode source, List<InternalClassNode> neighbors)
+        {
+            _adjacencyMatrix.AddNeighbors(source, neighbors);
+        }
+
+        public InternalClassGraph Build()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class InternalClassNodeAdjacencyMatrix
+    {
+        public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class InternalClassGraph
+    {
+        public readonly List<InternalClassNode> Nodes;
+        private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;
+
+        public InternalClassGraph(List<InternalClassNode> nodes,
+            InternalClassNodeAdjacencyMatrix adjacencyMatrix)
+        {
+            Nodes = nodes;
+            _adjacencyMatrix = adjacencyMatrix;
+        }
+
+        public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class InternalClassNode : IEquatable<InternalClassNode>
     {
         public readonly string Name;

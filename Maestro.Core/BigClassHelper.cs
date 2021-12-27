@@ -201,37 +201,29 @@ namespace Maestro.Core
     public class InternalClassGraphBuilder
     {
         private readonly List<InternalClassNode> _nodes;
-        private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;
+        private readonly InternalClassNodeAdjacencyMatrixBuilder _adjacencyMatrixBuilder;
 
         public InternalClassGraphBuilder(List<InternalClassNode> nodes)
         {
             _nodes = nodes;
-            _adjacencyMatrix = new InternalClassNodeAdjacencyMatrix();
+            _adjacencyMatrixBuilder = new InternalClassNodeAdjacencyMatrixBuilder();
         }
 
         public void AddAdjacency(InternalClassNode source, List<InternalClassNode> neighbors)
         {
-            _adjacencyMatrix.AddNeighbors(source, neighbors);
+            _adjacencyMatrixBuilder.AddNeighbors(source, neighbors);
         }
 
         public InternalClassGraph Build()
         {
-            return new InternalClassGraph(_nodes, _adjacencyMatrix);
+            return new InternalClassGraph(_nodes, _adjacencyMatrixBuilder.Build());
         }
     }
 
-    public class InternalClassNodeAdjacencyMatrix
+    public class InternalClassNodeAdjacencyMatrixBuilder
     {
         private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map;
-
-        public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
-        {
-            if (_map.TryGetValue(node, out var matches))
-                return matches;
-            else
-                return Enumerable.Empty<InternalClassNode>();
-        }
-
+        
         public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
         {
             if (_map.TryGetValue(source, out var values))
@@ -243,7 +235,43 @@ namespace Maestro.Core
                 _map[source] = new HashSet<InternalClassNode>(neighbors);
         }
 
-        public bool AreTheSame(InternalClassNodeAdjacencyMatrix other)
+        public InternalClassNodeAdjacencyMatrix Build()
+        {
+            return new InternalClassNodeAdjacencyMatrix(_map);
+        }
+    }
+
+    public class InternalClassNodeAdjacencyMatrix : IEquatable<InternalClassNodeAdjacencyMatrix>
+    {
+        private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map;
+
+        public InternalClassNodeAdjacencyMatrix(Dictionary<InternalClassNode, HashSet<InternalClassNode>> map)
+        {
+            _map = map;
+        }
+
+        public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
+        {
+            if (_map.TryGetValue(node, out var matches))
+                return matches;
+            else
+                return Enumerable.Empty<InternalClassNode>();
+        }
+
+        public static bool operator==(InternalClassNodeAdjacencyMatrix lhs, InternalClassNodeAdjacencyMatrix rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(InternalClassNodeAdjacencyMatrix lhs, InternalClassNodeAdjacencyMatrix rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public bool Equals(InternalClassNodeAdjacencyMatrix other)
         {
             if (_map.Count != other._map.Count)
                 return false;
@@ -262,7 +290,12 @@ namespace Maestro.Core
             return true;
         }
 
-        public int GetHashCodeValue()
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassNodeAdjacencyMatrix);
+        }
+
+        public override int GetHashCode()
         {
             unchecked
             {
@@ -301,7 +334,7 @@ namespace Maestro.Core
             if (ReferenceEquals(other, null))
                 return false;
 
-            return Nodes.SequenceEqual(other.Nodes) && _adjacencyMatrix.AreTheSame(other._adjacencyMatrix);
+            return Nodes.SequenceEqual(other.Nodes) && _adjacencyMatrix.Equals(other._adjacencyMatrix);
         }
 
         public override bool Equals(object obj)
@@ -317,7 +350,7 @@ namespace Maestro.Core
                 foreach (var node in Nodes)
                     result += node.GetHashCode();
 
-                result += _adjacencyMatrix.GetHashCodeValue();
+                result += _adjacencyMatrix.GetHashCode();
                 return result;
             }
         }

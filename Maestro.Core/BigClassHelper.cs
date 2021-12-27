@@ -262,7 +262,7 @@ namespace Maestro.Core
             return true;
         }
 
-        public override int GetHashCode()
+        public int GetHashCodeValue()
         {
             unchecked
             {
@@ -317,7 +317,7 @@ namespace Maestro.Core
                 foreach (var node in Nodes)
                     result += node.GetHashCode();
 
-                result += _adjacencyMatrix.GetHashCode();
+                result += _adjacencyMatrix.GetHashCodeValue();
                 return result;
             }
         }

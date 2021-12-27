@@ -57,10 +57,13 @@ namespace Maestro.Core
             var root = tree.GetCompilationUnitRoot();
 
             var variables = GetVariableNodes2(root).ToList();
-            var methods = GetFunctionNodes2(root).ToList();
+            var methodsMap = GetFunctionNodes2(root, variables);
 
-            var builder = new InternalClassGraphBuilder(variables.Concat(methods).ToList());
-            AddAdjacencies(builder);
+            var allNodes = variables.Concat(methodsMap.Keys).ToList();
+            var builder = new InternalClassGraphBuilder(allNodes);
+
+            foreach (var entry in methodsMap)
+                builder.AddAdjacency(entry.Key, entry.Value);
 
             return builder.Build();
         }
@@ -77,20 +80,29 @@ namespace Maestro.Core
             }
         }
 
-        private IEnumerable<InternalClassNode> GetFunctionNodes2(CompilationUnitSyntax root)
+        private Dictionary<InternalClassNode, List<InternalClassNode>> GetFunctionNodes2(CompilationUnitSyntax root, List<InternalClassNode> variableNodes)
         {
             var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
             var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();
 
+            var result = new Dictionary<InternalClassNode, List<InternalClassNode>>();
             foreach (var method in methods)
             {
-                yield return new InternalClassNode(method.Identifier.ValueText, InternalClassNodeType.Function);
+                var variableRefs = GetReferencedVariables2(method, variableNodes);
+                var methodNode = new InternalClassNode(method.Identifier.ValueText, InternalClassNodeType.Function);
+
+                result[methodNode] = variableRefs.ToList();
             }
+
+            return result;
         }
 
-        private void AddAdjacencies(InternalClassGraphBuilder builder)
+        private IEnumerable<InternalClassNode> GetReferencedVariables2(MethodDeclarationSyntax method, IEnumerable<InternalClassNode> nodes)
         {
-            throw new NotImplementedException();
+            var refs = method.DescendantNodes().OfType<IdentifierNameSyntax>().ToList();
+
+            var names = new HashSet<string>(refs.Select(x => x.Identifier.ValueText).Distinct());
+            return nodes.Where(x => names.Contains(x.Name));
         }
     }
 

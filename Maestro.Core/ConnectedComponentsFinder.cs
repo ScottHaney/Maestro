@@ -4,26 +4,31 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    /*public class ConnectedComponentsFinder
+    public class ConnectedComponentsFinder
     {
-        public List<ConnectedComponent> Find(InternalClassDiagram diagram)
+        public List<GraphComponent> Find(InternalClassGraph graph)
         {
             throw new NotImplementedException();
         }
 
-        private void DFS(InternalClassDiagram diagram)
+        private void DFS(InternalClassGraph graph, InternalClassNode startNode, HashSet<InternalClassNode> visitedNodes)
         {
-
+            visitedNodes.Add(startNode);
+            foreach (var node in graph.GetNeighbors(startNode))
+            {
+                if (!visitedNodes.Contains(node))
+                    DFS(graph, node, visitedNodes);
+            }
         }
     }
 
-    public class ConnectedComponent
+    public class GraphComponent
     {
-        public readonly List<FunctionNode> Nodes;
+        public readonly List<InternalClassNode> Nodes;
 
-        public ConnectedComponent(List<FunctionNode> nodes)
+        public GraphComponent(List<InternalClassNode> nodes)
         {
             Nodes = nodes;
         }
-    }*/
+    }
 }

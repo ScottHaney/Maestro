@@ -195,4 +195,23 @@ namespace Maestro.Core
             }
         }
     }
+
+    public class InternalClassNode
+    {
+        public readonly string Name;
+        public readonly InternalClassNodeType Type;
+
+        public InternalClassNode(string name,
+            InternalClassNodeType type)
+        {
+            Name = name;
+            Type = type;
+        }
+    }
+
+    public enum InternalClassNodeType
+    {
+        Variable,
+        Function
+    }
 }

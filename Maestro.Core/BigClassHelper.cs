@@ -216,20 +216,31 @@ namespace Maestro.Core
 
         public InternalClassGraph Build()
         {
-            throw new NotImplementedException();
+            return new InternalClassGraph(_nodes, _adjacencyMatrix);
         }
     }
 
     public class InternalClassNodeAdjacencyMatrix
     {
+        private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map;
+
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
-            throw new NotImplementedException();
+            if (_map.TryGetValue(node, out var matches))
+                return matches;
+            else
+                return Enumerable.Empty<InternalClassNode>();
         }
 
         public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
         {
-            throw new NotImplementedException();
+            if (_map.TryGetValue(source, out var values))
+            {
+                foreach (var neighbor in neighbors)
+                    values.Add(neighbor);
+            }
+            else
+                _map[source] = new HashSet<InternalClassNode>(neighbors);
         }
     }
 
@@ -247,7 +258,7 @@ namespace Maestro.Core
 
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
-            throw new NotImplementedException();
+            return _adjacencyMatrix.GetNeighbors(node);
         }
     }
 

@@ -1,6 +1,7 @@
 using Autofac.Extras.Moq;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Maestro.Core.Tests
 {
@@ -15,8 +16,10 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram(emptyClass);
-                Assert.IsTrue(result.IsEmpty);
+                var result = instance.CreateDiagram2(emptyClass);
+                var expectedResult = new InternalClassGraph(new List<InternalClassNode>(), new InternalClassNodeAdjacencyMatrix(new Dictionary<InternalClassNode, HashSet<InternalClassNode>>()));
+
+                Assert.AreEqual(expectedResult, result);
             }
         }
 
@@ -29,12 +32,18 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram(emptyClass);
+                var result = instance.CreateDiagram2(emptyClass);
 
-                var expectedVariables = new List<VariableNode>() { new VariableNode("Field") };
-                var expected = new InternalClassDiagram(expectedVariables, new List<FunctionNode>() { new FunctionNode("TestMethod", expectedVariables) });
+                var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
+                var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };
+                var adjacenciesMap = new Dictionary<InternalClassNode, HashSet<InternalClassNode>>()
+                {
+                    { expectedMethods.First(), new HashSet<InternalClassNode>() { expectedVariables.First() } }
+                };
 
-                Assert.AreEqual(expected, result);
+                var expectedResult = new InternalClassGraph(expectedMethods.Concat(expectedVariables).ToList(), new InternalClassNodeAdjacencyMatrix(adjacenciesMap));
+
+                Assert.AreEqual(expectedResult, result);
             }
         }
 
@@ -47,10 +56,15 @@ namespace Maestro.Core.Tests
             {
                 var instance = mock.Create<BigClassHelper>();
 
-                var result = instance.CreateDiagram(emptyClass);
-                var expected = new InternalClassDiagram(new List<VariableNode>() { new VariableNode("Field") }, new List<FunctionNode>() { new FunctionNode("TestMethod", new List<VariableNode>()) });
+                var result = instance.CreateDiagram2(emptyClass);
 
-                Assert.AreEqual(expected, result);
+                var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
+                var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };
+                var adjacenciesMap = new Dictionary<InternalClassNode, HashSet<InternalClassNode>>();
+
+                var expectedResult = new InternalClassGraph(expectedMethods.Concat(expectedVariables).ToList(), new InternalClassNodeAdjacencyMatrix(adjacenciesMap));
+
+                Assert.AreEqual(expectedResult, result);
             }
         }
     }

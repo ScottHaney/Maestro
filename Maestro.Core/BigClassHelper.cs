@@ -275,7 +275,7 @@ namespace Maestro.Core
 
     public class InternalClassNodeAdjacencyMatrixBuilder
     {
-        private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map;
+        private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map = new Dictionary<InternalClassNode, HashSet<InternalClassNode>>();
         
         public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
         {
@@ -284,7 +284,7 @@ namespace Maestro.Core
                 foreach (var neighbor in neighbors)
                     values.Add(neighbor);
             }
-            else
+            else if (neighbors.Any())
                 _map[source] = new HashSet<InternalClassNode>(neighbors);
         }
 
@@ -333,7 +333,7 @@ namespace Maestro.Core
             {
                 if (other._map.TryGetValue(item.Key, out var otherValue))
                 {
-                    if (!item.Value.SequenceEqual(otherValue))
+                    if (!new HashSet<InternalClassNode>(item.Value).SetEquals(new HashSet<InternalClassNode>(otherValue)))
                         return false;
                 }
                 else
@@ -387,7 +387,7 @@ namespace Maestro.Core
             if (ReferenceEquals(other, null))
                 return false;
 
-            return Nodes.SequenceEqual(other.Nodes) && _adjacencyMatrix.Equals(other._adjacencyMatrix);
+            return new HashSet<InternalClassNode>(Nodes).SetEquals(new HashSet<InternalClassNode>(other.Nodes)) && _adjacencyMatrix.Equals(other._adjacencyMatrix);
         }
 
         public override bool Equals(object obj)

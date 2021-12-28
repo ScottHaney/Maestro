@@ -89,8 +89,15 @@ namespace Maestro.Core
     public class InternalClassNodeAdjacencyMatrixBuilder
     {
         private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map = new Dictionary<InternalClassNode, HashSet<InternalClassNode>>();
-        
+
         public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
+        {
+            AddNeighborsInternal(source, neighbors);
+            foreach (var neighbor in neighbors)
+                AddNeighborsInternal(neighbor, new List<InternalClassNode>() { source });
+        }
+
+        private void AddNeighborsInternal(InternalClassNode source, List<InternalClassNode> neighbors)
         {
             if (_map.TryGetValue(source, out var values))
             {

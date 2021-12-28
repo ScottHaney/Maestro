@@ -67,5 +67,22 @@ namespace Maestro.Core.Tests
                 Assert.AreEqual(expectedResult, result);
             }
         }
+
+        [Test]
+        public void Finds_Two_Graph_Components_In_A_Class_That_Has_Two_Distinct_Components()
+        {
+            var emptyClass = @"public class Test { public readonly int Field1; public readonly int Field2; public int TestMethod1() { return Field1; } public int TestMethod2() { return Field2; } }";
+
+            using (var mock = AutoMock.GetLoose())
+            {
+                var instance = mock.Create<BigClassHelper>();
+                var componentsFinder = mock.Create<ConnectedComponentsFinder>();
+
+                var result = instance.CreateDiagram(emptyClass);
+                var components = componentsFinder.Find(result);
+
+                Assert.AreEqual(2, components.Count);
+            }
+        }
     }
 }

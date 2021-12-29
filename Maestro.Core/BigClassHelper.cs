@@ -9,7 +9,7 @@ namespace Maestro.Core
 {
     public class BigClassHelper
     {
-        public InternalClassGraph CreateDiagram(string csFileWithClass)
+        public InternalClassGraph CreateDiagram(string csFileWithClass, bool isDirectedGraph)
         {
             var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
             var root = tree.GetCompilationUnitRoot();
@@ -18,7 +18,7 @@ namespace Maestro.Core
             var methodsMap = GetFunctionNodes(root, variables);
 
             var allNodes = variables.Concat(methodsMap.Keys).ToList();
-            var builder = new InternalClassGraphBuilder(allNodes);
+            var builder = new InternalClassGraphBuilder(allNodes, isDirectedGraph);
 
             foreach (var entry in methodsMap)
                 builder.AddAdjacency(entry.Key, entry.Value);
@@ -69,10 +69,10 @@ namespace Maestro.Core
         private readonly List<InternalClassNode> _nodes;
         private readonly InternalClassNodeAdjacencyMatrixBuilder _adjacencyMatrixBuilder;
 
-        public InternalClassGraphBuilder(List<InternalClassNode> nodes)
+        public InternalClassGraphBuilder(List<InternalClassNode> nodes, bool isDirectedGraph)
         {
             _nodes = nodes;
-            _adjacencyMatrixBuilder = new InternalClassNodeAdjacencyMatrixBuilder();
+            _adjacencyMatrixBuilder = new InternalClassNodeAdjacencyMatrixBuilder(isDirectedGraph);
         }
 
         public void AddAdjacency(InternalClassNode source, List<InternalClassNode> neighbors)
@@ -89,12 +89,22 @@ namespace Maestro.Core
     public class InternalClassNodeAdjacencyMatrixBuilder
     {
         private Dictionary<InternalClassNode, HashSet<InternalClassNode>> _map = new Dictionary<InternalClassNode, HashSet<InternalClassNode>>();
+        private readonly bool _isDirectedGraph;
+
+        public InternalClassNodeAdjacencyMatrixBuilder(bool isDirectedGraph)
+        {
+            _isDirectedGraph = isDirectedGraph;
+        }
 
         public void AddNeighbors(InternalClassNode source, List<InternalClassNode> neighbors)
         {
             AddNeighborsInternal(source, neighbors);
-            foreach (var neighbor in neighbors)
-                AddNeighborsInternal(neighbor, new List<InternalClassNode>() { source });
+
+            if (!_isDirectedGraph)
+            {
+                foreach (var neighbor in neighbors)
+                    AddNeighborsInternal(neighbor, new List<InternalClassNode>() { source });
+            }
         }
 
         private void AddNeighborsInternal(InternalClassNode source, List<InternalClassNode> neighbors)

@@ -42,7 +42,7 @@ namespace BigClassAnalyzer
             if (context.Symbol.Kind == SymbolKind.NamedType)
             {
                 var bigClassHelper = new BigClassHelper();
-                var internalClassDiagram = bigClassHelper.CreateDiagram("", false);
+                var internalClassDiagram = bigClassHelper.CreateDiagram(GetCodeText(context.Symbol), false);
 
                 var components = new ConnectedComponentsFinder().Find(internalClassDiagram);
                 if (components.Count > 1)
@@ -51,6 +51,11 @@ namespace BigClassAnalyzer
                     context.ReportDiagnostic(diagnostic);
                 }
             }
+        }
+
+        private static string GetCodeText(ISymbol symbol)
+        {
+            throw new NotImplementedException();
         }
     }
 }

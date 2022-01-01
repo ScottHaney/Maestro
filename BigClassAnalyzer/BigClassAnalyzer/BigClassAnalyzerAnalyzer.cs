@@ -55,6 +55,7 @@ namespace BigClassAnalyzer
 
         private static string GetCodeText(ISymbol symbol)
         {
+            //TO DO: Figure out how to pass in the symbol to the big class helper rather than get the text, will figure this out next...
             throw new NotImplementedException();
         }
     }

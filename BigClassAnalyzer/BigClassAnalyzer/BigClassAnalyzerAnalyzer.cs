@@ -41,10 +41,10 @@ namespace BigClassAnalyzer
         {
             if (context.Symbol.Kind == SymbolKind.NamedType)
             {
-                var bigClassHelper = new BigClassHelper();
-                var internalClassDiagram = bigClassHelper.CreateDiagram(GetCodeText(context.Symbol), false);
+                var bigClassHelper = new InternalClassGraphGenerator();
+                var internalClassDiagram = bigClassHelper.CreateGraph(GetCodeText(context.Symbol), false);
 
-                var components = new ConnectedComponentsFinder().Find(internalClassDiagram);
+                var components = new InternalClassGraphAnalyzer().FindConnectedComponents(internalClassDiagram);
                 if (components.Count > 1)
                 {
                     var diagnostic = Diagnostic.Create(Rule, context.Symbol.Locations.First());

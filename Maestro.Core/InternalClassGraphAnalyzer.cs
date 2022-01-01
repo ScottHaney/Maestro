@@ -5,9 +5,12 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    public class ConnectedComponentsFinder
+    /// <summary>
+    /// Finds properties of an <see cref="InternalClassGraph"/>
+    /// </summary>
+    public class InternalClassGraphAnalyzer
     {
-        public List<GraphComponent> Find(InternalClassGraph graph)
+        public List<GraphComponent> FindConnectedComponents(InternalClassGraph graph)
         {
             var result = new List<GraphComponent>();
 

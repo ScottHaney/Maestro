@@ -14,9 +14,9 @@ namespace Maestro.Core.Tests
 
             using (var mock = AutoMock.GetLoose())
             {
-                var instance = mock.Create<BigClassHelper>();
+                var instance = mock.Create<InternalClassGraphGenerator>();
 
-                var result = instance.CreateDiagram(emptyClass, true);
+                var result = instance.CreateGraph(emptyClass, true);
                 var expectedResult = new InternalClassGraph(new List<InternalClassNode>(), new InternalClassNodeAdjacencyMatrix(new Dictionary<InternalClassNode, HashSet<InternalClassNode>>()));
 
                 Assert.AreEqual(expectedResult, result);
@@ -30,9 +30,9 @@ namespace Maestro.Core.Tests
 
             using (var mock = AutoMock.GetLoose())
             {
-                var instance = mock.Create<BigClassHelper>();
+                var instance = mock.Create<InternalClassGraphGenerator>();
 
-                var result = instance.CreateDiagram(emptyClass, true);
+                var result = instance.CreateGraph(emptyClass, true);
 
                 var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
                 var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };
@@ -54,9 +54,9 @@ namespace Maestro.Core.Tests
 
             using (var mock = AutoMock.GetLoose())
             {
-                var instance = mock.Create<BigClassHelper>();
+                var instance = mock.Create<InternalClassGraphGenerator>();
 
-                var result = instance.CreateDiagram(emptyClass, true);
+                var result = instance.CreateGraph(emptyClass, true);
 
                 var expectedMethods = new List<InternalClassNode>() { new InternalClassNode("TestMethod", InternalClassNodeType.Function) };
                 var expectedVariables = new List<InternalClassNode>() { new InternalClassNode("Field", InternalClassNodeType.Variable) };
@@ -75,11 +75,11 @@ namespace Maestro.Core.Tests
 
             using (var mock = AutoMock.GetLoose())
             {
-                var instance = mock.Create<BigClassHelper>();
-                var componentsFinder = mock.Create<ConnectedComponentsFinder>();
+                var instance = mock.Create<InternalClassGraphGenerator>();
+                var componentsFinder = mock.Create<InternalClassGraphAnalyzer>();
 
-                var result = instance.CreateDiagram(emptyClass, false);
-                var components = componentsFinder.Find(result);
+                var result = instance.CreateGraph(emptyClass, false);
+                var components = componentsFinder.FindConnectedComponents(result);
 
                 Assert.AreEqual(2, components.Count);
                 Assert.AreEqual(2, components[0].Nodes.Count);

@@ -7,9 +7,12 @@ using System.Linq;
 
 namespace Maestro.Core
 {
-    public class BigClassHelper
+    /// <summary>
+    /// Diagrams the relationships between variables and functions inside of a class
+    /// </summary>
+    public class InternalClassGraphGenerator
     {
-        public InternalClassGraph CreateDiagram(string csFileWithClass, bool isDirectedGraph)
+        public InternalClassGraph CreateGraph(string csFileWithClass, bool isDirectedGraph)
         {
             var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
             var root = tree.GetCompilationUnitRoot();

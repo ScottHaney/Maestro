@@ -1,2 +1,2 @@
 # Maestro
-Software Design Tools
+A set of code analysis tools for managing software design problems

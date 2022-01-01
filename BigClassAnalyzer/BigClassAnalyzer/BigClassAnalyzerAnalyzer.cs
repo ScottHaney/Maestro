@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Maestro.Core;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -38,16 +39,17 @@ namespace BigClassAnalyzer
 
         private static void AnalyzeSymbol(SymbolAnalysisContext context)
         {
-            // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
-            var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
-
-            // Find just those named type symbols with names containing lowercase letters.
-            if (namedTypeSymbol.Name.ToCharArray().Any(char.IsLower))
+            if (context.Symbol.Kind == SymbolKind.NamedType)
             {
-                // For all such symbols, produce a diagnostic.
-                var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+                var bigClassHelper = new BigClassHelper();
+                var internalClassDiagram = bigClassHelper.CreateDiagram("", false);
 
-                context.ReportDiagnostic(diagnostic);
+                var components = new ConnectedComponentsFinder().Find(internalClassDiagram);
+                if (components.Count > 1)
+                {
+                    var diagnostic = Diagnostic.Create(Rule, context.Symbol.Locations.First());
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
         }
     }

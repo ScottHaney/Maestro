@@ -35,9 +35,12 @@ namespace Maestro.Core
             return CreateGraph(root, isDirectedGraph);
         }
 
-        private IEnumerable<InternalClassNode> GetVariableNodes(SyntaxNode root)
+        private IEnumerable<InternalClassNode> GetVariableNodes(SyntaxNode node)
         {
-            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var classNode = GetClassDeclaration(node);
+            if (classNode == null)
+                yield break;
+
             var fields = classNode.ChildNodes().OfType<FieldDeclarationSyntax>();
 
             foreach (var field in fields)
@@ -47,9 +50,12 @@ namespace Maestro.Core
             }
         }
 
-        private Dictionary<InternalClassNode, List<InternalClassNode>> GetFunctionNodes(SyntaxNode root, List<InternalClassNode> variableNodes)
+        private Dictionary<InternalClassNode, List<InternalClassNode>> GetFunctionNodes(SyntaxNode node, List<InternalClassNode> variableNodes)
         {
-            var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
+            var classNode = GetClassDeclaration(node);
+            if (classNode == null)
+                return new Dictionary<InternalClassNode, List<InternalClassNode>>();
+
             var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();
 
             var result = new Dictionary<InternalClassNode, List<InternalClassNode>>();
@@ -62,6 +68,14 @@ namespace Maestro.Core
             }
 
             return result;
+        }
+
+        private ClassDeclarationSyntax GetClassDeclaration(SyntaxNode node)
+        {
+            if (node is ClassDeclarationSyntax classDecl)
+                return classDecl;
+            else
+                return node.ChildNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         }
 
         private IEnumerable<InternalClassNode> GetReferencedVariables(MethodDeclarationSyntax method, IEnumerable<InternalClassNode> nodes)

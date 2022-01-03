@@ -19,7 +19,7 @@ namespace BigClassAnalyzer.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod, Ignore]
+        [TestMethod]
         public async Task TestMethod2()
         {
             var test = @"
@@ -47,12 +47,20 @@ namespace BigClassAnalyzer.Test
 
     namespace ConsoleApplication1
     {
-        class TYPENAME
-        {   
+        class BigClass
+        {
+            private readonly int field1;
+            private readonly int field2;
+
+            public int Method1()
+                => field1 + 1;
+
+            public int Method2()
+                => field2 + 1;
         }
     }";
 
-            var expected = VerifyCS.Diagnostic("BigClassAnalyzer").WithLocation(0).WithArguments("TypeName");
+            var expected = VerifyCS.Diagnostic("BigClassAnalyzer").WithLocation(0).WithArguments("BigClass");
             await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
         }
     }

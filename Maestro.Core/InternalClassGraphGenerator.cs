@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
@@ -12,13 +13,10 @@ namespace Maestro.Core
     /// </summary>
     public class InternalClassGraphGenerator
     {
-        public InternalClassGraph CreateGraph(string csFileWithClass, bool isDirectedGraph)
+        public InternalClassGraph CreateGraph(SyntaxNode node, bool isDirectedGraph)
         {
-            var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
-            var root = tree.GetCompilationUnitRoot();
-
-            var variables = GetVariableNodes(root).ToList();
-            var methodsMap = GetFunctionNodes(root, variables);
+            var variables = GetVariableNodes(node).ToList();
+            var methodsMap = GetFunctionNodes(node, variables);
 
             var allNodes = variables.Concat(methodsMap.Keys).ToList();
             var builder = new InternalClassGraphBuilder(allNodes, isDirectedGraph);
@@ -29,7 +27,15 @@ namespace Maestro.Core
             return builder.Build();
         }
 
-        private IEnumerable<InternalClassNode> GetVariableNodes(CompilationUnitSyntax root)
+        public InternalClassGraph CreateGraph(string csFileWithClass, bool isDirectedGraph)
+        {
+            var tree = CSharpSyntaxTree.ParseText(csFileWithClass);
+            var root = tree.GetCompilationUnitRoot();
+
+            return CreateGraph(root, isDirectedGraph);
+        }
+
+        private IEnumerable<InternalClassNode> GetVariableNodes(SyntaxNode root)
         {
             var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
             var fields = classNode.ChildNodes().OfType<FieldDeclarationSyntax>();
@@ -41,7 +47,7 @@ namespace Maestro.Core
             }
         }
 
-        private Dictionary<InternalClassNode, List<InternalClassNode>> GetFunctionNodes(CompilationUnitSyntax root, List<InternalClassNode> variableNodes)
+        private Dictionary<InternalClassNode, List<InternalClassNode>> GetFunctionNodes(SyntaxNode root, List<InternalClassNode> variableNodes)
         {
             var classNode = root.ChildNodes().OfType<ClassDeclarationSyntax>().Single();
             var methods = classNode.ChildNodes().OfType<MethodDeclarationSyntax>();

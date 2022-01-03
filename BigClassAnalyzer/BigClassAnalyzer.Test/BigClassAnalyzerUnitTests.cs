@@ -19,7 +19,7 @@ namespace BigClassAnalyzer.Test
         }
 
         //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
+        [TestMethod, Ignore]
         public async Task TestMethod2()
         {
             var test = @"

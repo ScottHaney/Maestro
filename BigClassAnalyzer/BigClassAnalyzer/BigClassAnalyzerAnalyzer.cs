@@ -34,29 +34,20 @@ namespace BigClassAnalyzer
 
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
             // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.ClassDeclaration);
         }
 
-        private static void AnalyzeSymbol(SymbolAnalysisContext context)
+        private static void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
-            if (context.Symbol.Kind == SymbolKind.NamedType)
+            var bigClassHelper = new InternalClassGraphGenerator();
+            var internalClassDiagram = bigClassHelper.CreateGraph(context.Node, false);
+
+            var components = new InternalClassGraphAnalyzer().FindConnectedComponents(internalClassDiagram);
+            if (components.Count > 1)
             {
-                var bigClassHelper = new InternalClassGraphGenerator();
-                var internalClassDiagram = bigClassHelper.CreateGraph(GetCodeText(context.Symbol), false);
-
-                var components = new InternalClassGraphAnalyzer().FindConnectedComponents(internalClassDiagram);
-                if (components.Count > 1)
-                {
-                    var diagnostic = Diagnostic.Create(Rule, context.Symbol.Locations.First());
-                    context.ReportDiagnostic(diagnostic);
-                }
+                var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation());
+                context.ReportDiagnostic(diagnostic);
             }
-        }
-
-        private static string GetCodeText(ISymbol symbol)
-        {
-            //TO DO: Figure out how to pass in the symbol to the big class helper rather than get the text, will figure this out next...
-            throw new NotImplementedException();
         }
     }
 }

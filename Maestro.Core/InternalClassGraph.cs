@@ -48,6 +48,58 @@ namespace Maestro.Core
         }
     }
 
+    public class InternalClassNodePair : IEquatable<InternalClassNodePair>
+    {
+        public readonly InternalClassNode Node1;
+        public readonly InternalClassNode Node2;
+
+        public InternalClassNodePair(InternalClassNode node1,
+            InternalClassNode node2)
+        {
+            Node1 = node1;
+            Node2 = node2;
+        }
+
+        public static bool operator==(InternalClassNodePair lhs, InternalClassNodePair rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(InternalClassNodePair lhs, InternalClassNodePair rhs)
+            => !(lhs == rhs);
+
+        public bool Equals(InternalClassNodePair other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            var hash = new HashSet<InternalClassNode>() { Node1, Node2 };
+            if (hash.Contains(other.Node1))
+                hash.Remove(other.Node1);
+            else
+                return false;
+
+            return hash.Contains(other.Node2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassNodePair);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Node1.GetHashCode() + Node2.GetHashCode();
+            }
+        }
+    }
+
+
     public class InternalClassNode : IEquatable<InternalClassNode>
     {
         public readonly string Name;

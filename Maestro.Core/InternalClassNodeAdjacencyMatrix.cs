@@ -14,6 +14,18 @@ namespace Maestro.Core
             _map = map;
         }
 
+        public IEnumerable<InternalClassNodePair> GetEdges()
+        {
+            var hash = new HashSet<InternalClassNodePair>();
+            foreach (var pair in _map)
+            {
+                foreach (var value in pair.Value)
+                    hash.Add(new InternalClassNodePair(pair.Key, value));
+            }
+
+            return hash;
+        }
+
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
             if (_map.TryGetValue(node, out var matches))

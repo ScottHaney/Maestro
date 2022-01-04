@@ -14,16 +14,25 @@ namespace Maestro.Core
             _map = map;
         }
 
-        public IEnumerable<InternalClassNodePair> GetEdges()
+        public IEnumerable<InternalClassNodePair> GetEdges(int minDegree)
         {
             var hash = new HashSet<InternalClassNodePair>();
             foreach (var pair in _map)
             {
                 foreach (var value in pair.Value)
-                    hash.Add(new InternalClassNodePair(pair.Key, value));
+                {
+                    var nodePair = new InternalClassNodePair(pair.Key, value);
+                    if (GetDegree(nodePair) >= minDegree)
+                        hash.Add(new InternalClassNodePair(pair.Key, value));
+                }
             }
 
             return hash;
+        }
+
+        private int GetDegree(InternalClassNodePair pair)
+        {
+            return Math.Min(_map[pair.Node1].Count, _map[pair.Node2].Count);
         }
 
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)

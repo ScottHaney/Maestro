@@ -1,4 +1,5 @@
-﻿using Maestro.Core;
+﻿using Autofac;
+using Maestro.Core;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -39,14 +40,17 @@ namespace BigClassAnalyzer
 
         private static void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
-            var bigClassHelper = new InternalClassGraphGenerator();
-            var internalClassDiagram = bigClassHelper.CreateGraph(context.Node, false);
-
-            var components = new InternalClassGraphAnalyzer().FindConnectedComponents(internalClassDiagram);
-            if (components.Count > 1)
+            using (var scope = CompositionRoot.Create())
             {
-                var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation());
-                context.ReportDiagnostic(diagnostic);
+                var bigClassHelper = scope.Resolve<InternalClassGraphGenerator>();
+                var internalClassDiagram = bigClassHelper.CreateGraph(context.Node, false);
+
+                var components = scope.Resolve<InternalClassGraphAnalyzer>().FindConnectedComponents(internalClassDiagram);
+                if (components.Count > 1)
+                {
+                    var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
         }
     }

@@ -16,6 +16,11 @@ namespace Maestro.Core
             _adjacencyMatrix = adjacencyMatrix;
         }
 
+        public IEnumerable<InternalClassNodePair> GetEdges()
+        {
+            return _adjacencyMatrix.GetEdges();
+        }
+
         public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
             return _adjacencyMatrix.GetNeighbors(node);

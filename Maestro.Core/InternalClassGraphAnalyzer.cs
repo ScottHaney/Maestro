@@ -21,7 +21,7 @@ namespace Maestro.Core
                 var nextVisitedSet = new HashSet<InternalClassNode>();
                 DFS(graph, graph.Nodes.First(x => !allVisitedNodes.Contains(x)), nextVisitedSet);
 
-                result.Add(new GraphComponent(nextVisitedSet.ToList()));
+                result.Add(new GraphComponent(nextVisitedSet));
                 allVisitedNodes.UnionWith(nextVisitedSet);
             }
 
@@ -39,13 +39,50 @@ namespace Maestro.Core
         }
     }
 
-    public class GraphComponent
+    public class GraphComponent : IEquatable<GraphComponent>
     {
-        public readonly List<InternalClassNode> Nodes;
+        public readonly HashSet<InternalClassNode> Nodes;
 
-        public GraphComponent(List<InternalClassNode> nodes)
+        public GraphComponent(HashSet<InternalClassNode> nodes)
         {
             Nodes = nodes;
+        }
+
+        public static bool operator==(GraphComponent lhs, GraphComponent rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(GraphComponent lhs, GraphComponent rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public bool Equals(GraphComponent other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            return Nodes.Count == other.Nodes.Count
+                && Nodes.All(x => other.Nodes.Contains(x));
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as GraphComponent);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Nodes.Count == 0
+                    ? 0
+                    : Nodes.Sum(x => x.GetHashCode());
+            }
         }
     }
 }

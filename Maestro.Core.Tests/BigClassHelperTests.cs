@@ -82,8 +82,7 @@ namespace Maestro.Core.Tests
                 var components = componentsFinder.FindConnectedComponents(result);
 
                 Assert.AreEqual(2, components.Count);
-                Assert.AreEqual(2, components[0].Nodes.Count);
-                Assert.AreEqual(2, components[1].Nodes.Count);
+                Assert.IsTrue(components.Items.All(x => x.Nodes.Count == 2));
             }
         }
     }

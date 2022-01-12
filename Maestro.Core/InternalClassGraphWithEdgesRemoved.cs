@@ -5,25 +5,25 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    public class InternalClassGraphWithEdgesRemoved : IInternalClassGraph
+    public class InternalClassGraphWithEdgesRemoved : BaseInternalClassGraph
     {
-        private readonly IInternalClassGraph _wrappedClassGraph;
+        private readonly BaseInternalClassGraph _wrappedClassGraph;
         private readonly HashSet<InternalClassNodePair> _removedEdges;
 
-        public InternalClassGraphWithEdgesRemoved(IInternalClassGraph wrappedClassGraph,
+        public InternalClassGraphWithEdgesRemoved(BaseInternalClassGraph wrappedClassGraph,
             HashSet<InternalClassNodePair> removedEdges)
         {
             _wrappedClassGraph = wrappedClassGraph;
             _removedEdges = removedEdges;
         }
 
-        public IEnumerable<InternalClassNodePair> GetEdges()
+        public override IEnumerable<InternalClassNodePair> GetEdges()
         {
             return _wrappedClassGraph.GetEdges()
                 .Where(x => !_removedEdges.Contains(x));
         }
 
-        public IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
+        public override IEnumerable<InternalClassNode> GetNeighbors(InternalClassNode node)
         {
             foreach (var neighbor in _wrappedClassGraph.GetNeighbors(node))
             {

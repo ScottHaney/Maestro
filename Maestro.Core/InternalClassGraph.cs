@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    public class InternalClassGraph : IEquatable<InternalClassGraph>
+    public class InternalClassGraph : IInternalClassGraph, IEquatable<InternalClassGraph>
     {
         public readonly List<InternalClassNode> Nodes;
         private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;

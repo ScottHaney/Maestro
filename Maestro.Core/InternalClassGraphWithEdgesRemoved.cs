@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Maestro.Core
 {
-    public class InternalClassGraphWithEdgesRemoved : BaseInternalClassGraph
+    public class InternalClassGraphWithEdgesRemoved : BaseInternalClassGraph, IEquatable<InternalClassGraphWithEdgesRemoved>
     {
         private readonly BaseInternalClassGraph _wrappedClassGraph;
         private readonly HashSet<InternalClassNodePair> _removedEdges;
@@ -30,6 +30,55 @@ namespace Maestro.Core
                 var edge = new InternalClassNodePair(neighbor, node);
                 if (!_removedEdges.Contains(edge))
                     yield return neighbor;
+            }
+        }
+
+        public static bool operator==(InternalClassGraphWithEdgesRemoved lhs, InternalClassGraphWithEdgesRemoved rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(InternalClassGraphWithEdgesRemoved lhs, InternalClassGraphWithEdgesRemoved rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public bool Equals(InternalClassGraphWithEdgesRemoved other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            var thisEdges = new HashSet<InternalClassNodePair>(GetEdges());
+            var otherEdges = new HashSet<InternalClassNodePair>(other.GetEdges());
+
+            if (thisEdges.Count != otherEdges.Count)
+                return false;
+
+            return thisEdges.All(x => otherEdges.Contains(x));
+        }
+
+        public override bool Equals(BaseInternalClassGraph other)
+        {
+            return Equals(other as InternalClassGraphWithEdgesRemoved);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as InternalClassGraphWithEdgesRemoved);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var sum = 0;
+                foreach (var edge in GetEdges())
+                    sum += edge.GetHashCode();
+
+                return sum;
             }
         }
     }

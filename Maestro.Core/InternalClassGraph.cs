@@ -26,6 +26,11 @@ namespace Maestro.Core
             return _adjacencyMatrix.GetNeighbors(node);
         }
 
+        public override bool Equals(BaseInternalClassGraph other)
+        {
+            return Equals(other as InternalClassGraph);
+        }
+
         public bool Equals(InternalClassGraph other)
         {
             if (ReferenceEquals(other, null))

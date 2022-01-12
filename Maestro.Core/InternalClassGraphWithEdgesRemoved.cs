@@ -10,6 +10,8 @@ namespace Maestro.Core
         private readonly BaseInternalClassGraph _wrappedClassGraph;
         private readonly HashSet<InternalClassNodePair> _removedEdges;
 
+        public override List<InternalClassNode> Nodes => _wrappedClassGraph.Nodes;
+
         public InternalClassGraphWithEdgesRemoved(BaseInternalClassGraph wrappedClassGraph,
             HashSet<InternalClassNodePair> removedEdges)
         {

@@ -6,6 +6,8 @@ namespace Maestro.Core
 {
     public abstract class BaseInternalClassGraph : IEquatable<BaseInternalClassGraph>
     {
+        public abstract List<InternalClassNode> Nodes { get; }
+
         public abstract bool Equals(BaseInternalClassGraph other);
 
         public abstract IEnumerable<InternalClassNodePair> GetEdges();

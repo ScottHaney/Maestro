@@ -6,7 +6,7 @@ namespace Maestro.Core
 {
     public class InternalClassGraph : BaseInternalClassGraph, IEquatable<InternalClassGraph>
     {
-        public readonly List<InternalClassNode> Nodes;
+        public override List<InternalClassNode> Nodes { get; }
         private readonly InternalClassNodeAdjacencyMatrix _adjacencyMatrix;
 
         public InternalClassGraph(List<InternalClassNode> nodes,

@@ -11,7 +11,7 @@ namespace Maestro.Core
     /// </summary>
     public class InternalClassGraphAnalyzer
     {
-        public ConnectedComponents FindConnectedComponents(InternalClassGraph graph)
+        public ConnectedComponents FindConnectedComponents(BaseInternalClassGraph graph)
         {
             var result = new List<GraphComponent>();
 
@@ -28,7 +28,7 @@ namespace Maestro.Core
             return new ConnectedComponents(result);
         }
 
-        private void DFS(InternalClassGraph graph, InternalClassNode startNode, HashSet<InternalClassNode> visitedNodes)
+        private void DFS(BaseInternalClassGraph graph, InternalClassNode startNode, HashSet<InternalClassNode> visitedNodes)
         {
             visitedNodes.Add(startNode);
             foreach (var node in graph.GetNeighbors(startNode))

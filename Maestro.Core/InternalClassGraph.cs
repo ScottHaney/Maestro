@@ -65,6 +65,11 @@ namespace Maestro.Core
             Node2 = node2;
         }
 
+        public bool HasNode(InternalClassNode node)
+        {
+            return node == Node1 || node == Node2;
+        }
+
         public static bool operator==(InternalClassNodePair lhs, InternalClassNodePair rhs)
         {
             if (ReferenceEquals(lhs, null))

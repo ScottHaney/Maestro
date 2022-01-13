@@ -28,6 +28,21 @@ namespace Maestro.Core
             return new ConnectedComponents(result);
         }
 
+        private IEnumerable<ConnectedComponents> FindConnectedComponentsWithSingleCut(BaseInternalClassGraph graph)
+        {
+            var result = new HashSet<ConnectedComponents>();
+
+            foreach (var edge in graph.GetEdges())
+            {
+                var updatedGraph = new InternalClassGraphWithEdgesRemoved(graph, new HashSet<InternalClassNodePair>() { edge });
+                var components = FindConnectedComponents(updatedGraph);
+
+                result.Add(components);
+            }
+
+            return result;
+        }
+
         private void DFS(BaseInternalClassGraph graph, InternalClassNode startNode, HashSet<InternalClassNode> visitedNodes)
         {
             visitedNodes.Add(startNode);

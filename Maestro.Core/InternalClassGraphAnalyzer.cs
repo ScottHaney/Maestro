@@ -13,7 +13,7 @@ namespace Maestro.Core
     {
         public ConnectedComponents FindConnectedComponents(BaseInternalClassGraph graph)
         {
-            var result = new List<GraphComponent>();
+            var result = new HashSet<GraphComponent>();
 
             var allVisitedNodes = new HashSet<InternalClassNode>();
             while (allVisitedNodes.Count < graph.Nodes.Count)
@@ -39,16 +39,57 @@ namespace Maestro.Core
         }
     }
 
-    public class ConnectedComponents
+    public class ConnectedComponents : IEquatable<ConnectedComponents>
     {
-        private readonly List<GraphComponent> _components;
+        private readonly HashSet<GraphComponent> _components;
         public IEnumerable<GraphComponent> Items => _components;
 
         public int Count => _components.Count;
 
-        public ConnectedComponents(List<GraphComponent> components)
+        public ConnectedComponents(HashSet<GraphComponent> components)
         {
             _components = components;
+        }
+
+        public static bool operator==(ConnectedComponents lhs, ConnectedComponents rhs)
+        {
+            if (ReferenceEquals(lhs, null))
+                return ReferenceEquals(rhs, null);
+
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator!=(ConnectedComponents lhs, ConnectedComponents rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        public bool Equals(ConnectedComponents other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+
+            if (_components.Count != other._components.Count)
+                return false;
+
+            return _components.All(x => other._components.Contains(x));
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ConnectedComponents);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var sum = 0;
+                foreach (var component in _components)
+                    sum += component.GetHashCode();
+
+                return sum;
+            }
         }
     }
 

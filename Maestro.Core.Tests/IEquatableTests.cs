@@ -12,13 +12,18 @@ namespace Maestro.Core.Tests
         [Test]
         public void InternalClassNode_Equality_Checks()
         {
-            var node1 = new InternalClassNode("node", InternalClassNodeType.Function);
-            var node1IdenticalTwin = new InternalClassNode("node", InternalClassNodeType.Function);
-            var node2 = new InternalClassNode("node", InternalClassNodeType.Variable);
+            RunEqualityChecks(
+                new InternalClassNode("node", InternalClassNodeType.Function),
+                new InternalClassNode("node", InternalClassNodeType.Function),
+                new InternalClassNode("node", InternalClassNodeType.Variable));
+        }
 
-            RunEqualsChecks(node1, node1IdenticalTwin);
-            RunUnequalsChecks(node1, node2);
-            RunGetHashCodeChecks(node1, node1IdenticalTwin, node2);
+        private void RunEqualityChecks<T>(T item, T itemTwin, T differentItem)
+            where T : IEquatable<T>
+        {
+            RunEqualsChecks(item, itemTwin);
+            RunUnequalsChecks(item, differentItem);
+            RunGetHashCodeChecks(item, itemTwin, differentItem);
         }
 
         private void RunEqualsChecks<T>(T lhs, T rhs)

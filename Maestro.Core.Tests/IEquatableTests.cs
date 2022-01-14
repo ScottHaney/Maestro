@@ -1,5 +1,6 @@
 ﻿using Autofac.Extras.Moq;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,11 +23,18 @@ namespace Maestro.Core.Tests
             Assert.IsFalse(node1.Equals((object)node2));
             Assert.IsTrue(node1 != node2);
 
-            //Do these tests to run a check on the GetHashCode implementation
-            var set = new HashSet<InternalClassNode>() { node1, node1IdenticalTwin, node2 };
-            Assert.IsTrue(set.Contains(node1));
-            Assert.IsTrue(set.Contains(node1IdenticalTwin));
-            Assert.IsTrue(set.Contains(node2));
+            RunGetHashCodeChecks(node1, node1IdenticalTwin, node2);
+        }
+
+        private void RunGetHashCodeChecks<T>(params T[] items)
+            where T : IEquatable<T>
+        {
+            var set = new HashSet<T>();
+            foreach (var item in items)
+                set.Add(item);
+
+            foreach (var item in items)
+                Assert.IsTrue(set.Contains(item));
         }
     }
 }

@@ -148,9 +148,11 @@ namespace Maestro.Core
         {
             unchecked
             {
-                return Nodes.Count == 0
-                    ? 0
-                    : Nodes.Sum(x => x.GetHashCode());
+                var result = 0;
+                foreach (var node in Nodes)
+                    result += node.GetHashCode();
+
+                return result;
             }
         }
     }

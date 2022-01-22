@@ -91,13 +91,10 @@ namespace Maestro.Core
             if (ReferenceEquals(other, null))
                 return false;
 
-            var hash = new HashSet<InternalClassNode>() { Node1, Node2 };
-            if (hash.Contains(other.Node1))
-                hash.Remove(other.Node1);
-            else
-                return false;
+            var hash1 = new HashSet<InternalClassNode>() { Node1, Node2 };
+            var hash2 = new HashSet<InternalClassNode>() { other.Node1, other.Node2 };
 
-            return hash.Contains(other.Node2);
+            return hash1.SetEquals(hash2);
         }
 
         public override bool Equals(object obj)

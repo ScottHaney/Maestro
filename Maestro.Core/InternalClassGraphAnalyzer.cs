@@ -84,10 +84,7 @@ namespace Maestro.Core
             if (ReferenceEquals(other, null))
                 return false;
 
-            if (_components.Count != other._components.Count)
-                return false;
-
-            return _components.All(x => other._components.Contains(x));
+            return _components.SetEquals(other._components);
         }
 
         public override bool Equals(object obj)
@@ -135,8 +132,7 @@ namespace Maestro.Core
             if (ReferenceEquals(other, null))
                 return false;
 
-            return Nodes.Count == other.Nodes.Count
-                && Nodes.All(x => other.Nodes.Contains(x));
+            return Nodes.SetEquals(other.Nodes);
         }
 
         public override bool Equals(object obj)

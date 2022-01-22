@@ -56,10 +56,7 @@ namespace Maestro.Core
             var thisEdges = new HashSet<InternalClassNodePair>(GetEdges());
             var otherEdges = new HashSet<InternalClassNodePair>(other.GetEdges());
 
-            if (thisEdges.Count != otherEdges.Count)
-                return false;
-
-            return thisEdges.All(x => otherEdges.Contains(x));
+            return thisEdges.SetEquals(otherEdges);
         }
 
         public override bool Equals(BaseInternalClassGraph other)

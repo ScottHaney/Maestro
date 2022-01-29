@@ -75,11 +75,8 @@ namespace Maestro.Core.Tests
 
             using (var mock = AutoMock.GetLoose())
             {
-                var instance = mock.Create<InternalClassGraphGenerator>();
-                var componentsFinder = mock.Create<InternalClassGraphAnalyzer>();
-
-                var result = instance.CreateGraph(emptyClass, false);
-                var components = componentsFinder.FindConnectedComponents(result);
+                var instance = mock.Create<ClassManager>();
+                var components = instance.FindConnectedComponents(emptyClass);
 
                 Assert.AreEqual(2, components.Count);
                 Assert.IsTrue(components.Items.All(x => x.Nodes.Count == 2));

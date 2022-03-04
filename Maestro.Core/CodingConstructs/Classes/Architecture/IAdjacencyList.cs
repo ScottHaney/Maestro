@@ -4,13 +4,8 @@ using System.Text;
 
 namespace Maestro.Core.CodingConstructs.Classes.Architecture
 {
-    public class Node
+    public interface IAdjacencyList
     {
-        public readonly string Name;
 
-        public Node(string name)
-        {
-            Name = name;
-        }
     }
 }

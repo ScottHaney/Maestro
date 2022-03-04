@@ -8,7 +8,9 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
     public interface IInternalClassGraphBuilder
     {
         void AddNode(VariableNode node);
-        void AddNode(MethodNode node);
+        void AddNode(MethodNode node,
+            VariableNode[] variablesUsed,
+            MethodNode[] methodsCalled);
         IInternalClassGraph Build();
     }
 }

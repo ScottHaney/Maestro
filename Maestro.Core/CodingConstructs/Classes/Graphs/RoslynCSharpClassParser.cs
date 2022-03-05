@@ -12,18 +12,16 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
 {
     public class RoslynCSharpClassParser : ICSharpClassParser
     {
-        private readonly SyntaxNode _classDefinition;
+        private readonly SyntaxNode _classDeclaration;
 
-        public RoslynCSharpClassParser(SyntaxNode rootNode)
+        public RoslynCSharpClassParser(SyntaxNode classDeclaration)
         {
-            _classDefinition = GetClassDeclaration(rootNode);
-            if (_classDefinition == null)
-                throw new Exception("No class definition node was found");
+            _classDeclaration = classDeclaration;
         }
 
         public IEnumerable<string> GetVariableNames()
         {
-            var fields = _classDefinition.ChildNodes().OfType<FieldDeclarationSyntax>();
+            var fields = _classDeclaration.ChildNodes().OfType<FieldDeclarationSyntax>();
 
             foreach (var field in fields)
             {
@@ -34,7 +32,7 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
 
         public IEnumerable<MethodReferences> GetMethodsInfo()
         {
-            var methods = _classDefinition.ChildNodes().OfType<MethodDeclarationSyntax>();
+            var methods = _classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>();
 
             foreach (var method in methods)
             {
@@ -62,14 +60,6 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
             }
 
             return (variablesUsed, methodsCalled);
-        }
-
-        private ClassDeclarationSyntax GetClassDeclaration(SyntaxNode node)
-        {
-            if (node is ClassDeclarationSyntax classDecl)
-                return classDecl;
-            else
-                return node.ChildNodes().OfType<ClassDeclarationSyntax>().FirstOrDefault();
         }
     }
 }

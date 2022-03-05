@@ -9,8 +9,6 @@ namespace Maestro.Core.Tests
 {
     public class BigClassHelperTests
     {
-        
-
         [Test]
         public void Finds_References_To_A_Field_Used_In_A_Method()
         {

@@ -24,7 +24,7 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
             if (classDeclaration == null)
                 throw new Exception($"Could not find a class declaration in \"{nameof(csFileWithClass)}\"");
 
-            return CreateParser(root);
+            return CreateParser(classDeclaration);
         }
 
         private ClassDeclarationSyntax GetClassDeclaration(SyntaxNode node)

@@ -10,8 +10,8 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
     {
         private readonly List<VariableNode> _variables = new List<VariableNode>();
 
-        private readonly Dictionary<MethodNode, MethodNode[]> _methodsCalled = new Dictionary<MethodNode, MethodNode[]>();
-        private readonly Dictionary<MethodNode, VariableNode[]> _variablesUsed = new Dictionary<MethodNode, VariableNode[]>();
+        private readonly Dictionary<MethodNode, List<MethodNode>> _methodsCalled = new Dictionary<MethodNode, List<MethodNode>>();
+        private readonly Dictionary<MethodNode, List<VariableNode>> _variablesUsed = new Dictionary<MethodNode, List<VariableNode>>();
 
         public void AddNode(VariableNode node)
         {
@@ -19,8 +19,8 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
         }
 
         public void AddNode(MethodNode node,
-            VariableNode[] variablesUsed,
-            MethodNode[] methodsCalled)
+            List<VariableNode> variablesUsed,
+            List<MethodNode> methodsCalled)
         {
             _methodsCalled[node] = methodsCalled;
             _variablesUsed[node] = variablesUsed;

@@ -9,8 +9,8 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
     {
         void AddNode(VariableNode node);
         void AddNode(MethodNode node,
-            VariableNode[] variablesUsed,
-            MethodNode[] methodsCalled);
+            List<VariableNode> variablesUsed,
+            List<MethodNode> methodsCalled);
         IInternalClassGraph Build();
     }
 }

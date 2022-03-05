@@ -75,7 +75,10 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
 
             foreach (var variableName in methodReference.ReferencedVariableNames)
             {
-                adjacencyList[methodNode].Add(variablesMap[variableName]);
+                var variableNode = variablesMap[variableName];
+
+                adjacencyList[methodNode].Add(variableNode);
+                adjacencyList[variableNode].Add(methodNode);
             }
 
             foreach (var calledMethodName in methodReference.CalledMethodNames)

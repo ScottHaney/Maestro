@@ -65,6 +65,38 @@ namespace Maestro.Core.Tests
             }
         }
 
+        [Test]
+        public void Single_Method_And_Single_Variable_With_No_References_Between_Them()
+        {
+            var classText = @"public class Test { public readonly int Field; public void TestMethod() { 1; }}";
+
+            using (var mock = AutoMock.GetLoose(cb =>
+            {
+                cb.RegisterType<CSharpClassParserFactory>().As<ICSharpClassParserFactory>();
+                cb.RegisterType<Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraphBuilder>().As<IInternalClassGraphBuilder>();
+            }))
+            {
+                var factory = mock.Create<ICSharpClassParserFactory>();
+                var parser = factory.CreateParser(classText);
+
+                var builder = mock.Create<IInternalClassGraphBuilder>(new TypedParameter(typeof(ICSharpClassParser), parser));
+
+                var actualGraph = builder.Build();
+
+                var methodNode = new CodingConstructs.Classes.Architecture.MethodNode("TestMethod");
+                var variableNode = new CodingConstructs.Classes.Architecture.VariableNode("Field");
+
+                var expectedGraph = new Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraph(
+                    new Dictionary<CodingConstructs.Classes.Architecture.Node, List<CodingConstructs.Classes.Architecture.Node>>()
+                    {
+                        { methodNode, new List<CodingConstructs.Classes.Architecture.Node>() { } },
+                        { variableNode, new List<CodingConstructs.Classes.Architecture.Node>() { } }
+                    });
+
+                Assert.IsTrue(AreTheSameGraph(actualGraph, expectedGraph));
+            }
+        }
+
         private bool AreTheSameGraph(IInternalClassGraph graph1, IInternalClassGraph graph2)
         {
             var nodes1 = graph1.GetNodes().ToDictionary(x => x.Name, x => x);

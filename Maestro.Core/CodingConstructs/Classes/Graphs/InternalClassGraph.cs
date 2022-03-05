@@ -7,16 +7,21 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
 {
     public class InternalClassGraph : IInternalClassGraph
     {
-        private readonly ICollection<Node> _nodes;
+        private readonly Dictionary<Node, List<Node>> _adjacencyList;
 
-        public InternalClassGraph(ICollection<Node> nodes)
+        public InternalClassGraph(Dictionary<Node, List<Node>> adjacencyList)
         {
-            _nodes = nodes;
+            _adjacencyList = adjacencyList;
         }
 
         public IEnumerable<Node> GetNodes()
         {
-            return _nodes;
+            return _adjacencyList.Keys;
+        }
+
+        public IEnumerable<Node> GetNeighbors(Node node)
+        {
+            return _adjacencyList[node];
         }
     }
 }

@@ -5,9 +5,8 @@ using System.Text;
 
 namespace Maestro.Core.CodingConstructs.Classes.Graphs
 {
-    public interface IInternalClassGraph
+    public interface IInternalClassGraphAnalyzer
     {
-        IEnumerable<Node> GetNodes();
-        IEnumerable<Node> GetNeighbors(Node node);
+        List<List<Node>> FindConnectedComponents(IInternalClassGraph graph);
     }
 }

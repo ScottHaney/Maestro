@@ -9,27 +9,7 @@ namespace Maestro.Core.Tests
 {
     public class BigClassHelperTests
     {
-        [Test]
-        public void Returns_Empty_Tree_For_An_Empty_Class()
-        {
-            var emptyClass = @"public class Test {}";
-
-            using (var mock = AutoMock.GetLoose(cb =>
-            {
-                cb.RegisterType<CSharpClassParserFactory>().As<ICSharpClassParserFactory>();
-                cb.RegisterType<Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraphBuilder>().As<IInternalClassGraphBuilder>();
-            }))
-            {
-                var factory = mock.Create<ICSharpClassParserFactory>();
-                var parser = factory.CreateParser(emptyClass);
-
-                var builder = mock.Create<IInternalClassGraphBuilder>(new TypedParameter(typeof(ICSharpClassParser), parser));
-
-                var graph = builder.Build();
-
-                Assert.AreEqual(0, graph.GetNodes().Count());
-            }
-        }
+        
 
         [Test]
         public void Finds_References_To_A_Field_Used_In_A_Method()

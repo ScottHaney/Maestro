@@ -1,5 +1,4 @@
-﻿using Maestro.Core.CodingConstructs.Classes.Architecture;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 

@@ -1,4 +1,4 @@
-﻿using Maestro.Core.CodingConstructs.Classes.Architecture;
+﻿using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

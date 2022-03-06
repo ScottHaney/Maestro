@@ -1,4 +1,4 @@
-﻿using Maestro.Core.CodingConstructs.Classes.Architecture;
+﻿using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Linq;

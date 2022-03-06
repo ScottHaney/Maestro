@@ -10,4 +10,8 @@
     <PackageReference Include="morelinq" Version="3.3.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CodingConstructs\Classes\Architecture\" />
+  </ItemGroup>
+
 </Project>

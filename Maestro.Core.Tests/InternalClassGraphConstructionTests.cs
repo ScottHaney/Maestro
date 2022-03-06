@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Extras.Moq;
 using Maestro.Core.CodingConstructs.Classes.Graphs;
+using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -51,14 +52,14 @@ namespace Maestro.Core.Tests
 
                 var actualGraph = builder.Build();
 
-                var methodNode = new CodingConstructs.Classes.Architecture.MethodNode("TestMethod");
-                var variableNode = new CodingConstructs.Classes.Architecture.VariableNode("Field");
+                var methodNode = new MethodNode("TestMethod");
+                var variableNode = new VariableNode("Field");
 
-                var expectedGraph = new Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraph(
-                    new Dictionary<CodingConstructs.Classes.Architecture.Node, List<CodingConstructs.Classes.Architecture.Node>>()
+                var expectedGraph = new InternalClassGraph(
+                    new Dictionary<Node, List<Node>>()
                     {
-                        { methodNode, new List<CodingConstructs.Classes.Architecture.Node>() { variableNode } },
-                        { variableNode, new List<CodingConstructs.Classes.Architecture.Node>() { methodNode } }
+                        { methodNode, new List<Node>() { variableNode } },
+                        { variableNode, new List<Node>() { methodNode } }
                     });
 
                 Assert.IsTrue(AreTheSameGraph(actualGraph, expectedGraph));
@@ -83,14 +84,14 @@ namespace Maestro.Core.Tests
 
                 var actualGraph = builder.Build();
 
-                var methodNode = new CodingConstructs.Classes.Architecture.MethodNode("TestMethod");
-                var variableNode = new CodingConstructs.Classes.Architecture.VariableNode("Field");
+                var methodNode = new MethodNode("TestMethod");
+                var variableNode = new VariableNode("Field");
 
-                var expectedGraph = new Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraph(
-                    new Dictionary<CodingConstructs.Classes.Architecture.Node, List<CodingConstructs.Classes.Architecture.Node>>()
+                var expectedGraph = new InternalClassGraph(
+                    new Dictionary<Node, List<Node>>()
                     {
-                        { methodNode, new List<CodingConstructs.Classes.Architecture.Node>() { } },
-                        { variableNode, new List<CodingConstructs.Classes.Architecture.Node>() { } }
+                        { methodNode, new List<Node>() { } },
+                        { variableNode, new List<Node>() { } }
                     });
 
                 Assert.IsTrue(AreTheSameGraph(actualGraph, expectedGraph));

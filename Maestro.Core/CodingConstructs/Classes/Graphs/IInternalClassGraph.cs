@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Maestro.Core.CodingConstructs.Classes.Graphs
 {
+    /// <summary>
+    /// Graph where methods/fields are nodes and edges created whenever a method uses a field or calls another method.
+    /// </summary>
     public interface IInternalClassGraph
     {
         IEnumerable<Node> GetNodes();

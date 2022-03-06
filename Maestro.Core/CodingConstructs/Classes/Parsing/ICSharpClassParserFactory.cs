@@ -7,7 +7,7 @@ namespace Maestro.Core.CodingConstructs.Classes.Parsing
 {
     public interface ICSharpClassParserFactory
     {
-        ICSharpClassParser CreateParser(SyntaxNode node);
+        ICSharpClassParser CreateParser(SyntaxNode classDefinition);
 
         ICSharpClassParser CreateParser(string csFileWithClass);
     }

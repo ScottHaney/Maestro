@@ -1,6 +1,8 @@
 ﻿using Autofac;
 using Maestro.Core;
+using Maestro.Core.CodingConstructs.Classes;
 using Maestro.Core.CodingConstructs.Classes.Graphs;
+using Maestro.Core.CodingConstructs.Classes.Parsing;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

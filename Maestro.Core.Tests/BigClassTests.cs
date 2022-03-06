@@ -1,6 +1,8 @@
 using Autofac;
 using Autofac.Extras.Moq;
+using Maestro.Core.CodingConstructs.Classes;
 using Maestro.Core.CodingConstructs.Classes.Graphs;
+using Maestro.Core.CodingConstructs.Classes.Parsing;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;

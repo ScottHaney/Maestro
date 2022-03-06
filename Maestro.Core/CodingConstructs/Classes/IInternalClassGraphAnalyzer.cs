@@ -1,9 +1,10 @@
-﻿using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
+﻿using Maestro.Core.CodingConstructs.Classes.Graphs;
+using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Maestro.Core.CodingConstructs.Classes.Graphs
+namespace Maestro.Core.CodingConstructs.Classes
 {
     public interface IInternalClassGraphAnalyzer
     {

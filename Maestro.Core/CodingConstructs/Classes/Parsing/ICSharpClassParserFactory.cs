@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Maestro.Core.CodingConstructs.Classes.Graphs
+namespace Maestro.Core.CodingConstructs.Classes.Parsing
 {
     public interface ICSharpClassParserFactory
     {

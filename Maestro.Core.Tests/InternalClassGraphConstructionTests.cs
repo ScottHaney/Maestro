@@ -2,6 +2,7 @@
 using Autofac.Extras.Moq;
 using Maestro.Core.CodingConstructs.Classes.Graphs;
 using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
+using Maestro.Core.CodingConstructs.Classes.Parsing;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

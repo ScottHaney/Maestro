@@ -54,7 +54,10 @@ namespace BigClassAnalyzer
 
             if (components.Count > 1)
             {
-                var diagnostic = Diagnostic.Create(Rule, context.Node.GetLocation());
+                //Underline only the class name rather than the entire class to make it look cleaner
+                var className = context.Node.ChildTokens().First(x => x.IsKind(SyntaxKind.IdentifierToken));
+
+                var diagnostic = Diagnostic.Create(Rule, className.GetLocation());
                 context.ReportDiagnostic(diagnostic);
             }
         }

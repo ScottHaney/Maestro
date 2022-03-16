@@ -16,7 +16,8 @@ using System.Threading.Tasks;
 namespace BigClassAnalyzer
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(BigClassAnalyzerCodeFixProvider)), Shared]
-    public class BigClassAnalyzerCodeFixProvider : CodeFixProvider
+    public class
+        BigClassAnalyzerCodeFixProvider : CodeFixProvider
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
@@ -47,6 +48,20 @@ namespace BigClassAnalyzer
                     createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
+        }
+
+        private async Task<Solution> DecomposeClass(Document document,
+            SyntaxNode syntaxTreeRoot,
+            SyntaxToken classNameToken,
+            CancellationToken cancellationToken)
+        {
+            var result = document.Project.Solution;
+            if (cancellationToken.IsCancellationRequested)
+                return result;
+
+            var classDeclaration = classNameToken.Parent;
+
+            return result;
         }
 
         private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)

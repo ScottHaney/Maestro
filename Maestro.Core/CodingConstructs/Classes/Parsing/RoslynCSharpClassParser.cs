@@ -30,27 +30,27 @@ namespace Maestro.Core.CodingConstructs.Classes.Parsing
             }
         }
 
-        public IEnumerable<MethodReferences> GetMethodsInfo()
+        public IEnumerable<MethodReferences> GetMethodsInfo(HashSet<string> fieldNames)
         {
             var methods = _classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>();
 
             foreach (var method in methods)
             {
                 var methodNode = new MethodNode(method.Identifier.ValueText);
-                var refs = GetNodesReferencedBy(method);
+                var refs = GetNodesReferencedBy(method, fieldNames);
 
                 yield return new MethodReferences(method.Identifier.ValueText, refs.VariablesUsed, refs.MethodsCalled);
             }
         }
 
-        private (List<string> VariablesUsed, List<string> MethodsCalled) GetNodesReferencedBy(MethodDeclarationSyntax method)
+        private (List<string> VariablesUsed, List<string> MethodsCalled) GetNodesReferencedBy(MethodDeclarationSyntax method, HashSet<string> fieldNames)
         {
             var variablesUsed = new List<string>();
             var methodsCalled = new List<string>();
 
             foreach (var descendant in method.DescendantNodes())
             {
-                if (descendant is IdentifierNameSyntax variableSyntax)
+                if (descendant is IdentifierNameSyntax variableSyntax && fieldNames.Contains(variableSyntax.Identifier.ValueText))
                     variablesUsed.Add(variableSyntax.Identifier.ValueText);
                 else if (descendant is InvocationExpressionSyntax invocationSyntax)
                 {

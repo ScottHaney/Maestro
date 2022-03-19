@@ -13,7 +13,7 @@ namespace Maestro.Core.CodingConstructs.Classes.Parsing
     {
         IEnumerable<string> GetVariableNames();
 
-        IEnumerable<MethodReferences> GetMethodsInfo();
+        IEnumerable<MethodReferences> GetMethodsInfo(HashSet<string> fieldNames);
     }
 
     public class MethodReferences

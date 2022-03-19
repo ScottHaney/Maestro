@@ -99,6 +99,38 @@ namespace Maestro.Core.Tests
             }
         }
 
+        [Test]
+        public void Correctly_Parses_Class_With_An_External_Method_Call()
+        {
+            var classText = @"public class Test { public readonly int Field; public void TestMethod() { System.Console.WriteLine(""Test""); }}";
+
+            using (var mock = AutoMock.GetLoose(cb =>
+            {
+                cb.RegisterType<CSharpClassParserFactory>().As<ICSharpClassParserFactory>();
+                cb.RegisterType<Maestro.Core.CodingConstructs.Classes.Graphs.InternalClassGraphBuilder>().As<IInternalClassGraphBuilder>();
+            }))
+            {
+                var factory = mock.Create<ICSharpClassParserFactory>();
+                var parser = factory.CreateParser(classText);
+
+                var builder = mock.Create<IInternalClassGraphBuilder>(new TypedParameter(typeof(ICSharpClassParser), parser));
+
+                var actualGraph = builder.Build();
+
+                var methodNode = new MethodNode("TestMethod");
+                var variableNode = new VariableNode("Field");
+
+                var expectedGraph = new InternalClassGraph(
+                    new Dictionary<Node, List<Node>>()
+                    {
+                        { methodNode, new List<Node>() { } },
+                        { variableNode, new List<Node>() { } }
+                    });
+
+                Assert.IsTrue(AreTheSameGraph(actualGraph, expectedGraph));
+            }
+        }
+
         private bool AreTheSameGraph(IInternalClassGraph graph1, IInternalClassGraph graph2)
         {
             var nodes1 = graph1.GetNodes().ToDictionary(x => x.Name, x => x);

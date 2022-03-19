@@ -20,8 +20,10 @@ namespace Maestro.Core.CodingConstructs.Classes.Graphs
         {
             var adjacencyList = new Dictionary<Node, List<Node>>();
 
-            var variablesMap = ProcessVariables(_parser.GetVariableNames(), adjacencyList);
-            ProcessMethods(_parser.GetMethodsInfo(), variablesMap, adjacencyList);
+            var variables = new HashSet<string>(_parser.GetVariableNames());
+            var variablesMap = ProcessVariables(variables, adjacencyList);
+
+            ProcessMethods(_parser.GetMethodsInfo(variables), variablesMap, adjacencyList);
 
             return new InternalClassGraph(adjacencyList);
         }

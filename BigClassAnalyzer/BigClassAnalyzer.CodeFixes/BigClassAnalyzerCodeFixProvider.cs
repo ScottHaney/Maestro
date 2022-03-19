@@ -1,4 +1,8 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Maestro.Core.CodingConstructs.Classes;
+using Maestro.Core.CodingConstructs.Classes.Graphs;
+using Maestro.Core.CodingConstructs.Classes.Graphs.Nodes;
+using Maestro.Core.CodingConstructs.Classes.Parsing;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
@@ -39,29 +43,84 @@ namespace BigClassAnalyzer
             var diagnosticSpan = diagnostic.Location.SourceSpan;
 
             // Find the type declaration identified by the diagnostic.
-            var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
+            var classDeclaration = root.FindToken(diagnosticSpan.Start).Parent
+                .AncestorsAndSelf()
+                .OfType<ClassDeclarationSyntax>().
+                First();
 
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedSolution: c => MakeUppercaseAsync(context.Document, declaration, c),
+                    createChangedSolution: c => DecomposeClass(context.Document, root, classDeclaration, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
         private async Task<Solution> DecomposeClass(Document document,
             SyntaxNode syntaxTreeRoot,
-            SyntaxToken classNameToken,
+            ClassDeclarationSyntax classDeclaration,
             CancellationToken cancellationToken)
         {
             var result = document.Project.Solution;
             if (cancellationToken.IsCancellationRequested)
                 return result;
 
-            var classDeclaration = classNameToken.Parent;
+            var rewriter = new Rewriter(classDeclaration);
+            var updatedRoot = rewriter.Visit(syntaxTreeRoot);
 
-            return result;
+            var updatedDocument = document.WithSyntaxRoot(updatedRoot);
+            return updatedDocument.Project.Solution;
+
+            //var components = GetComponents(classDeclaration);
+
+            //var methodDeclarations = classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>().ToDictionary(x => x.Identifier.ValueText, x => x);
+            //var fieldDeclarations = classDeclaration.ChildNodes().OfType<FieldDeclarationSyntax>().ToDictionary(x => x.Declaration.Variables.Single().Identifier.ValueText, x => x);
+        }
+
+        private class Rewriter : CSharpSyntaxRewriter
+        {
+            private readonly ClassDeclarationSyntax _classToRemove;
+
+            public Rewriter(ClassDeclarationSyntax classToRemove)
+            {
+                _classToRemove = classToRemove;
+            }
+
+            public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
+            {
+                if (node == _classToRemove)
+                {
+                    return null;
+                }
+                else
+                    return base.VisitClassDeclaration(node);
+            }
+        }
+
+        /*private void CreateClass(List<Node> nodes, SyntaxNode classDeclaration, string className)
+        {
+            var fieldNodes = nodes.OfType<VariableNode>().ToList();
+            var methodNodes = nodes.OfType<MethodNode>().ToList();
+
+            var fieldMatches = classDeclaration.ChildNodes().Where(x => x.IsKind(SyntaxKind.FieldDeclaration));
+            var methodMatches = classDeclaration.ChildNodes().Where(x => x.IsKind(SyntaxKind.MethodDeclaration));
+
+            
+        }*/
+
+        private List<List<Node>> GetComponents(SyntaxNode classDeclaration)
+        {
+            var factory = new CSharpClassParserFactory();
+            var parser = factory.CreateParser(classDeclaration);
+
+            var builder = new InternalClassGraphBuilder(parser);
+            var graph = builder.Build();
+
+            var analyzer = new InternalClassGraphAnalyzer();
+            var components = analyzer.FindConnectedComponents(graph);
+
+            return components;
         }
 
         private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)

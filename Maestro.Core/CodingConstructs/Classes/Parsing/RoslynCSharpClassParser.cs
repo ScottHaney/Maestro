@@ -54,7 +54,9 @@ namespace Maestro.Core.CodingConstructs.Classes.Parsing
                     variablesUsed.Add(variableSyntax.Identifier.ValueText);
                 else if (descendant is InvocationExpressionSyntax invocationSyntax)
                 {
-                    throw new NotImplementedException("Need to add code here to figure out the method name");
+                    //TODO - Add code to create the method node here...
+
+                    //throw new NotImplementedException("Need to add code here to figure out the method name");
                     //methodsCalled.Add(new MethodNode());
                 }
             }

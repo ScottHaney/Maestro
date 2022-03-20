@@ -71,30 +71,63 @@ namespace BigClassAnalyzer
 
             var updatedDocument = document.WithSyntaxRoot(updatedRoot);
             return updatedDocument.Project.Solution;
-
-            //var components = GetComponents(classDeclaration);
-
-            //var methodDeclarations = classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>().ToDictionary(x => x.Identifier.ValueText, x => x);
-            //var fieldDeclarations = classDeclaration.ChildNodes().OfType<FieldDeclarationSyntax>().ToDictionary(x => x.Declaration.Variables.Single().Identifier.ValueText, x => x);
         }
 
         private class Rewriter : CSharpSyntaxRewriter
         {
             private readonly ClassDeclarationSyntax _classToRemove;
 
+            private readonly List<List<CSharpSyntaxNode>> _componentsNodes = new List<List<CSharpSyntaxNode>>();
+
             public Rewriter(ClassDeclarationSyntax classToRemove)
             {
                 _classToRemove = classToRemove;
+
+                var methodDeclarations = classToRemove.ChildNodes()
+                .OfType<MethodDeclarationSyntax>()
+                .ToDictionary(x => x.Identifier.ValueText, x => x);
+
+                var fieldDeclarations = classToRemove.ChildNodes()
+                    .OfType<FieldDeclarationSyntax>()
+                    .ToDictionary(x => x.Declaration.Variables.Single().Identifier.ValueText, x => x);
+
+                var components = GetComponents(classToRemove);
+
+                foreach (var component in components)
+                {
+                    var methods = component.OfType<MethodNode>().Select(x => methodDeclarations[x.Name]);
+                    var variables = component.OfType<MethodNode>().Select(x => fieldDeclarations[x.Name]);
+
+                    var syntaxNodes = variables.Cast<CSharpSyntaxNode>().Concat(methods).ToList();
+                    _componentsNodes.Add(syntaxNodes);
+                }
             }
 
             public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
             {
                 if (node == _classToRemove)
                 {
-                    return null;
+                    var newClass = SyntaxFactory.ClassDeclaration("Component1")
+                        .WithMembers(new SyntaxList<MemberDeclarationSyntax>(_componentsNodes.First().OfType<MemberDeclarationSyntax>()));
+
+                    return newClass;
                 }
                 else
                     return base.VisitClassDeclaration(node);
+            }
+
+            private List<List<Node>> GetComponents(SyntaxNode classDeclaration)
+            {
+                var factory = new CSharpClassParserFactory();
+                var parser = factory.CreateParser(classDeclaration);
+
+                var builder = new InternalClassGraphBuilder(parser);
+                var graph = builder.Build();
+
+                var analyzer = new InternalClassGraphAnalyzer();
+                var components = analyzer.FindConnectedComponents(graph);
+
+                return components;
             }
         }
 
@@ -109,19 +142,7 @@ namespace BigClassAnalyzer
             
         }*/
 
-        private List<List<Node>> GetComponents(SyntaxNode classDeclaration)
-        {
-            var factory = new CSharpClassParserFactory();
-            var parser = factory.CreateParser(classDeclaration);
-
-            var builder = new InternalClassGraphBuilder(parser);
-            var graph = builder.Build();
-
-            var analyzer = new InternalClassGraphAnalyzer();
-            var components = analyzer.FindConnectedComponents(graph);
-
-            return components;
-        }
+        
 
         private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)
         {

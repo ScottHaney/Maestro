@@ -111,10 +111,18 @@ namespace BigClassAnalyzer
                     //node of the large class. If we did this at the Visit overload for the class declaration
                     //we could only return a single node so it wouldn't work.
 
-                    var newClass = SyntaxFactory.ClassDeclaration("Component1")
-                        .WithMembers(new SyntaxList<MemberDeclarationSyntax>(_componentsNodes.First().OfType<MemberDeclarationSyntax>()));
+                    var newClasses = new List<SyntaxNode>();
+                    for (int i = 0; i < _componentsNodes.Count; i++)
+                    {
+                        var className = $"Component{i + 1}";
 
-                    return node.ReplaceNode(_classToRemove, newClass);
+                        var newClass = SyntaxFactory.ClassDeclaration(className)
+                            .WithMembers(new SyntaxList<MemberDeclarationSyntax>(_componentsNodes[i].OfType<MemberDeclarationSyntax>()));
+
+                        newClasses.Add(newClass);
+                    }
+
+                    return node.ReplaceNode(_classToRemove, newClasses);
                 }
                 else
                     return base.Visit(node);

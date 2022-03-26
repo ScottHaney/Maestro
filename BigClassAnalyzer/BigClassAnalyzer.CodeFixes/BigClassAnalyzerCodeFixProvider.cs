@@ -96,7 +96,7 @@ namespace BigClassAnalyzer
                 foreach (var component in components)
                 {
                     var methods = component.OfType<MethodNode>().Select(x => methodDeclarations[x.Name]);
-                    var variables = component.OfType<MethodNode>().Select(x => fieldDeclarations[x.Name]);
+                    var variables = component.OfType<VariableNode>().Select(x => fieldDeclarations[x.Name]);
 
                     var syntaxNodes = variables.Cast<CSharpSyntaxNode>().Concat(methods).ToList();
                     _componentsNodes.Add(syntaxNodes);

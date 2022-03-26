@@ -103,17 +103,21 @@ namespace BigClassAnalyzer
                 }
             }
 
-            public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
+            public override SyntaxNode Visit(SyntaxNode node)
             {
-                if (node == _classToRemove)
+                if (node == _classToRemove.Parent)
                 {
+                    //We need to insert one new SyntaxNode for each class so do the update at the parent
+                    //node of the large class. If we did this at the Visit overload for the class declaration
+                    //we could only return a single node so it wouldn't work.
+
                     var newClass = SyntaxFactory.ClassDeclaration("Component1")
                         .WithMembers(new SyntaxList<MemberDeclarationSyntax>(_componentsNodes.First().OfType<MemberDeclarationSyntax>()));
 
-                    return newClass;
+                    return node.ReplaceNode(_classToRemove, newClass);
                 }
                 else
-                    return base.VisitClassDeclaration(node);
+                    return base.Visit(node);
             }
 
             private List<List<Node>> GetComponents(SyntaxNode classDeclaration)

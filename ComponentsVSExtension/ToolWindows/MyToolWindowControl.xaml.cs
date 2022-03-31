@@ -35,7 +35,8 @@ namespace ComponentsVSExtension
                         sb.AppendLine(line.Extent.GetText());
                     }
 
-                    VS.MessageBox.Show("Test", CreateTextToAdd(sb.ToString()));
+                    var lastPosition = docView.TextView.TextViewLines.Last().End.Position;
+                    docView.TextBuffer.Insert(lastPosition - 1, CreateTextToAdd(sb.ToString()));
                 }
             }
         }

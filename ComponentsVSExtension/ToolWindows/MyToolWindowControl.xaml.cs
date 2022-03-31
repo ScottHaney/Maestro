@@ -35,9 +35,31 @@ namespace ComponentsVSExtension
                         sb.AppendLine(line.Extent.GetText());
                     }
 
-                    VS.MessageBox.Show("Text to move", sb.ToString());
+                    VS.MessageBox.Show("Test", CreateTextToAdd(sb.ToString()));
                 }
             }
+        }
+
+        private string CreateTextToAdd(string methodCode)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(@"public interface IComponent
+{
+    void Method();
+}");
+
+            sb.AppendLine();
+
+            sb.AppendLine(@"public class Component : IComponent
+{
+    public void Method()
+    {");
+            sb.Append(methodCode);
+
+            sb.AppendLine(@"    }
+}");
+
+            return sb.ToString();
         }
 
         private int? GetLineNumber(int position,

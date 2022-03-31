@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -16,7 +17,44 @@ namespace ComponentsVSExtension
             var docView = await VS.Documents.GetActiveDocumentViewAsync();
             var selection = docView?.TextView.Selection.SelectedSpans.FirstOrDefault();
 
-            VS.MessageBox.Show("ComponentsVSExtension", selection?.GetText() ?? String.Empty);
+            var _selection = docView?.TextView.Selection;
+
+            if (selection.HasValue)
+            {
+                var startLine = GetLineNumber(selection.Value.Start.Position, docView);
+                var endLine = GetLineNumber(selection.Value.End.Position, docView);
+
+                if (startLine.HasValue && endLine.HasValue)
+                {
+                    var minLine = Math.Min(startLine.Value, endLine.Value);
+                    var maxLine = Math.Max(startLine.Value, endLine.Value);
+
+                    var sb = new StringBuilder();
+                    foreach (var line in docView.TextView.TextViewLines.Skip(minLine).Take(maxLine - minLine + 1))
+                    {
+                        sb.AppendLine(line.Extent.GetText());
+                    }
+
+                    VS.MessageBox.Show("Text to move", sb.ToString());
+                }
+            }
+        }
+
+        private int? GetLineNumber(int position,
+            DocumentView documentView)
+        {
+            var lines = documentView.TextView.TextViewLines;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+
+                var start = line.Start.Position;
+                var end = line.End.Position;
+                if (position >= start && position <= end)
+                    return i;
+            }
+
+            return null;
         }
     }
 }

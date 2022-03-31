@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace ComponentsVSExtension
@@ -10,9 +11,12 @@ namespace ComponentsVSExtension
             InitializeComponent();
         }
 
-        private void button1_Click(object sender, RoutedEventArgs e)
+        private async void button1_Click(object sender, RoutedEventArgs e)
         {
-            VS.MessageBox.Show("ComponentsVSExtension", "Button clicked");
+            var docView = await VS.Documents.GetActiveDocumentViewAsync();
+            var selection = docView?.TextView.Selection.SelectedSpans.FirstOrDefault();
+
+            VS.MessageBox.Show("ComponentsVSExtension", selection?.GetText() ?? String.Empty);
         }
     }
 }

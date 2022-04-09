@@ -35,11 +35,10 @@
             <Label x:Name="lblHeadline"
                    Margin="10"
                    HorizontalAlignment="Center">Title</Label>
-            <Button Content="Click me!"
-                    Click="button1_Click"
+            <Button Content="Update Components"
+                    Command="{Binding Update}"
                     Width="120"
-                    Height="80"
-                    Name="button1" />
+                    Height="80" />
         </StackPanel>
     </Grid>
 </UserControl>

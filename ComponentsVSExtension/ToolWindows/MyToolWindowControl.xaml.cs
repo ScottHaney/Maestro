@@ -17,29 +17,10 @@ namespace ComponentsVSExtension
         {
             InitializeComponent();
 
-            DataContext = new MyToolWindowViewModel();
-        }
+            var vm = new MyToolWindowViewModel();
+            vm.Update = new UpdateCommand(vm);
 
-        private async void button1_Click(object sender, RoutedEventArgs e)
-        {
-            var componentNames = await GetComponentNamesAsync();
-            var viewModel = (MyToolWindowViewModel)DataContext;
-
-            viewModel.Components = new System.Collections.ObjectModel.ObservableCollection<ComponentViewModel>(componentNames.Select(x => new ComponentViewModel() { Name = x }));
-        }
-
-        private async Task<IEnumerable<string>> GetComponentNamesAsync()
-        {
-            var syntaxTree = await VisualStudioWorkspaceUtils.GetActiveDocumentSyntaxTreeAsync();
-
-            if (syntaxTree.TryGetRoot(out var root))
-            {
-                return root.DescendantNodes()
-                    .OfType<ClassDeclarationSyntax>()
-                    .Select(x => x.Identifier.ValueText);
-            }
-
-            return Enumerable.Empty<string>();
+            DataContext = vm;
         }
     }
 }

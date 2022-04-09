@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,9 +15,44 @@ namespace ComponentsVSExtension
             InitializeComponent();
         }
 
-        private async void button1_Click(object sender, RoutedEventArgs e)
+        private async Task<IEnumerable<string>> GetComponentNamesAsync()
+        {
+            var activeDocumentPath = await GetActiveDocumentPath();
+
+            if (activeDocumentPath != null)
+            {
+                var workspace = ComponentsVSExtensionPackage.CurrentWorkspace;
+                var docIds = workspace.CurrentSolution.GetDocumentIdsWithFilePath(activeDocumentPath);
+
+                if (docIds.Count() == 1)
+                {
+                    var docId = docIds.Single();
+                    var document = workspace.CurrentSolution.GetDocument(docId);
+                    var syntaxTree = await document.GetSyntaxTreeAsync();
+
+                    if (syntaxTree.TryGetRoot(out var root))
+                    {
+                        var classDeclarations = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToList();
+                        return classDeclarations.Select(x => x.Identifier.ValueText);
+                    }
+                }
+            }
+
+            return Enumerable.Empty<string>();
+        }
+
+        private async Task<string> GetActiveDocumentPath()
         {
             var docView = await VS.Documents.GetActiveDocumentViewAsync();
+            return docView?.FilePath;
+        }
+
+        private async void button1_Click(object sender, RoutedEventArgs e)
+        {
+            var componentNames = await GetComponentNamesAsync();
+            //MessageBox.Show("Component Names", string.Join(", ", componentNames));
+
+            /*var docView = await VS.Documents.GetActiveDocumentViewAsync();
             var selection = docView?.TextView.Selection.SelectedSpans.FirstOrDefault();
 
             var _selection = docView?.TextView.Selection;
@@ -38,7 +76,7 @@ namespace ComponentsVSExtension
                     var lastPosition = docView.TextView.TextViewLines.Last().End.Position;
                     docView.TextBuffer.Insert(lastPosition - 1, CreateTextToAdd(sb.ToString()));
                 }
-            }
+            }*/
         }
 
         private string CreateTextToAdd(string methodCode)

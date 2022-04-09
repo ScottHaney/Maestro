@@ -50,7 +50,7 @@ namespace ComponentsVSExtension
         private async void button1_Click(object sender, RoutedEventArgs e)
         {
             var componentNames = await GetComponentNamesAsync();
-            //MessageBox.Show("Component Names", string.Join(", ", componentNames));
+            VS.MessageBox.Show("Component Names", string.Join(", ", componentNames));
 
             /*var docView = await VS.Documents.GetActiveDocumentViewAsync();
             var selection = docView?.TextView.Selection.SelectedSpans.FirstOrDefault();

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using ComponentsVSExtension.ToolWindows;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace ComponentsVSExtension
         public MyToolWindowControl()
         {
             InitializeComponent();
+
+            DataContext = new MyToolWindowViewModel();
         }
 
         private async Task<IEnumerable<string>> GetComponentNamesAsync()
@@ -50,7 +53,9 @@ namespace ComponentsVSExtension
         private async void button1_Click(object sender, RoutedEventArgs e)
         {
             var componentNames = await GetComponentNamesAsync();
-            VS.MessageBox.Show("Component Names", string.Join(", ", componentNames));
+            var viewModel = (MyToolWindowViewModel)DataContext;
+
+            viewModel.Components = new System.Collections.ObjectModel.ObservableCollection<ComponentViewModel>(componentNames.Select(x => new ComponentViewModel() { Name = x }));
 
             /*var docView = await VS.Documents.GetActiveDocumentViewAsync();
             var selection = docView?.TextView.Selection.SelectedSpans.FirstOrDefault();

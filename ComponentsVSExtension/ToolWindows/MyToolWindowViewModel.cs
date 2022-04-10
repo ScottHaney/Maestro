@@ -1,12 +1,9 @@
 ﻿using ComponentsVSExtension.Utils;
 using Maestro.Core.Components;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -61,15 +58,8 @@ namespace ComponentsVSExtension.ToolWindows
         private async Task<IEnumerable<ICodeComponent>> GetComponentsAsync()
         {
             var syntaxTree = await VisualStudioWorkspaceUtils.GetActiveDocumentSyntaxTreeAsync();
-
-            if (syntaxTree.TryGetRoot(out var root))
-            {
-                return root.DescendantNodes()
-                    .OfType<ClassDeclarationSyntax>()
-                    .Select(x => new CodeComponent(x.Identifier.ValueText));
-            }
-
-            return Enumerable.Empty<ICodeComponent>();
+            return RoslynHelpers.GetComponents(syntaxTree);
+            
         }
     }
 

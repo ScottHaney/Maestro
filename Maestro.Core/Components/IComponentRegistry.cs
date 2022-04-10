@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Maestro.Core.Components
@@ -26,5 +29,20 @@ namespace Maestro.Core.Components
     public interface IComponentRegistrySource
     {
         IEnumerable<ICodeComponent> GetComponents();
+    }
+
+    public static class RoslynHelpers
+    {
+        public static IEnumerable<ICodeComponent> GetComponents(SyntaxTree syntaxTree)
+        {
+            if (syntaxTree.TryGetRoot(out var root))
+            {
+                return root.DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>()
+                    .Select(x => new CodeComponent(x.Identifier.ValueText));
+            }
+
+            return Enumerable.Empty<ICodeComponent>();
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace Maestro.Core.Tests.TestCsFiles
             var i = 1;
             var j = i + 2;
 
-            Console.WriteLine(j);kl
+            Console.WriteLine(j);
         }
 
     }

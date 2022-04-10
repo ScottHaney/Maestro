@@ -20,7 +20,7 @@ namespace Maestro.Core.Tests
 
             }))
             {
-                var tree = CSharpSyntaxTree.ParseText(classText);
+                var semanticModel = TestUtils.GetSemanticModel(@"TestCsFiles/ExtractMethodTestFile.cs");
             }
         }
     }

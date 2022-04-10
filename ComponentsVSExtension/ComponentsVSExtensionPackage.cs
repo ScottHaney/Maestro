@@ -23,7 +23,7 @@ namespace ComponentsVSExtension
         {
             await this.RegisterCommandsAsync();
 
-            var componentModel =  (IComponentModel)this.GetService(typeof(SComponentModel));
+            var componentModel =  (IComponentModel)(await this.GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
             this.RegisterToolWindows();

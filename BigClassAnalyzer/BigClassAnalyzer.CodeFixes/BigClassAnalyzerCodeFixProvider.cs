@@ -52,12 +52,12 @@ namespace BigClassAnalyzer
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: CodeFixResources.CodeFixTitle,
-                    createChangedSolution: c => DecomposeClass(context.Document, root, classDeclaration, c),
+                    createChangedSolution: c => DecomposeClassAsync(context.Document, root, classDeclaration, c),
                     equivalenceKey: nameof(CodeFixResources.CodeFixTitle)),
                 diagnostic);
         }
 
-        private async Task<Solution> DecomposeClass(Document document,
+        private async Task<Solution> DecomposeClassAsync(Document document,
             SyntaxNode syntaxTreeRoot,
             ClassDeclarationSyntax classDeclaration,
             CancellationToken cancellationToken)

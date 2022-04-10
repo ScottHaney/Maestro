@@ -83,4 +83,18 @@ namespace ComponentsVSExtension.ToolWindows
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
         }
     }
+
+    public class MyToolWindowDesignViewModel
+    {
+        public List<ComponentViewModel> Components { get; set; }
+
+        public MyToolWindowDesignViewModel()
+        {
+            Components = new List<ComponentViewModel>()
+            {
+                new ComponentViewModel() { Name = "Test1" },
+                new ComponentViewModel() { Name = "Test2" }
+            };
+        }
+    }
 }

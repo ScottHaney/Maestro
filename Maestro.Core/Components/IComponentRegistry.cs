@@ -31,6 +31,14 @@ namespace Maestro.Core.Components
         IEnumerable<ICodeComponent> GetComponents();
     }
 
+    public static class ExtractMethodHelper
+    {
+        public static void ExtractMethod(int startLine, int endLine, SemanticModel semanticModel)
+        {
+            var syntaxTree = semanticModel.SyntaxTree;
+        }
+    }
+
     public static class RoslynHelpers
     {
         public static IEnumerable<ICodeComponent> GetComponents(SyntaxTree syntaxTree)

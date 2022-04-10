@@ -109,6 +109,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.0.5232" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Maestro.Core\Maestro.Core.csproj">
+      <Project>{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}</Project>
+      <Name>Maestro.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

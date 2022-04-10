@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +44,12 @@ namespace ComponentsVSExtension.Utils
         {
             var docView = await VS.Documents.GetActiveDocumentViewAsync();
             return docView?.FilePath;
+        }
+
+        public static async Task<SnapshotSpan?> GetCurrentSelectionAsync()
+        {
+            var docView = await VS.Documents.GetActiveDocumentViewAsync();
+            return docView?.TextView.Selection.SelectedSpans.FirstOrDefault();
         }
     }
 }

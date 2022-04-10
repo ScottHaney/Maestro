@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AnalyzerDescription" xml:space="preserve">
-    <value>Finds classes that are really more than one class and breaks them into individual classes</value>
+    <value>Analyzes classes to see if they are composed of smaller units.</value>
   </data>
   <data name="AnalyzerMessageFormat" xml:space="preserve">
     <value>Type name '{0}' is too large, consider breaking up into multiple classes</value>

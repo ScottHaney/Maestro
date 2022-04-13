@@ -27,6 +27,16 @@ namespace Maestro.Core.Tests
             return compilation.GetSemanticModel(syntaxTree);
         }
 
+        public static string GetTestFileText(string relativePath)
+        {
+            var filePath = Path.Combine(GetTestFilesBasePath(), relativePath);
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException(filePath);
+
+            return File.ReadAllText(filePath);
+        }
+
         private static string GetTestFilesBasePath()
         {
             var prefixToRemove = @"file:\";

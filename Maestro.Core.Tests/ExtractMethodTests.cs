@@ -73,17 +73,7 @@ namespace Maestro.Core.Tests
 
         public static SingleTestDocumentWorkspace Create(string testFileRelativePath)
         {
-            var workspace = new AdhocWorkspace();
-
-            string projName = "NewProject";
-            var projectId = ProjectId.CreateNewId();
-            var versionStamp = VersionStamp.Create();
-            var projectInfo = ProjectInfo.Create(projectId, versionStamp, projName, projName, LanguageNames.CSharp);
-            var newProject = workspace.AddProject(projectInfo);
-            var sourceText = SourceText.From(TestUtils.GetTestFileText(testFileRelativePath));
-            workspace.AddDocument(newProject.Id, "NewFile.cs", sourceText);
-
-            return new SingleTestDocumentWorkspace(workspace);
+            return new SingleTestDocumentWorkspace(TestUtils.CreateSingleDocumentWorkspace(testFileRelativePath));
         }
 
         private Project GetProject()

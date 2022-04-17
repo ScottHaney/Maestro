@@ -11,20 +11,19 @@ namespace Maestro.Core.Tests
 {
     public static class TestUtils
     {
-        public static SemanticModel GetSemanticModel(string relativeFilePath)
+        public static Workspace CreateSingleDocumentWorkspace(string testFileRelativePath)
         {
-            var filePath = Path.Combine(GetTestFilesBasePath(), relativeFilePath);
+            var workspace = new AdhocWorkspace();
 
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException(filePath);
+            string projName = "NewProject";
+            var projectId = ProjectId.CreateNewId();
+            var versionStamp = VersionStamp.Create();
+            var projectInfo = ProjectInfo.Create(projectId, versionStamp, projName, projName, LanguageNames.CSharp);
+            var newProject = workspace.AddProject(projectInfo);
+            var sourceText = SourceText.From(TestUtils.GetTestFileText(testFileRelativePath));
+            workspace.AddDocument(newProject.Id, "NewFile.cs", sourceText);
 
-            var syntaxTree = CSharpSyntaxTree.ParseText(File.ReadAllText(filePath));
-
-            var compilation = CSharpCompilation.Create("HelloWorld")
-                .AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location))
-                .AddSyntaxTrees(syntaxTree);
-
-            return compilation.GetSemanticModel(syntaxTree);
+            return workspace;
         }
 
         public static string GetTestFileText(string relativePath)

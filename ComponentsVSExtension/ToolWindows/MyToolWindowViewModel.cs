@@ -37,10 +37,12 @@ namespace ComponentsVSExtension.ToolWindows
         public event EventHandler CanExecuteChanged;
 
         private readonly MyToolWindowViewModel _vm;
+        private readonly WorkspaceComponentRegistry _componentsRegistry;
 
         public UpdateCommand(MyToolWindowViewModel vm)
         {
             _vm = vm;
+            _componentsRegistry = new WorkspaceComponentRegistry(ComponentsVSExtensionPackage.CurrentWorkspace);
         }
 
         public bool CanExecute(object parameter)
@@ -57,9 +59,7 @@ namespace ComponentsVSExtension.ToolWindows
 
         private async Task<IEnumerable<ICodeComponent>> GetComponentsAsync()
         {
-            var syntaxTree = await VisualStudioWorkspaceUtils.GetActiveDocumentSyntaxTreeAsync();
-            return RoslynHelpers.GetComponents(syntaxTree);
-            
+            return await _componentsRegistry.GetComponentsAsync();
         }
     }
 

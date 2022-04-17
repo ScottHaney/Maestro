@@ -8,10 +8,14 @@
 
   <ItemGroup>
     <Compile Remove="TestCsFiles\ExtractMethodTestFile.cs" />
+    <Compile Remove="TestCsFiles\WorkspaceComponentRegistryTestFileThatCompiles.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="TestCsFiles\ExtractMethodTestFile.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestCsFiles\WorkspaceComponentRegistryTestFileThatCompiles.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

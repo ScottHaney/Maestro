@@ -58,7 +58,7 @@ namespace Maestro.VSExtension.ViewModels
         {
             var components = await GetComponentsAsync();
 
-            _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel() { Name = x.Name }));
+            _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel(x)));
         }
 
         private async Task<IEnumerable<ICodeComponent>> GetComponentsAsync()

@@ -37,7 +37,7 @@
                         <TextBlock Text="{Binding Name}"/>
                         <Button Grid.Column="1"
                                 Content="Delete"
-                                Command="{Binding DeleteComponent}"
+                                Command="{Binding Path=DataContext.DeleteComponent, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
                                 CommandParameter="{Binding}"
                                 HorizontalAlignment="Center"></Button>
                     </Grid>

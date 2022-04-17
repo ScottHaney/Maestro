@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Remove="TestCsFiles\ExtractMethodTestFile.cs" />
     <Compile Remove="TestCsFiles\WorkspaceComponentRegistryTestFileThatCompiles.cs" />
+    <Compile Remove="TestCsFiles\WorkspaceComponentRegistryTestFileThatDoesNotCompile.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,6 +17,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="TestCsFiles\WorkspaceComponentRegistryTestFileThatCompiles.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestCsFiles\WorkspaceComponentRegistryTestFileThatDoesNotCompile.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

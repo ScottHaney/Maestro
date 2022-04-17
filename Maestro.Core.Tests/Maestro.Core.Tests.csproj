@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TestCsFiles\DeleteComponentTestFile.cs" />
     <Compile Remove="TestCsFiles\ExtractMethodTestFile.cs" />
     <Compile Remove="TestCsFiles\WorkspaceComponentRegistryTestFileThatCompiles.cs" />
     <Compile Remove="TestCsFiles\WorkspaceComponentRegistryTestFileThatDoesNotCompile.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="TestCsFiles\DeleteComponentTestFile.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestCsFiles\ExtractMethodTestFile.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

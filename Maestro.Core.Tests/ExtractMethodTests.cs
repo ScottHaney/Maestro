@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Maestro.Core.Components;
 
 namespace Maestro.Core.Tests
 {
@@ -54,6 +55,11 @@ namespace Maestro.Core.Tests
         public string GetText()
         {
             return GetDocument().GetTextAsync().Result.ToString();
+        }
+
+        public WorkspaceComponentRegistry GetRegistry()
+        {
+            return new WorkspaceComponentRegistry(_workspace);
         }
 
         public bool TryUpdateSourceCode(string updatedSourceCode)

@@ -32,15 +32,11 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        
+
         <StackPanel Grid.Row="1" Orientation="Vertical">
-            <Label x:Name="lblHeadline"
-                   Margin="10"
-                   HorizontalAlignment="Center">Title</Label>
             <Button Content="Update Components"
                     Command="{Binding Update}"
-                    Width="120"
-                    Height="80" />
+                    HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </UserControl>

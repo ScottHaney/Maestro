@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using TestUtils;
 
 namespace Maestro.Core.Tests
 {

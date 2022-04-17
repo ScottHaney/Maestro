@@ -1,5 +1,5 @@
-﻿using ComponentsVSExtension.ToolWindows;
-using ComponentsVSExtension.Utils;
+﻿using ComponentsVSExtension.Utils;
+using Maestro.VSExtension.ViewModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
@@ -18,7 +18,8 @@ namespace ComponentsVSExtension
             InitializeComponent();
 
             var vm = new MyToolWindowViewModel();
-            vm.Update = new UpdateCommand(vm);
+            vm.Update = new UpdateCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
+            vm.DeleteComponent = new DeleteCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
 
             DataContext = vm;
         }

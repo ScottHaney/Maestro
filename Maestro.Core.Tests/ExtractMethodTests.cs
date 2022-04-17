@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Maestro.Core.Components;
+using TestUtils;
 
 namespace Maestro.Core.Tests
 {
@@ -35,61 +36,6 @@ namespace Maestro.Core.Tests
 
                 Assert.IsTrue(textInUpdatedSolution.Contains("TestMethod()"));
             }
-        }
-    }
-
-    public class SingleTestDocumentWorkspace
-    {
-        private readonly Workspace _workspace;
-
-        private SingleTestDocumentWorkspace(Workspace workspace)
-        {
-            _workspace = workspace;
-        }
-
-        public SyntaxTree GetSyntaxTree()
-        {
-            return GetDocument().GetSyntaxTreeAsync().Result;
-        }
-
-        public string GetText()
-        {
-            return GetDocument().GetTextAsync().Result.ToString();
-        }
-
-        public WorkspaceComponentRegistry GetRegistry()
-        {
-            return new WorkspaceComponentRegistry(_workspace);
-        }
-
-        public bool TryUpdateSourceCode(string updatedSourceCode)
-        {
-            var updatedSolution = _workspace.CurrentSolution.WithDocumentText(GetDocument().Id, SourceText.From(updatedSourceCode));
-            return _workspace.TryApplyChanges(updatedSolution);
-        }
-
-        public SemanticModel GetSemanticModel(SyntaxTree syntaxTree = null)
-        {
-            var compilation = GetProject().GetCompilationAsync().Result;
-            var c = compilation.AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
-
-            var originalSyntaxTree = syntaxTree ?? GetDocument().GetSyntaxTreeAsync().Result;
-            return c.GetSemanticModel(originalSyntaxTree);
-        }
-
-        public static SingleTestDocumentWorkspace Create(string testFileRelativePath)
-        {
-            return new SingleTestDocumentWorkspace(TestUtils.CreateSingleDocumentWorkspace(testFileRelativePath));
-        }
-
-        private Project GetProject()
-        {
-            return _workspace.CurrentSolution.Projects.Single();
-        }
-
-        private Document GetDocument()
-        {
-            return GetProject().Documents.Single();
         }
     }
 

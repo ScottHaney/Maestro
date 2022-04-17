@@ -53,7 +53,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Compile>
-    <Compile Include="ToolWindows\MyToolWindowViewModel.cs" />
     <Compile Include="Utils\VisualStudioWorkspaceUtils.cs" />
     <Compile Include="VSCommandTable.cs">
       <AutoGen>True</AutoGen>
@@ -119,6 +118,10 @@
     <ProjectReference Include="..\Maestro.Core\Maestro.Core.csproj">
       <Project>{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}</Project>
       <Name>Maestro.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Maestro.VSExtension.ViewModels\Maestro.VSExtension.ViewModels.csproj">
+      <Project>{f7737af9-997b-458b-a3b9-55dac7883751}</Project>
+      <Name>Maestro.VSExtension.ViewModels</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

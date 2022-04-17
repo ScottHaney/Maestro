@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TestUtils;
 
 namespace Maestro.Core.Tests
 {
@@ -13,7 +14,7 @@ namespace Maestro.Core.Tests
         [Test]
         public async Task Gets_Components_From_Single_File_With_No_Build_Errors()
         {
-            var workspace = TestUtils.CreateSingleDocumentWorkspace(@"TestCsFiles/WorkspaceComponentRegistryTestFileThatCompiles.cs");
+            var workspace = TestHelpers.CreateSingleDocumentWorkspace(@"TestCsFiles/WorkspaceComponentRegistryTestFileThatCompiles.cs");
             var registry = new WorkspaceComponentRegistry(workspace);
 
             var components = await registry.GetComponentsAsync();
@@ -24,7 +25,7 @@ namespace Maestro.Core.Tests
         [Test]
         public async Task Gets_Components_From_Single_File_With_Build_Errors()
         {
-            var workspace = TestUtils.CreateSingleDocumentWorkspace(@"TestCsFiles/WorkspaceComponentRegistryTestFileThatDoesNotCompile.cs");
+            var workspace = TestHelpers.CreateSingleDocumentWorkspace(@"TestCsFiles/WorkspaceComponentRegistryTestFileThatDoesNotCompile.cs");
             var registry = new WorkspaceComponentRegistry(workspace);
 
             var components = await registry.GetComponentsAsync();

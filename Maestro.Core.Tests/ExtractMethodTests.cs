@@ -127,7 +127,6 @@ namespace Maestro.Core.Tests
                 else
                     return null;
             });
-
         }
 
         private static SyntaxNode CreateMethodCall(string methodName)

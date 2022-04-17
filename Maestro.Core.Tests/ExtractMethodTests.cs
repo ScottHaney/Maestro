@@ -9,60 +9,132 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Maestro.Core.Tests
 {
     public class ExtractMethodTests
     {
         [Test]
-        public void Test()
+        public void Extract_Method_With_No_Return_Value_And_No_Arguments()
         {
-            using (var mock = AutoMock.GetLoose(cb =>
+            using (var mock = AutoMock.GetLoose())
             {
+                var workspace = SingleTestDocumentWorkspace.Create("TestCsFiles/ExtractMethodTestFile.cs");
 
-            }))
-            {
-                var workspace = new AdhocWorkspace();
+                var updatedRoot = Helpers.ReplaceCodeWithMethod(workspace.GetSyntaxTree(), 10, 11, "TestMethod");
 
-                string projName = "NewProject";
-                var projectId = ProjectId.CreateNewId();
-                var versionStamp = VersionStamp.Create();
-                var projectInfo = ProjectInfo.Create(projectId, versionStamp, projName, projName, LanguageNames.CSharp);
-                var newProject = workspace.AddProject(projectInfo);
-                var sourceText = SourceText.From(TestUtils.GetTestFileText("TestCsFiles/ExtractMethodTestFile.cs"));
-                var newDocument = workspace.AddDocument(newProject.Id, "NewFile.cs", sourceText);
+                if (!workspace.TryUpdateSourceCode(updatedRoot.GetText().ToString()))
+                    Assert.Fail("Failed to update the source code");
 
-                var project = workspace.CurrentSolution.Projects.Single();
-                var compilation = project.GetCompilationAsync().Result;
+                var textInUpdatedSolution = workspace.GetText();
 
-                var c = compilation.AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
+                Assert.IsFalse(textInUpdatedSolution.Contains("var i"));
+                Assert.IsFalse(textInUpdatedSolution.Contains("var j"));
 
-                var originalSyntaxTree = project.Documents.Single().GetSyntaxTreeAsync().Result;
-                var semanticModel = c.GetSemanticModel(originalSyntaxTree);
-
-                var testMethodDeclaration = semanticModel.SyntaxTree.GetRoot()
-                    .DescendantNodes()
-                    .OfType<MethodDeclarationSyntax>()
-                    .First(x => x.Identifier.Text == "TestMethod");
-
-                var startLineToRemove = 10;
-                var endLineToRemove = 11;
-
-                var lineMappings = semanticModel.SyntaxTree.GetText().Lines;
-                var startIndex = lineMappings[startLineToRemove].Span.Start;
-                var endIndex = lineMappings[endLineToRemove].Span.End;
-
-                var originalText = originalSyntaxTree.GetText().ToString();
-                var updatedText = string.Concat(originalText.Substring(0, startIndex), originalText.Substring(endIndex + 1));
-                
-                var updatedSolution = workspace.CurrentSolution.WithDocumentText(project.Documents.Single().Id, SourceText.From(updatedText));
-
-                var succeded = workspace.TryApplyChanges(updatedSolution);
-
-                var textInUpdatedSolution = workspace.CurrentSolution.Projects.Single().Documents.Single().GetTextAsync().Result;
-
-
+                Assert.IsTrue(textInUpdatedSolution.Contains("TestMethod()"));
             }
+        }
+    }
+
+    public class SingleTestDocumentWorkspace
+    {
+        private readonly Workspace _workspace;
+
+        private SingleTestDocumentWorkspace(Workspace workspace)
+        {
+            _workspace = workspace;
+        }
+
+        public SyntaxTree GetSyntaxTree()
+        {
+            return GetDocument().GetSyntaxTreeAsync().Result;
+        }
+
+        public string GetText()
+        {
+            return GetDocument().GetTextAsync().Result.ToString();
+        }
+
+        public bool TryUpdateSourceCode(string updatedSourceCode)
+        {
+            var updatedSolution = _workspace.CurrentSolution.WithDocumentText(GetDocument().Id, SourceText.From(updatedSourceCode));
+            return _workspace.TryApplyChanges(updatedSolution);
+        }
+
+        public SemanticModel GetSemanticModel(SyntaxTree syntaxTree = null)
+        {
+            var compilation = GetProject().GetCompilationAsync().Result;
+            var c = compilation.AddReferences(MetadataReference.CreateFromFile(typeof(string).Assembly.Location));
+
+            var originalSyntaxTree = syntaxTree ?? GetDocument().GetSyntaxTreeAsync().Result;
+            return c.GetSemanticModel(originalSyntaxTree);
+        }
+
+        public static SingleTestDocumentWorkspace Create(string testFileRelativePath)
+        {
+            var workspace = new AdhocWorkspace();
+
+            string projName = "NewProject";
+            var projectId = ProjectId.CreateNewId();
+            var versionStamp = VersionStamp.Create();
+            var projectInfo = ProjectInfo.Create(projectId, versionStamp, projName, projName, LanguageNames.CSharp);
+            var newProject = workspace.AddProject(projectInfo);
+            var sourceText = SourceText.From(TestUtils.GetTestFileText(testFileRelativePath));
+            workspace.AddDocument(newProject.Id, "NewFile.cs", sourceText);
+
+            return new SingleTestDocumentWorkspace(workspace);
+        }
+
+        private Project GetProject()
+        {
+            return _workspace.CurrentSolution.Projects.Single();
+        }
+
+        private Document GetDocument()
+        {
+            return GetProject().Documents.Single();
+        }
+    }
+
+    public static class Helpers
+    {
+        public static SyntaxNode ReplaceCodeWithMethod(SyntaxTree originalTree, int startLine, int endLine, string methodName)
+        {
+            var sourceText = originalTree.GetText();
+            var root = originalTree.GetRoot();
+
+            var lineMappings = sourceText.Lines;
+
+            var nodesToRemove = new List<SyntaxNode>();
+            for (int i = startLine; i <= endLine; i++)
+            {
+                nodesToRemove.Add(root.FindNode(lineMappings[i].Span));
+            }
+
+            var methodCall = CreateMethodCall(methodName);
+
+            var parent = nodesToRemove.First().Parent;
+
+            var isFirstCall = true;
+            return root.ReplaceNodes(nodesToRemove, (original, secondArg) =>
+            {
+                if (isFirstCall)
+                {
+                    isFirstCall = false;
+                    return methodCall;
+                }
+                else
+                    return null;
+            });
+
+        }
+
+        private static SyntaxNode CreateMethodCall(string methodName)
+        {
+            return ExpressionStatement(
+                        InvocationExpression(
+                            IdentifierName(methodName)));
         }
     }
 }

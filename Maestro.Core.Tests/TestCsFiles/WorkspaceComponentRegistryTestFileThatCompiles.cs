@@ -11,4 +11,8 @@ namespace Maestro.Core.Tests.TestCsFiles
     public class Component2
     {
     }
+
+    public interface IComponent
+    {
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
@@ -77,7 +78,7 @@ namespace Maestro.Core.Components
             if (syntaxTree.TryGetRoot(out var root))
             {
                 return root.DescendantNodes()
-                    .OfType<ClassDeclarationSyntax>()
+                    .OfType<TypeDeclarationSyntax>()
                     .Select(x => new CodeComponent(x.Identifier.ValueText));
             }
 

@@ -18,7 +18,7 @@ namespace Maestro.Core.Tests
 
             var components = (await registry.GetComponentsAsync()).ToList();
 
-            CollectionAssert.AreEquivalent(new[] { "Component1", "Component2" }, components.Select(x => x.Name));
+            CollectionAssert.AreEquivalent(new[] { "Component1", "Component2", "IComponent" }, components.Select(x => x.Name));
         }
     }
 }

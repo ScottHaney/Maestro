@@ -8,10 +8,14 @@
 
   <ItemGroup>
     <Compile Remove="TestCsFiles\DeleteComponentTestFile.cs" />
+    <Compile Remove="TestCsFiles\MergeComponentsTestFile.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="TestCsFiles\DeleteComponentTestFile.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestCsFiles\MergeComponentsTestFile.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

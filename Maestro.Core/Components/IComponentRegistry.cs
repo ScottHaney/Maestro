@@ -65,7 +65,7 @@ namespace Maestro.Core.Components
     {
         private readonly Workspace _workspace;
 
-        private readonly Dictionary<Guid, Document> _componentsSourceMap = new Dictionary<Guid, Document>();
+        private readonly Dictionary<Guid, DocumentId> _componentsSourceMap = new Dictionary<Guid, DocumentId>();
 
         public WorkspaceComponentRegistry(Workspace workspace)
         {
@@ -82,7 +82,7 @@ namespace Maestro.Core.Components
                     var syntaxTree = await document.GetSyntaxTreeAsync();
                     foreach (var component in GetComponents(syntaxTree))
                     {
-                        _componentsSourceMap[component.SourceId.Id] = document;
+                        _componentsSourceMap[component.SourceId.Id] = document.Id;
                         results.Add(component);
                     }
                 }
@@ -93,7 +93,7 @@ namespace Maestro.Core.Components
 
         public Document GetDocument(CodeComponentSourceId sourceId)
         {
-            return _componentsSourceMap[sourceId.Id];
+            return _workspace.CurrentSolution.GetDocument(_componentsSourceMap[sourceId.Id]);
         }
 
         private IEnumerable<ICodeComponent> GetComponents(SyntaxTree syntaxTree)
@@ -118,13 +118,11 @@ namespace Maestro.Core.Components
     {
         public async Task DeleteComponentAsync(ICodeComponent component)
         {
-            var document = component.SourceId.Registry.GetDocument(component.SourceId);
+            var document = GetDocument(component);
 
             var syntaxRoot = await document.GetSyntaxRootAsync();
 
-            var declarationNode = syntaxRoot.DescendantNodes()
-                .OfType<TypeDeclarationSyntax>()
-                .First(x => x.Identifier.Text == component.Name);
+            var declarationNode = GetDeclarationNode(syntaxRoot, component);
 
             var updatedTree = syntaxRoot.RemoveNode(declarationNode, SyntaxRemoveOptions.KeepExteriorTrivia);
 
@@ -132,9 +130,41 @@ namespace Maestro.Core.Components
             document.Project.Solution.Workspace.TryApplyChanges(updatedSolution);
         }
 
-        public Task MergeComponentsAsync(ICodeComponent sourceComponent, ICodeComponent destinationComponent)
+        public async Task MergeComponentsAsync(ICodeComponent sourceComponent, ICodeComponent destinationComponent)
         {
-            throw new NotImplementedException();
+            var sourceDocument = GetDocument(sourceComponent);
+
+            var sourceSyntaxRoot = await sourceDocument.GetSyntaxRootAsync();
+
+            var sourceDeclaration = GetDeclarationNode(sourceSyntaxRoot, sourceComponent);
+
+            var updatedSourceTree = sourceSyntaxRoot.RemoveNode(sourceDeclaration, SyntaxRemoveOptions.KeepExteriorTrivia);
+
+            var updatedSolution = sourceDocument.Project.Solution.WithDocumentSyntaxRoot(sourceDocument.Id, updatedSourceTree);
+            var firstSucceeded = sourceDocument.Project.Solution.Workspace.TryApplyChanges(updatedSolution);
+
+            var destinationDocument = GetDocument(destinationComponent);
+
+            var destinationSyntaxRoot = await destinationDocument.GetSyntaxRootAsync();
+
+            var destinationDeclaration = GetDeclarationNode(destinationSyntaxRoot, destinationComponent);
+
+            var updatedDestinationRoot = destinationSyntaxRoot.InsertNodesBefore(destinationDeclaration.ChildNodes().First(), sourceDeclaration.ChildNodes());
+
+            updatedSolution = destinationDocument.Project.Solution.WithDocumentSyntaxRoot(destinationDocument.Id, updatedDestinationRoot);
+            var secondSucceeded = destinationDocument.Project.Solution.Workspace.TryApplyChanges(updatedSolution);
+        }
+
+        private TypeDeclarationSyntax GetDeclarationNode(SyntaxNode root, ICodeComponent component)
+        {
+            return root.DescendantNodes()
+                .OfType<TypeDeclarationSyntax>()
+                .First(x => x.Identifier.Text == component.Name);
+        }
+
+        private Document GetDocument(ICodeComponent component)
+        {
+            return component.SourceId.Registry.GetDocument(component.SourceId);
         }
     }
 }

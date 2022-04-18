@@ -27,6 +27,8 @@ namespace Maestro.VSExtension.ViewModels
 
         public ICommand DeleteComponent { get; set; }
 
+        public ICommand MergeComponents { get; set; }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyname)
@@ -67,6 +69,54 @@ namespace Maestro.VSExtension.ViewModels
         }
     }
 
+    public class MergeComponentsCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged;
+
+        private readonly MyToolWindowViewModel _vm;
+        private readonly WorkspaceComponentRegistry _componentsRegistry;
+
+        public MergeComponentsCommand(MyToolWindowViewModel vm, Workspace currentWorkspace)
+        {
+            _vm = vm;
+            _componentsRegistry = new WorkspaceComponentRegistry(currentWorkspace);
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public async void Execute(object parameter)
+        {
+            var mergeComponentsParameter = (MergeComponentsParameter)parameter;
+
+            var manager = new ComponentManager();
+            await manager.MergeComponentsAsync(mergeComponentsParameter.Source, mergeComponentsParameter.Destination);
+
+            var components = await _componentsRegistry.GetComponentsAsync();
+            _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel(x)));
+        }
+
+        private async Task<IEnumerable<ICodeComponent>> GetComponentsAsync()
+        {
+            return await _componentsRegistry.GetComponentsAsync();
+        }
+    }
+
+    public class MergeComponentsParameter
+    {
+        public readonly ICodeComponent Source;
+        public readonly ICodeComponent Destination;
+
+        public MergeComponentsParameter(ICodeComponent source,
+            ICodeComponent destination)
+        {
+            Source = source;
+            Destination = destination;
+        }
+    }
+
     public class DeleteCommand : ICommand
     {
         public event EventHandler CanExecuteChanged;
@@ -93,7 +143,7 @@ namespace Maestro.VSExtension.ViewModels
             await manager.DeleteComponentAsync(new CodeComponent(componentViewModel.Name, componentViewModel.Source));
 
             var components = await _componentsRegistry.GetComponentsAsync();
-            _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel() { Name = x.Name, Source = x.SourceId }));
+            _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel(x)));
         }
     }
 
@@ -116,6 +166,11 @@ namespace Maestro.VSExtension.ViewModels
         {
             Name = component.Name;
             Source = component.SourceId;
+        }
+
+        public CodeComponent ToCodeComponent()
+        {
+            return new CodeComponent(Name, Source);
         }
 
         public ComponentViewModel()

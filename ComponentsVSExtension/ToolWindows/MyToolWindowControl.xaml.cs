@@ -20,6 +20,7 @@ namespace ComponentsVSExtension
             var vm = new MyToolWindowViewModel();
             vm.Update = new UpdateCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
             vm.DeleteComponent = new DeleteCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
+            vm.MergeComponents = new MergeComponentsCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
 
             DataContext = vm;
         }

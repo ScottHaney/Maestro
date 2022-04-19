@@ -21,6 +21,7 @@ namespace ComponentsVSExtension
             vm.Update = new UpdateCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
             vm.DeleteComponent = new DeleteCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
             vm.MergeComponents = new MergeComponentsCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
+            vm.CreateComponents = new CreateComponentsCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace, new VSSelectionFinder());
 
             DataContext = vm;
         }

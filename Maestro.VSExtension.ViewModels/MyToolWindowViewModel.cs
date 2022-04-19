@@ -29,6 +29,8 @@ namespace Maestro.VSExtension.ViewModels
 
         public ICommand MergeComponents { get; set; }
 
+        public ICommand CreateComponents { get; set; }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyname)
@@ -145,6 +147,45 @@ namespace Maestro.VSExtension.ViewModels
             var components = await _componentsRegistry.GetComponentsAsync();
             _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel(x)));
         }
+    }
+
+    public class CreateComponentsCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged;
+
+        private readonly MyToolWindowViewModel _vm;
+        private readonly WorkspaceComponentRegistry _componentsRegistry;
+        private readonly ISelectionFinder _selectionFinder;
+        private readonly Workspace _currentWorkspace;
+
+        public CreateComponentsCommand(MyToolWindowViewModel vm, Workspace currentWorkspace, ISelectionFinder selectionFinder)
+        {
+            _vm = vm;
+            _componentsRegistry = new WorkspaceComponentRegistry(currentWorkspace);
+            _selectionFinder = selectionFinder;
+            _currentWorkspace = currentWorkspace;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public async void Execute(object parameter)
+        {
+            var selections = await _selectionFinder.GetSelectionsAsync();
+
+            var manager = new ComponentManager();
+            for (int i = 0; i < selections.Count; i++)
+            {
+                await manager.CreateComponentAsync(selections[i], _currentWorkspace, $"Component{i + 1}");
+            }
+        }
+    }
+
+    public interface ISelectionFinder
+    {
+        Task<List<SelectionSpan>> GetSelectionsAsync();
     }
 
     public class ComponentViewModel : INotifyPropertyChanged

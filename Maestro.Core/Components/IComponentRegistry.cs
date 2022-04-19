@@ -155,6 +155,37 @@ namespace Maestro.Core.Components
             var secondSucceeded = destinationDocument.Project.Solution.Workspace.TryApplyChanges(updatedSolution);
         }
 
+        public async Task CreateComponentAsync(SelectionSpan selectionSpan, Workspace workspace, string componentName)
+        {
+            var document = FindDocument(selectionSpan.DocumentFilePath, workspace);
+
+            var syntaxTree = await document.GetSyntaxTreeAsync();
+
+            var sourceText = syntaxTree.GetText();
+            var root = syntaxTree.GetRoot();
+
+            var lineMappings = sourceText.Lines;
+
+            var nodesToMove = new List<SyntaxNode>();
+            for (int i = selectionSpan.StartLineIndex; i <= selectionSpan.EndLineIndex; i++)
+            {
+                nodesToMove.Add(root.FindNode(lineMappings[i].Span));
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private Document FindDocument(string filePath, Workspace workspace)
+        {
+            foreach (var document in workspace.CurrentSolution.Projects.SelectMany(x => x.Documents))
+            {
+                if (string.Compare(document.FilePath, filePath, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    return document;
+            }
+
+            return null;
+        }
+
         private TypeDeclarationSyntax GetDeclarationNode(SyntaxNode root, ICodeComponent component)
         {
             return root.DescendantNodes()
@@ -165,6 +196,20 @@ namespace Maestro.Core.Components
         private Document GetDocument(ICodeComponent component)
         {
             return component.SourceId.Registry.GetDocument(component.SourceId);
+        }
+    }
+
+    public class SelectionSpan
+    {
+        public readonly string DocumentFilePath;
+        public readonly int StartLineIndex;
+        public readonly int EndLineIndex;
+
+        public SelectionSpan(string documentFilePath, int startLineIndex, int endLineIndex)
+        {
+            DocumentFilePath = documentFilePath;
+            StartLineIndex = startLineIndex;
+            EndLineIndex = endLineIndex;
         }
     }
 }

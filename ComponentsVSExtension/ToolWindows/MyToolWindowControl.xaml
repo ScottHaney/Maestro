@@ -45,10 +45,13 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <StackPanel Grid.Row="1" Orientation="Vertical">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="Update Components"
                     Command="{Binding Update}"
                     HorizontalAlignment="Center"/>
+            <Button Content="Create Components"
+                    Margin="15,0,0,0"
+                    Command="{Binding CreateComponents}"/>
         </StackPanel>
     </Grid>
 </UserControl>

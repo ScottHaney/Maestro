@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using Maestro.Core.Components;
+using Maestro.VSExtension.ViewModels;
+using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using System;
@@ -50,6 +52,35 @@ namespace ComponentsVSExtension.Utils
         {
             var docView = await VS.Documents.GetActiveDocumentViewAsync();
             return docView?.TextView.Selection.SelectedSpans.FirstOrDefault();
+        }
+    }
+
+    public class VSSelectionFinder : ISelectionFinder
+    {
+        public async Task<List<SelectionSpan>> GetSelectionsAsync()
+        {
+            var docView = await VS.Documents.GetActiveDocumentViewAsync();
+
+            return docView.TextView.Selection.SelectedSpans
+                .Select(x => new SelectionSpan(docView.FilePath, GetLineNumber(x.Start, docView).Value, GetLineNumber(x.End, docView).Value))
+                .ToList();
+        }
+
+        private int? GetLineNumber(int position,
+            DocumentView documentView)
+        {
+            var lines = documentView.TextView.TextViewLines;
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i];
+
+                var start = line.Start.Position;
+                var end = line.End.Position;
+                if (position >= start && position <= end)
+                    return i;
+            }
+
+            return null;
         }
     }
 }

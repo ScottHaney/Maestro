@@ -9,6 +9,7 @@
              xmlns:util="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Utilities"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
              xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
+             xmlns:models="clr-namespace:Maestro.VSExtension.ViewModels;assembly=Maestro.VSExtension.ViewModels"
              toolkit:Themes.UseVsTheme="True"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -18,9 +19,20 @@
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
-        <ItemsControl ItemsSource="{Binding Components}">
+        <TreeView ItemsSource="{Binding ComponentItems}">
+            <TreeView.Resources>
+                <HierarchicalDataTemplate DataType="{x:Type models:ComponentsFolderViewModel}" ItemsSource="{Binding Path=Items}">
+                    <TextBlock Text="{Binding Path=Name}" />
+                </HierarchicalDataTemplate>
+                <DataTemplate DataType="{x:Type models:ComponentsFolderItemViewModel}">
+                    <TextBlock Text="{Binding Path=Name}"/>
+                </DataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Components}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel></StackPanel>
@@ -45,7 +57,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="Update Components"
                     Command="{Binding Update}"
                     HorizontalAlignment="Center"/>

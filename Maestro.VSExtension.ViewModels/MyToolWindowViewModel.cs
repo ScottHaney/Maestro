@@ -23,6 +23,17 @@ namespace Maestro.VSExtension.ViewModels
             }
         }
 
+        private ObservableCollection<IComponentItemViewModel> _componentItems;
+        public ObservableCollection<IComponentItemViewModel> ComponentItems
+        {
+            get { return _componentItems; }
+            set
+            {
+                _componentItems = value;
+                OnPropertyChanged(nameof(ComponentItems));
+            }
+        }
+
         public ICommand Update { get; set; }
 
         public ICommand DeleteComponent { get; set; }
@@ -60,9 +71,10 @@ namespace Maestro.VSExtension.ViewModels
 
         public async void Execute(object parameter)
         {
-            var components = await GetComponentsAsync();
+            var components = (await GetComponentsAsync()).ToList();
 
             _vm.Components = new ObservableCollection<ComponentViewModel>(components.Select(x => new ComponentViewModel(x)));
+            _vm.ComponentItems = new ObservableCollection<IComponentItemViewModel>(components.Select(x => new ComponentsFolderItemViewModel() { Name = x.Name }));
         }
 
         private async Task<IEnumerable<ICodeComponent>> GetComponentsAsync()
@@ -229,12 +241,27 @@ namespace Maestro.VSExtension.ViewModels
     {
         public List<ComponentViewModel> Components { get; set; }
 
+        public List<IComponentItemViewModel> ComponentItems { get; set; }
+
         public MyToolWindowDesignViewModel()
         {
             Components = new List<ComponentViewModel>()
             {
                 new ComponentViewModel() { Name = "Test1" },
                 new ComponentViewModel() { Name = "Test2" }
+            };
+
+            ComponentItems = new List<IComponentItemViewModel>()
+            {
+                new ComponentsFolderViewModel()
+                {
+                    Name = "Folder1",
+                    Items = new ObservableCollection<ComponentsFolderItemViewModel>()
+                    {
+                        new ComponentsFolderItemViewModel() { Name = "Item1" },
+                        new ComponentsFolderItemViewModel() { Name = "Item2" }
+                    }
+                }
             };
         }
     }

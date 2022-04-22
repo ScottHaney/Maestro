@@ -16,7 +16,7 @@ namespace Maestro.VSExtension.ViewModels
     {
         public string Name { get; set; }
 
-        public ObservableCollection<ComponentsFolderItemViewModel> Items { get; set; }
+        public ObservableCollection<ComponentsFolderItemViewModel> Items { get; set; } = new ObservableCollection<ComponentsFolderItemViewModel>();
     }
 
     public class ComponentsFolderItemViewModel : IComponentItemViewModel

@@ -34,6 +34,28 @@ namespace Maestro.VSExtension.ViewModels
             }
         }
 
+        private string _createTagText;
+        public string CreateTagText
+        {
+            get { return _createTagText; }
+            set
+            {
+                _createTagText = value;
+                OnPropertyChanged(nameof(CreateTagText));
+            }
+        }
+
+        private string _applyTagText;
+        public string ApplyTagText
+        {
+            get { return _applyTagText; }
+            set
+            {
+                _applyTagText = value;
+                OnPropertyChanged(nameof(ApplyTagText));
+            }
+        }
+
         public ICommand Update { get; set; }
 
         public ICommand DeleteComponent { get; set; }
@@ -43,11 +65,66 @@ namespace Maestro.VSExtension.ViewModels
         public ICommand CreateComponents { get; set; }
 
 
+        public ICommand CreateTag { get; set; }
+
+        public ICommand ApplyTag { get; set; }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged(string propertyname)
         {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
+        }
+    }
+
+    public class CreateTagCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged;
+
+        private readonly MyToolWindowViewModel _vm;
+
+        public CreateTagCommand(MyToolWindowViewModel vm)
+        {
+            _vm = vm;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+            //return !string.IsNullOrEmpty(_vm.CreateTagText);
+        }
+
+        public async void Execute(object parameter)
+        {
+            _vm.ComponentItems.Add(new ComponentsFolderViewModel() { Name = _vm.CreateTagText });
+        }
+    }
+
+    public class ApplyTagCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged;
+
+        private readonly MyToolWindowViewModel _vm;
+
+        public ApplyTagCommand(MyToolWindowViewModel vm)
+        {
+            _vm = vm;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+            //return !string.IsNullOrEmpty(_vm.ApplyTagText);
+        }
+
+        public async void Execute(object parameter)
+        {
+            var tagName = _vm.ApplyTagText;
+            var match = _vm.ComponentItems.OfType<ComponentsFolderViewModel>().First(x => x.Name == tagName);
+
+            match.Items.Add(_vm.ComponentItems.OfType<ComponentsFolderItemViewModel>().First());
+            //_vm.ComponentItems.Add(new ComponentsFolderItemViewModel() { Name = _vm.CreateTagText });
         }
     }
 

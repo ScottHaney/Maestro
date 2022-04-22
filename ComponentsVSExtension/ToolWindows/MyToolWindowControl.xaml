@@ -19,7 +19,7 @@
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <TreeView ItemsSource="{Binding ComponentItems}">
@@ -32,7 +32,7 @@
                 </DataTemplate>
             </TreeView.Resources>
         </TreeView>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Components}">
+        <ItemsControl Grid.Row="1" Visibility="Collapsed" ItemsSource="{Binding Components}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel></StackPanel>
@@ -57,13 +57,31 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="Update Components"
+        <StackPanel Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch">
+            <Grid Margin="10,20,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Button Content="Create Tag" Command="{Binding CreateTag, Mode=TwoWay}" Margin="0,0,10,0"></Button>
+                <Button Content="Apply Tag" Command="{Binding ApplyTag, Mode=TwoWay}" Margin="0,0,10,0" Grid.Row="1"></Button>
+
+                <TextBox Grid.Column="1" Text="{Binding CreateTagText}"></TextBox>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ApplyTagText}"></TextBox>
+            </Grid>
+
+            <StackPanel Margin="0,20,0,10" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Update Components"
                     Command="{Binding Update}"
                     HorizontalAlignment="Center"/>
-            <Button Content="Create Components"
+                <Button Content="Create Components"
                     Margin="15,0,0,0"
                     Command="{Binding CreateComponents}"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

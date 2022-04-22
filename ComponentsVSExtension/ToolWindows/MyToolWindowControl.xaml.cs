@@ -23,6 +23,9 @@ namespace ComponentsVSExtension
             vm.MergeComponents = new MergeComponentsCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace);
             vm.CreateComponents = new CreateComponentsCommand(vm, ComponentsVSExtensionPackage.CurrentWorkspace, new VSSelectionFinder());
 
+            vm.CreateTag = new CreateTagCommand(vm);
+            vm.ApplyTag = new ApplyTagCommand(vm);
+
             DataContext = vm;
         }
     }

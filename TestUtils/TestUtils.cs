@@ -11,6 +11,32 @@ using Maestro.Core.Components;
 
 namespace TestUtils
 {
+    public class TestWorkspaceBuilder
+    {
+        private readonly AdhocWorkspace _workspace = new AdhocWorkspace();
+
+        public TestWorkspaceBuilder AddProject(string projectName)
+        {
+            var projectId = ProjectId.CreateNewId();
+            var versionStamp = VersionStamp.Create();
+            var projectInfo = ProjectInfo.Create(projectId, versionStamp, projectName, projectName, LanguageNames.CSharp);
+            var newProject = _workspace.AddProject(projectInfo);
+
+            return this;
+        }
+
+        public TestWorkspaceBuilder AddDocument(string projectName, string documentName, string documentText)
+        {
+            var project = _workspace.CurrentSolution.Projects.First(x => x.Name == projectName);
+            _workspace.AddDocument(project.Id, documentName, SourceText.From(documentText));
+
+            return this;
+        }
+
+        public Workspace Build()
+            => _workspace;
+    }
+
     public static class TestHelpers
     {
         public static Workspace CreateSingleDocumentWorkspace(string testFileRelativePath)

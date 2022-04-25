@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maestro.VSExtension.ViewMod
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentsVSExtension", "ComponentsVSExtension\ComponentsVSExtension.csproj", "{11AB2153-64A4-4ADC-9E3C-05F1E768D441}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RelativeFilePathUtils", "RelativeFilePathUtils\RelativeFilePathUtils.csproj", "{1763A61B-B101-4B5F-B100-5E2571CBA754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -125,6 +127,14 @@ Global
 		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|x86.ActiveCfg = Release|x86
 		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|x86.Build.0 = Release|x86
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Debug|x86.Build.0 = Debug|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Release|x86.ActiveCfg = Release|Any CPU
+		{1763A61B-B101-4B5F-B100-5E2571CBA754}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

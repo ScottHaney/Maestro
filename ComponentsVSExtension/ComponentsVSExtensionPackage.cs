@@ -11,6 +11,9 @@ using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
+using EnvDTE;
+using EnvDTE80;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace ComponentsVSExtension
 {
@@ -27,15 +30,36 @@ namespace ComponentsVSExtension
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+
+
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
                 CommandID menuCommandID = new CommandID(PackageGuids.ComponentsVSExtension, PackageIds.AddTagsCommand);
                 OleMenuCommand menuItem = new OleMenuCommand(ExecuteAsync, menuCommandID);
 
                 menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
-
                 mcs.AddCommand(menuItem);
+
+                //VS.Events.ProjectItemsEvents.AfterRenameProjectItems
+                //    += ProjectItemsEvents_AfterRenameProjectItems;
+
+                var itemsEvents = new ProjectItemsEventsCopy();
+                /*var dte = await GetServiceAsync(typeof(DTE)) as DTE2;
+                dte.Events.CommandEvents.BeforeExecute += CommandEvents_BeforeExecute;*/
+
+                /*var cmd = mcs.FindCommand(null) as OleMenuCommand;
+                cmd.BeforeQueryStatus ...*/
             }
+        }
+
+        private void ProjectItemsEvents_AfterRenameProjectItems(AfterRenameProjectItemEventArgs obj)
+        {
+
+        }
+
+        private void CommandEvents_BeforeExecute(string Guid, int ID, object CustomIn, object CustomOut, ref bool CancelDefault)
+        {
+            System.Diagnostics.Debug.WriteLine($"Command executed: {Guid}, {ID}");
         }
 
         private async void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
@@ -100,6 +124,11 @@ namespace ComponentsVSExtension
                     }
                 }
             }
+        }
+
+        private string CreateContentLink(string linkPath, string physicalFilePath)
+        {
+            return @$"<ContentItem Include=""{physicalFilePath}"" Link=""{linkPath}""/>";
         }
 
         //private void CreateFileLinks(string folderPath, )

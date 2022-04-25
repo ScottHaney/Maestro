@@ -21,13 +21,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigClassAnalyzer.Vsix", "Bi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeAnalyzers", "CodeAnalyzers", "{6554E4E5-5C6A-433B-B78E-E7E4A04D8145}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentsVSExtension", "ComponentsVSExtension\ComponentsVSExtension.csproj", "{3330410A-FF29-4D7E-BD2C-16D19CD96010}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maestro.ComponentsVSExtensionTests", "Maestro.ComponentsVSExtensionTests\Maestro.ComponentsVSExtensionTests.csproj", "{E43A439F-8854-43F3-80DE-8EAB92BDF763}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "TestUtils\TestUtils.csproj", "{724AD275-76DB-41E6-9D2D-EA7EBE1368C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestUtils", "TestUtils\TestUtils.csproj", "{724AD275-76DB-41E6-9D2D-EA7EBE1368C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.VSExtension.ViewModels", "Maestro.VSExtension.ViewModels\Maestro.VSExtension.ViewModels.csproj", "{F7737AF9-997B-458B-A3B9-55DAC7883751}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Maestro.VSExtension.ViewModels", "Maestro.VSExtension.ViewModels\Maestro.VSExtension.ViewModels.csproj", "{F7737AF9-997B-458B-A3B9-55DAC7883751}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentsVSExtension", "ComponentsVSExtension\ComponentsVSExtension.csproj", "{11AB2153-64A4-4ADC-9E3C-05F1E768D441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,14 +93,6 @@ Global
 		{0B16ACB3-BE41-4577-915F-56C6162E2A60}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B16ACB3-BE41-4577-915F-56C6162E2A60}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B16ACB3-BE41-4577-915F-56C6162E2A60}.Release|x86.Build.0 = Release|Any CPU
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Debug|x86.ActiveCfg = Debug|x86
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Debug|x86.Build.0 = Debug|x86
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Release|x86.ActiveCfg = Release|x86
-		{3330410A-FF29-4D7E-BD2C-16D19CD96010}.Release|x86.Build.0 = Release|x86
 		{E43A439F-8854-43F3-80DE-8EAB92BDF763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E43A439F-8854-43F3-80DE-8EAB92BDF763}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E43A439F-8854-43F3-80DE-8EAB92BDF763}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -125,6 +117,14 @@ Global
 		{F7737AF9-997B-458B-A3B9-55DAC7883751}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F7737AF9-997B-458B-A3B9-55DAC7883751}.Release|x86.ActiveCfg = Release|Any CPU
 		{F7737AF9-997B-458B-A3B9-55DAC7883751}.Release|x86.Build.0 = Release|Any CPU
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Debug|x86.ActiveCfg = Debug|x86
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Debug|x86.Build.0 = Debug|x86
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|x86.ActiveCfg = Release|x86
+		{11AB2153-64A4-4ADC-9E3C-05F1E768D441}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

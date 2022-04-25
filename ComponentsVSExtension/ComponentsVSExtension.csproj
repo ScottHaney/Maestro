@@ -10,7 +10,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{3330410A-FF29-4D7E-BD2C-16D19CD96010}</ProjectGuid>
+    <ProjectGuid>{11AB2153-64A4-4ADC-9E3C-05F1E768D441}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ComponentsVSExtension</RootNamespace>
@@ -46,14 +46,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Commands\MyToolWindowCommand.cs" />
     <Compile Include="ComponentsVSExtensionPackage.cs" />
     <Compile Include="source.extension.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Compile>
-    <Compile Include="Utils\VisualStudioWorkspaceUtils.cs" />
     <Compile Include="VSCommandTable.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -79,50 +77,14 @@
     </VSCTCompile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ToolWindows\MyToolWindow.cs" />
-    <Page Include="ToolWindows\MyToolWindowControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Compile Include="ToolWindows\MyToolWindowControl.xaml.cs">
-      <DependentUpon>MyToolWindowControl.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Design" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsBase" />
     <Reference Include="System.ComponentModel.Composition" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />
-    <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.394" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Imaging">
-      <Version>17.1.32210.191</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.LanguageServices">
-      <Version>4.1.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0">
-      <Version>17.1.32210.191</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2159">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Maestro.Core\Maestro.Core.csproj">
-      <Project>{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}</Project>
-      <Name>Maestro.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Maestro.VSExtension.ViewModels\Maestro.VSExtension.ViewModels.csproj">
-      <Project>{f7737af9-997b-458b-a3b9-55dac7883751}</Project>
-      <Name>Maestro.VSExtension.ViewModels</Name>
-    </ProjectReference>
+    <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.430" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.0.5232" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />

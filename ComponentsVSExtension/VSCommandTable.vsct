@@ -7,23 +7,42 @@
   <Include href="VSGlobals.vsct"/>
 
   <Commands package="ComponentsVSExtension">
-    <!--This section defines the elements the user can interact with, like a menu command or a button or combo box in a toolbar. -->
+    <Groups>
+      <Group guid="ComponentsVSExtension" id="MyMenuGroup" priority="0x0600">
+        <Parent guid="VSMainMenu" id="Tools"/>
+      </Group>
+    </Groups>
+
+    <!--This section defines the elements the user can interact with, like a menu command or a button
+        or combo box in a toolbar. -->
     <Buttons>
-      <Button guid="ComponentsVSExtension" id="MyCommand" priority="0x0100" type="Button">
-        <Parent guid="VSMainMenu" id="View.DevWindowsGroup.OtherWindows.Group1"/>
-        <Icon guid="ImageCatalogGuid" id="ToolWindow" />
+      <Button guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000" type="Button">
+		<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_INCLUDEEXCLUDE"/>
+        <Icon guid="ImageCatalogGuid" id="StatusInformation" />
         <CommandFlag>IconIsMoniker</CommandFlag>
+		<CommandFlag>DynamicVisibility</CommandFlag>
         <Strings>
-          <ButtonText>My Tool Window</ButtonText>
-          <LocCanonicalName>.View.MyToolWindow</LocCanonicalName>
+          <ButtonText>Add Tags</ButtonText>
+          <LocCanonicalName>.ComponentsVSExtension.MyCommand</LocCanonicalName>
         </Strings>
       </Button>
     </Buttons>
   </Commands>
 
+	<!--<CommandPlacements>
+		<CommandPlacement guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000">
+			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_ADD_ITEM"/>
+		</CommandPlacement>
+
+		<CommandPlacement guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000">
+			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SLNFLDR_ADD_ITEM"/>
+		</CommandPlacement>
+	</CommandPlacements>-->
+
   <Symbols>
-    <GuidSymbol name="ComponentsVSExtension" value="{00a1f001-e305-4123-9747-1cb7c4fc9175}">
-      <IDSymbol name="MyCommand" value="0x0100" />
+    <GuidSymbol name="ComponentsVSExtension" value="{6eac55e1-9c2c-4653-9882-8d1901b5875d}">
+      <IDSymbol name="MyMenuGroup" value="0x0001" />
+      <IDSymbol name="AddTagsCommand" value="0x0100" />
     </GuidSymbol>
   </Symbols>
 </CommandTable>

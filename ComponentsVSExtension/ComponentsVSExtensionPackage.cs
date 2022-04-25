@@ -7,6 +7,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Linq;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.LanguageServices;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ComponentsVSExtension
 {
@@ -17,6 +21,8 @@ namespace ComponentsVSExtension
     [Guid(PackageGuids.ComponentsVSExtensionString)]
     public sealed class ComponentsVSExtensionPackage : ToolkitPackage
     {
+        private static VisualStudioWorkspace CurrentWorkspace { get; set; }
+        
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
@@ -64,7 +70,38 @@ namespace ComponentsVSExtension
 
         private async void ExecuteAsync(object sender, EventArgs e)
         {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+            if (CurrentWorkspace == null)
+            {
+                var componentModel = (IComponentModel)(await this.GetServiceAsync(typeof(SComponentModel)));
+                CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
+            }
+
+            var solutionExplorer = await VS.Windows.GetSolutionExplorerWindowAsync();
+            if (solutionExplorer != null)
+            {
+                var selections = await solutionExplorer.GetSelectionAsync();
+
+                var folders = selections
+                    .OfType<PhysicalFolder>();
+
+                var files = selections
+                    .OfType<PhysicalFile>()
+                    .ToList();
+
+                foreach (var folder in folders.Cast<PhysicalFolder>())
+                {
+                    var projectNode = folder.ContainingProject;
+
+                    foreach (var file in files)
+                    {
+                        System.IO.File.WriteAllText(projectNode.FullPath, System.IO.File.ReadAllText(projectNode.FullPath) + "<!---->");
+                    }
+                }
+            }
         }
+
+        //private void CreateFileLinks(string folderPath, )
     }
 }

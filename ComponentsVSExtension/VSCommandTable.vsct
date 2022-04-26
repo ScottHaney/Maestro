@@ -12,32 +12,7 @@
         <Parent guid="VSMainMenu" id="Tools"/>
       </Group>
     </Groups>
-
-    <!--This section defines the elements the user can interact with, like a menu command or a button
-        or combo box in a toolbar. -->
-    <Buttons>
-      <Button guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000" type="Button">
-		<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_ITEM_INCLUDEEXCLUDE"/>
-        <Icon guid="ImageCatalogGuid" id="StatusInformation" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-		<CommandFlag>DynamicVisibility</CommandFlag>
-        <Strings>
-          <ButtonText>Add Tags</ButtonText>
-          <LocCanonicalName>.ComponentsVSExtension.MyCommand</LocCanonicalName>
-        </Strings>
-      </Button>
-    </Buttons>
   </Commands>
-
-	<!--<CommandPlacements>
-		<CommandPlacement guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000">
-			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SOLUTION_ADD_ITEM"/>
-		</CommandPlacement>
-
-		<CommandPlacement guid="ComponentsVSExtension" id="AddTagsCommand" priority="0x4000">
-			<Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_SLNFLDR_ADD_ITEM"/>
-		</CommandPlacement>
-	</CommandPlacements>-->
 
   <Symbols>
     <GuidSymbol name="ComponentsVSExtension" value="{6eac55e1-9c2c-4653-9882-8d1901b5875d}">

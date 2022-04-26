@@ -31,30 +31,22 @@ namespace ComponentsVSExtension
     {
         private static VisualStudioWorkspace CurrentWorkspace { get; set; }
 
-        private List<object> events = new List<object>();
-        
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
-            {
-                CommandID menuCommandID = new CommandID(PackageGuids.ComponentsVSExtension, PackageIds.AddTagsCommand);
-                OleMenuCommand menuItem = new OleMenuCommand(ExecuteAsync, menuCommandID);
+            var itemsEvents = new ProjectItemsEventsCopy();
+            itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
-                menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
-                mcs.AddCommand(menuItem);
-
-                var itemsEvents = new ProjectItemsEventsCopy();
-                itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
-
-                VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
-            }
+            VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
         }
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            //Logic to create a link when files are copied between projects. This should really be moved into the 
+            //query event rather than the afteradd event but leave it as is for now
 
             var solutionExplorer = await VS.Windows.GetSolutionExplorerWindowAsync();
             if (solutionExplorer != null)
@@ -94,21 +86,8 @@ namespace ComponentsVSExtension
                             }
                         }
                     }
-
-                    if (selectionsNames.SequenceEqual(newItemsNames))
-                    {
-                        //Is a move between projects
-
-                    }
                 }
-
-
             }
-        }
-
-        private bool IsFile(string path)
-        {
-            return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }
 
         private async void WindowEvents_FrameIsOnScreenChanged(FrameOnScreenEventArgs args)
@@ -128,93 +107,9 @@ namespace ComponentsVSExtension
             }
         }
 
-        private async void MenuItem_BeforeQueryStatus(object sender, EventArgs e)
+        private bool IsFile(string path)
         {
-            var menuCommand = (OleMenuCommand)sender;
-
-            var isVisible = false;
-            var solutionExplorer = await VS.Windows.GetSolutionExplorerWindowAsync();
-            if (solutionExplorer != null)
-            {
-                var selections = await solutionExplorer.GetSelectionAsync();
-
-                var hasFile = false;
-                var hasFolder = false;
-                foreach (var selection in selections)
-                {
-                    if (selection.Type == SolutionItemType.PhysicalFile)
-                        hasFile = true;
-                    else if (selection.Type == SolutionItemType.PhysicalFolder)
-                        hasFolder = true;
-
-                    if (hasFile && hasFolder)
-                        break;
-                }
-
-                isVisible = (hasFile && hasFolder);
-            }
-
-            menuCommand.Visible = isVisible;
-            menuCommand.Enabled = isVisible;
-        }
-
-        private async void ExecuteAsync(object sender, EventArgs e)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            if (CurrentWorkspace == null)
-            {
-                var componentModel = (IComponentModel)(await this.GetServiceAsync(typeof(SComponentModel)));
-                CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
-            }
-
-            var solutionExplorer = await VS.Windows.GetSolutionExplorerWindowAsync();
-            if (solutionExplorer != null)
-            {
-                var selections = await solutionExplorer.GetSelectionAsync();
-
-                var folders = selections
-                    .OfType<PhysicalFolder>();
-
-                var files = selections
-                    .OfType<PhysicalFile>()
-                    .ToList();
-
-                foreach (var folder in folders.Cast<PhysicalFolder>())
-                {
-                    var projectNode = folder.ContainingProject;
-
-                    foreach (var file in files)
-                    {
-                        System.IO.File.WriteAllText(projectNode.FullPath, System.IO.File.ReadAllText(projectNode.FullPath) + "<!---->");
-                    }
-                }
-            }
-        }
-    }
-
-    public static class ProjectUtils
-    {
-        private static readonly Regex _tagsFolderPathPartRegex = new Regex(@"[/\\]__Tags", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public static string GetProjectFilePath(string filePath)
-        {
-            var directory = Path.GetDirectoryName(filePath);
-            while (directory != null)
-            {
-                var projFiles = Directory.EnumerateFiles(directory, "*.csproj");
-                if (projFiles.Any())
-                    return projFiles.First();
-
-                directory = Path.GetDirectoryName(directory);
-            }
-
-            return string.Empty;
-        }
-        
-        public static bool IsInToTagsFolder(string filePath)
-        {
-            return _tagsFolderPathPartRegex.IsMatch(filePath);
+            return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }
     }
 }

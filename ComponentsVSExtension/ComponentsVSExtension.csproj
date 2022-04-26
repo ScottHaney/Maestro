@@ -45,8 +45,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DocumentEventsCopy.cs" />
+    <Compile Include="LinkFile.cs" />
     <Compile Include="ProjectsItemsEventsCopy.cs" />
+    <Compile Include="ProjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ComponentsVSExtensionPackage.cs" />
     <Compile Include="source.extension.cs">
@@ -95,10 +96,6 @@
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.0.5232" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Maestro.Core\Maestro.Core.csproj">
-      <Project>{EB9EE3C7-CB13-4F92-AB4C-B264F4B8955E}</Project>
-      <Name>Maestro.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\RelativeFilePathUtils\RelativeFilePathUtils.csproj">
       <Project>{1763a61b-b101-4b5f-b100-5e2571cba754}</Project>
       <Name>RelativeFilePathUtils</Name>

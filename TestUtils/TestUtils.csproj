@@ -9,8 +9,4 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Maestro.Core\Maestro.Core.csproj" />
-  </ItemGroup>
-
 </Project>

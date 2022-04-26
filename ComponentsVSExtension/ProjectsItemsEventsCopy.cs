@@ -79,12 +79,12 @@ namespace ComponentsVSExtension
 
                     var targetProjectFile = GetProjectFilePath(newName);
 
+
                     var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldName);
-                    var linkPath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), newName);
+                    var linkPath = newName + ".link";
 
-                    var contentElement = GetContentElement(includePath, linkPath);
-
-                    projectFileManager.AddLinks(targetProjectFile, contentElement);
+                    if (!File.Exists(linkPath))
+                        File.WriteAllText(linkPath, includePath);
                 }
 
                 pSummaryResult[i] = result;

@@ -83,8 +83,7 @@ namespace ComponentsVSExtension
                     var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldName);
                     var linkPath = newName + ".link";
 
-                    if (!File.Exists(linkPath))
-                        File.WriteAllText(linkPath, includePath);
+                    File.WriteAllText(linkPath, includePath);
                 }
 
                 pSummaryResult[i] = result;

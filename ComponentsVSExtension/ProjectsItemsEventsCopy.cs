@@ -73,12 +73,11 @@ namespace ComponentsVSExtension
                 var newName = rgszMkNewNames[i];
 
                 var result = VSQUERYRENAMEFILERESULTS.VSQUERYRENAMEFILERESULTS_RenameOK;
-                if (IsInToTagsFolder(newName) && !IsInToTagsFolder(oldName))
+                if (ProjectUtils.IsInToTagsFolder(newName) && !ProjectUtils.IsInToTagsFolder(oldName))
                 {
                     result = VSQUERYRENAMEFILERESULTS.VSQUERYRENAMEFILERESULTS_RenameNotOK;
 
-                    var targetProjectFile = GetProjectFilePath(newName);
-
+                    var targetProjectFile = ProjectUtils.GetProjectFilePath(newName);
 
                     var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldName);
                     var linkPath = newName + ".link";
@@ -91,33 +90,6 @@ namespace ComponentsVSExtension
             }
 
             return VSConstants.S_OK;
-        }
-
-        private static readonly Regex _tagsFolderPathPartRegex = new Regex(@"[/\\]__Tags", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private bool IsInToTagsFolder(string filePath)
-        {
-            return _tagsFolderPathPartRegex.IsMatch(filePath);            
-        }
-
-        private string GetProjectFilePath(string filePath)
-        {
-            var directory = Path.GetDirectoryName(filePath);
-            while (directory != null)
-            {
-                var projFiles = Directory.EnumerateFiles(directory, "*.csproj");
-                if (projFiles.Any())
-                    return projFiles.First();
-
-                directory = Path.GetDirectoryName(directory);
-            }
-
-            return string.Empty;
-        }
-
-        private string GetContentElement(string physicalFilePath, string linkPath)
-        {
-            return @$"<Content Include=""{physicalFilePath}"" Link=""{linkPath}""/>";
         }
 
         int IVsTrackProjectDocumentsEvents2.OnAfterRenameFiles(int cProjects, int cFiles, IVsProject[] rgpProjects, int[] rgFirstIndices, string[] rgszMkOldNames, string[] rgszMkNewNames, VSRENAMEFILEFLAGS[] rgFlags)

@@ -16,6 +16,8 @@ using EnvDTE80;
 using Microsoft.VisualStudio.Shell.Interop;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ComponentsVSExtension
 {
@@ -44,9 +46,69 @@ namespace ComponentsVSExtension
                 mcs.AddCommand(menuItem);
 
                 var itemsEvents = new ProjectItemsEventsCopy();
+                itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
                 VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
             }
+        }
+
+        private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var solutionExplorer = await VS.Windows.GetSolutionExplorerWindowAsync();
+            if (solutionExplorer != null)
+            {
+                var selections = (await solutionExplorer.GetSelectionAsync()).ToList();
+                var newItems = obj.ToList();
+
+                if (selections.Any() && selections.All(x => IsFile(x.FullPath)) && newItems.All(x => IsFile(x.FullPath)))
+                {
+                    var selectionsNames = new HashSet<string>(selections.Select(x => Path.GetFileName(x.FullPath)), StringComparer.OrdinalIgnoreCase);
+                    var newItemsNames = new HashSet<string>(newItems.Select(x => Path.GetFileName(x.FullPath)), StringComparer.OrdinalIgnoreCase);
+
+                    if (selectionsNames.Count == selections.Count && newItemsNames.Count == newItems.Count && selectionsNames.SequenceEqual(newItemsNames))
+                    {
+                        var selectionsNamesMap = selections.ToDictionary(x => Path.GetFileName(x.FullPath), x => x.FullPath);
+                        var newItemsNamesMap = newItems.ToDictionary(x => Path.GetFileName(x.FullPath), x => x.FullPath);
+
+                        foreach (var item in newItemsNames)
+                        {
+                            var oldPath = selectionsNamesMap[item];
+                            var newPath = newItemsNamesMap[item];
+
+                            if (ProjectUtils.IsInToTagsFolder(newPath) && !ProjectUtils.IsInToTagsFolder(oldPath))
+                            {
+                                var targetProjectFile = ProjectUtils.GetProjectFilePath(newPath);
+                                var sourceProjectFile = ProjectUtils.GetProjectFilePath(oldPath);
+
+                                if (string.Compare(targetProjectFile, sourceProjectFile, StringComparison.OrdinalIgnoreCase) != 0)
+                                {
+                                    File.Delete(newPath);
+
+                                    var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldPath);
+                                    var linkPath = newPath + ".link";
+
+                                    File.WriteAllText(linkPath, includePath);
+                                }
+                            }
+                        }
+                    }
+
+                    if (selectionsNames.SequenceEqual(newItemsNames))
+                    {
+                        //Is a move between projects
+
+                    }
+                }
+
+
+            }
+        }
+
+        private bool IsFile(string path)
+        {
+            return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }
 
         private async void WindowEvents_FrameIsOnScreenChanged(FrameOnScreenEventArgs args)
@@ -59,7 +121,9 @@ namespace ComponentsVSExtension
                 if (LinkFile.TryParse(docView.FilePath, out var linkFile))
                 {
                     await args.Frame.HideAsync();
-                    await VS.Documents.OpenAsync(linkFile.LinkedFilePath);
+
+                    var fileToOpenPath = Path.Combine(Path.GetDirectoryName(ProjectUtils.GetProjectFilePath(docView.FilePath)), File.ReadAllText(docView.FilePath));
+                    await VS.Documents.OpenAsync(fileToOpenPath);
                 }
             }
         }
@@ -127,12 +191,30 @@ namespace ComponentsVSExtension
                 }
             }
         }
+    }
 
-        private string CreateContentLink(string linkPath, string physicalFilePath)
+    public static class ProjectUtils
+    {
+        private static readonly Regex _tagsFolderPathPartRegex = new Regex(@"[/\\]__Tags", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public static string GetProjectFilePath(string filePath)
         {
-            return @$"<ContentItem Include=""{physicalFilePath}"" Link=""{linkPath}""/>";
-        }
+            var directory = Path.GetDirectoryName(filePath);
+            while (directory != null)
+            {
+                var projFiles = Directory.EnumerateFiles(directory, "*.csproj");
+                if (projFiles.Any())
+                    return projFiles.First();
 
-        //private void CreateFileLinks(string folderPath, )
+                directory = Path.GetDirectoryName(directory);
+            }
+
+            return string.Empty;
+        }
+        
+        public static bool IsInToTagsFolder(string filePath)
+        {
+            return _tagsFolderPathPartRegex.IsMatch(filePath);
+        }
     }
 }

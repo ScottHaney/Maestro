@@ -14,9 +14,12 @@ using Microsoft.CodeAnalysis.Text;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell.Interop;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ComponentsVSExtension
 {
+
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
@@ -25,12 +28,12 @@ namespace ComponentsVSExtension
     public sealed class ComponentsVSExtensionPackage : ToolkitPackage
     {
         private static VisualStudioWorkspace CurrentWorkspace { get; set; }
+
+        private List<object> events = new List<object>();
         
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
-
-
 
             if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService mcs)
             {
@@ -40,26 +43,25 @@ namespace ComponentsVSExtension
                 menuItem.BeforeQueryStatus += MenuItem_BeforeQueryStatus;
                 mcs.AddCommand(menuItem);
 
-                //VS.Events.ProjectItemsEvents.AfterRenameProjectItems
-                //    += ProjectItemsEvents_AfterRenameProjectItems;
-
                 var itemsEvents = new ProjectItemsEventsCopy();
-                /*var dte = await GetServiceAsync(typeof(DTE)) as DTE2;
-                dte.Events.CommandEvents.BeforeExecute += CommandEvents_BeforeExecute;*/
 
-                /*var cmd = mcs.FindCommand(null) as OleMenuCommand;
-                cmd.BeforeQueryStatus ...*/
+                VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
             }
         }
 
-        private void ProjectItemsEvents_AfterRenameProjectItems(AfterRenameProjectItemEventArgs obj)
+        private async void WindowEvents_FrameIsOnScreenChanged(FrameOnScreenEventArgs args)
         {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-        }
-
-        private void CommandEvents_BeforeExecute(string Guid, int ID, object CustomIn, object CustomOut, ref bool CancelDefault)
-        {
-            System.Diagnostics.Debug.WriteLine($"Command executed: {Guid}, {ID}");
+            if (LinkFile.TryParse(args.Frame.Caption, out var _))
+            {
+                var docView = await args.Frame.GetDocumentViewAsync();
+                if (LinkFile.TryParse(docView.FilePath, out var linkFile))
+                {
+                    await args.Frame.HideAsync();
+                    await VS.Documents.OpenAsync(linkFile.LinkedFilePath);
+                }
+            }
         }
 
         private async void MenuItem_BeforeQueryStatus(object sender, EventArgs e)

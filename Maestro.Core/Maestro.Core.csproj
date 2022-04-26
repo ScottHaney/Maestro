@@ -10,5 +10,4 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.1.0" />
     <PackageReference Include="morelinq" Version="3.3.2" />
   </ItemGroup>
-
 </Project>

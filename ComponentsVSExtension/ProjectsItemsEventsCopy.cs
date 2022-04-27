@@ -7,7 +7,7 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace ComponentsVSExtension
+namespace TagsVSExtension
 {
     public class ProjectItemsEventsCopy : IVsTrackProjectDocumentsEvents2
     {

@@ -1,4 +1,4 @@
-﻿using ComponentsVSExtension;
+﻿using TagsVSExtension;
 using System.Reflection;
 using System.Runtime.InteropServices;
 

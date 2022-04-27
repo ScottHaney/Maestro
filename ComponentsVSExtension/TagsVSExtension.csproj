@@ -13,8 +13,8 @@
     <ProjectGuid>{11AB2153-64A4-4ADC-9E3C-05F1E768D441}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ComponentsVSExtension</RootNamespace>
-    <AssemblyName>ComponentsVSExtension</AssemblyName>
+    <RootNamespace>TagsVSExtension</RootNamespace>
+    <AssemblyName>TagsVSExtension</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <UseCodebase>true</UseCodebase>

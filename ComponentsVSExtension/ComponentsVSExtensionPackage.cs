@@ -19,14 +19,14 @@ using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace ComponentsVSExtension
+namespace TagsVSExtension
 {
 
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [Guid(PackageGuids.ComponentsVSExtensionString)]
+    [Guid(PackageGuids.TagsVSExtensionString)]
     public sealed class ComponentsVSExtensionPackage : ToolkitPackage
     {
         private static VisualStudioWorkspace CurrentWorkspace { get; set; }

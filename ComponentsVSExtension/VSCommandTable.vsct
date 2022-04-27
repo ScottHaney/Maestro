@@ -6,16 +6,16 @@
   <Include href="KnownImageIds.vsct"/>
   <Include href="VSGlobals.vsct"/>
 
-  <Commands package="ComponentsVSExtension">
+  <Commands package="TagsVSExtension">
     <Groups>
-      <Group guid="ComponentsVSExtension" id="MyMenuGroup" priority="0x0600">
+      <Group guid="TagsVSExtension" id="MyMenuGroup" priority="0x0600">
         <Parent guid="VSMainMenu" id="Tools"/>
       </Group>
     </Groups>
   </Commands>
 
   <Symbols>
-    <GuidSymbol name="ComponentsVSExtension" value="{6eac55e1-9c2c-4653-9882-8d1901b5875d}">
+    <GuidSymbol name="TagsVSExtension" value="{6eac55e1-9c2c-4653-9882-8d1901b5875d}">
       <IDSymbol name="MyMenuGroup" value="0x0001" />
       <IDSymbol name="AddTagsCommand" value="0x0100" />
     </GuidSymbol>

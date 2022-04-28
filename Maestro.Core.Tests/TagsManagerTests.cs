@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Maestro.Core.Tests
 {
@@ -26,7 +27,9 @@ namespace Maestro.Core.Tests
 
             var linkFilePath = @"C:\code\MyApp\Project1\__Tags\TestTag\Class1.cs.link";
             Assert.IsTrue(fileSystem.FileExists(linkFilePath));
-            Assert.AreEqual("Class1.cs", fileSystem.File.ReadAllText(linkFilePath));
+
+            var linkFileContents = JsonConvert.DeserializeObject<LinkFileContent>(fileSystem.File.ReadAllText(linkFilePath));
+            Assert.AreEqual("Class1.cs", linkFileContents.LinkedFilePath);
         }
     }
 }

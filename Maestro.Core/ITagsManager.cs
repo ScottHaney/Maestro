@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.IO.Abstractions;
+using Newtonsoft.Json;
 
 namespace Maestro.Core
 {
@@ -36,13 +37,38 @@ namespace Maestro.Core
             FullPath = fullPath;
         }
 
-        public void Save(IFileSystem fileSystem, string contents)
+        public void Save(IFileSystem fileSystem, LinkFileContent contents)
         {
             var directory = Path.GetDirectoryName(FullPath);
             if (!fileSystem.Directory.Exists(directory))
                 fileSystem.Directory.CreateDirectory(directory);
 
-            fileSystem.File.WriteAllText(FullPath, contents);
+            fileSystem.File.WriteAllText(FullPath, JsonConvert.SerializeObject(contents));
+        }
+    }
+
+    public class LinkFileContent
+    {
+        public readonly string LinkedFilePath;
+        public readonly ProjectIdentifier ProjectIdentifier;
+
+        public LinkFileContent(string linkedFilePath,
+            ProjectIdentifier projectIdentifier)
+        {
+            LinkedFilePath = linkedFilePath;
+            ProjectIdentifier = projectIdentifier;
+        }
+    }
+
+    public class ProjectIdentifier
+    {
+        public readonly string ProjectPath;
+        public readonly Guid Id;
+
+        public ProjectIdentifier(string projectPath, Guid id)
+        {
+            ProjectPath = projectPath;
+            Id = id;
         }
     }
 }

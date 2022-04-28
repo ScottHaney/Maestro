@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace Maestro.Core
 {
@@ -24,7 +25,8 @@ namespace Maestro.Core
             var tagsFolder = GetTagsFolder(item.Project);
             var linkFile = tagsFolder.GetLinkFile(item, tag);
 
-            linkFile.Save(_fileSystem, item.GetRelativeFilePath());
+            var linkFileContents = new LinkFileContent(item.GetRelativeFilePath(), null);
+            linkFile.Save(_fileSystem, linkFileContents);
         }
 
         public Tag GetTagFromCopiedToPath(string copiedToPath)

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ITag.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Abstractions" Version="14.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="ITag.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RelativeFilePathUtils\RelativeFilePathUtils.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -62,12 +62,12 @@ namespace Maestro.Core
 
     public class ProjectIdentifier
     {
-        public readonly string ProjectPath;
+        public readonly string ProjectFileName;
         public readonly Guid Id;
 
-        public ProjectIdentifier(string projectPath, Guid id)
+        public ProjectIdentifier(string projectFileName, Guid id)
         {
-            ProjectPath = projectPath;
+            ProjectFileName = projectFileName;
             Id = id;
         }
     }

@@ -22,7 +22,7 @@ namespace Maestro.Core.Tests
             });
 
             var tagsManager = new TagsManager(fileSystem);
-            tagsManager.AddItem(project.GetTagsFolderPath(), projectItem, new Tag("TestTag"));
+            tagsManager.AddItem(projectItem, new Tag("TestTag"));
 
             var linkFilePath = @"C:\code\MyApp\Project1\__Tags\TestTag\Class1.cs.link";
             Assert.IsTrue(fileSystem.FileExists(linkFilePath));

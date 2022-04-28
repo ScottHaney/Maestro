@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio;
@@ -77,10 +78,12 @@ namespace TagsVSExtension
 
                     var targetProjectFile = ProjectUtils.GetProjectFilePath(newName);
 
-                    var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldName);
-                    var linkPath = newName + ".link";
+                    var project = new Maestro.Core.Project(targetProjectFile);
+                    var projectItem = new Maestro.Core.ProjectItem(oldName, project);
 
-                    File.WriteAllText(linkPath, includePath);
+                    var tagName = Path.GetFileName(Path.GetDirectoryName(newName));
+                    var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
+                    tagsManager.AddItem(projectItem, new Maestro.Core.Tag(tagName));
                 }
 
                 pSummaryResult[i] = result;

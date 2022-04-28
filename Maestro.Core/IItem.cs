@@ -13,6 +13,7 @@ namespace Maestro.Core
     public interface IProjectItem : IItem
     {
         IProject Project { get; }
+        string GetRelativeFilePath();
     }
 
     public class ProjectItem : IProjectItem
@@ -25,11 +26,16 @@ namespace Maestro.Core
             FilePath = filePath;
             Project = project;
         }
+
+        public string GetRelativeFilePath()
+            => Project.GetRelativeItemPath(this);
     }
 
     public interface IProject
     {
         string FolderPath { get; }
+        TagsFolder GetTagsFolder();
+        string GetRelativeItemPath(IItem item);
     }
 
     public class Project : IProject
@@ -43,9 +49,14 @@ namespace Maestro.Core
             ProjectFilePath = projectFilePath;
         }
 
-        public TagsFolderPath GetTagsFolderPath()
+        public TagsFolder GetTagsFolder()
         {
-            return new TagsFolderPath(Path.Combine(FolderPath, "__Tags"));
+            return new TagsFolder(Path.Combine(FolderPath, "__Tags"));
+        }
+
+        public string GetRelativeItemPath(IItem item)
+        {
+            return PathNetCore.GetRelativePath(FolderPath, item.FilePath);
         }
     }
 }

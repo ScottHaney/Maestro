@@ -15,16 +15,10 @@ namespace Maestro.Core
             _fileSystem = fileSystem;
         }
 
-        public void AddItem(TagsFolderPath tagsFolder, IProjectItem item, ITag tag)
+        public void AddItem(IProjectItem item, ITag tag)
         {
-            var linkFilePath = tagsFolder.GetFilePath(item, tag);
-            var linkedFilePath = PathNetCore.GetRelativePath(item.Project.FolderPath, item.FilePath);
-
-            var directory = Path.GetDirectoryName(linkFilePath);
-            if (!_fileSystem.Directory.Exists(directory))
-                _fileSystem.Directory.CreateDirectory(directory);
-
-            _fileSystem.File.WriteAllText(linkFilePath, linkedFilePath);
+            var linkFile = item.Project.GetTagsFolder().GetLinkFile(item, tag);
+            linkFile.Save(_fileSystem, item.GetRelativeFilePath());
         }
     }
 }

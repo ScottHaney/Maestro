@@ -35,7 +35,7 @@ namespace Maestro.Core
     {
         string FolderPath { get; }
         string GetRelativeItemPath(IItem item);
-        ProjectIdentifier GetProjectIdentifier();
+        ProjectIdentifier GetProjectIdentifier(string solutionFilePath);
     }
 
     public class Project : IProject
@@ -54,9 +54,9 @@ namespace Maestro.Core
             return PathNetCore.GetRelativePath(FolderPath, item.FilePath);
         }
 
-        public ProjectIdentifier GetProjectIdentifier()
+        public ProjectIdentifier GetProjectIdentifier(string solutionFilePath)
         {
-            return new ProjectIdentifier(Path.GetFileName(ProjectFilePath), Guid.NewGuid());
+            return new ProjectIdentifier(PathNetCore.GetRelativePath(solutionFilePath, ProjectFilePath), Guid.NewGuid());
         }
     }
 }

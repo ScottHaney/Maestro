@@ -15,9 +15,12 @@ namespace Maestro.Core
         private const string TAGS_FOLDER_NAME = "__Tags";
         private static readonly Regex _tagsFolderPathPartRegex = new Regex($@"[/\\]{TAGS_FOLDER_NAME}[/\\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public TagsManager(IFileSystem fileSystem)
+        private readonly string _solutionFilePath;
+
+        public TagsManager(IFileSystem fileSystem, string solutionFilePath)
         {
             _fileSystem = fileSystem;
+            _solutionFilePath = solutionFilePath;
         }
 
         public void AddItem(IProjectItem item, ITag tag)
@@ -25,7 +28,7 @@ namespace Maestro.Core
             var tagsFolder = GetTagsFolder(item.Project);
             var linkFile = tagsFolder.GetLinkFile(item, tag);
 
-            var linkFileContents = new LinkFileContent(item.GetRelativeFilePath(), item.Project.GetProjectIdentifier());
+            var linkFileContents = new LinkFileContent(item.GetRelativeFilePath(), item.Project.GetProjectIdentifier(_solutionFilePath));
             linkFile.Save(_fileSystem, linkFileContents);
         }
 
@@ -43,8 +46,7 @@ namespace Maestro.Core
             var project = new Project(targetProjectFile);
             var projectItem = new ProjectItem(oldPath, project);
 
-            var tagsManager = new TagsManager(new FileSystem());
-            tagsManager.AddItem(projectItem, GetTagFromCopiedToPath(newPath));
+            AddItem(projectItem, GetTagFromCopiedToPath(newPath));
         }
 
         public TagsFolder GetTagsFolder(IProject project)

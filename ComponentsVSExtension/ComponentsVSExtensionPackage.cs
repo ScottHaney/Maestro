@@ -30,7 +30,7 @@ namespace TagsVSExtension
     [Guid(PackageGuids.TagsVSExtensionString)]
     public sealed class ComponentsVSExtensionPackage : ToolkitPackage
     {
-        private static VisualStudioWorkspace CurrentWorkspace { get; set; }
+        public static VisualStudioWorkspace CurrentWorkspace { get; set; }
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -70,7 +70,7 @@ namespace TagsVSExtension
                             var oldPath = selectionsNamesMap[item];
                             var newPath = newItemsNamesMap[item];
 
-                            var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
+                            var tagsManager = new Maestro.Core.TagsManager(new FileSystem(), CurrentWorkspace.CurrentSolution.FilePath);
                             if (tagsManager.IsInTagsFolder(newPath) && !tagsManager.IsInTagsFolder(oldPath))
                             {
                                 var targetProjectFile = ProjectUtils.GetProjectFilePath(newPath);

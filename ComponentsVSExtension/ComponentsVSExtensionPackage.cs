@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.IO.Abstractions;
 
 namespace TagsVSExtension
 {
@@ -77,11 +78,7 @@ namespace TagsVSExtension
                                 if (string.Compare(targetProjectFile, sourceProjectFile, StringComparison.OrdinalIgnoreCase) != 0)
                                 {
                                     File.Delete(newPath);
-
-                                    var includePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(targetProjectFile), oldPath);
-                                    var linkPath = newPath + ".link";
-
-                                    File.WriteAllText(linkPath, includePath);
+                                    ProjectUtils.CreateLink(targetProjectFile, oldPath, newPath);
                                 }
                             }
                         }

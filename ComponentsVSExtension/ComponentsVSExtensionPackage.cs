@@ -71,7 +71,7 @@ namespace TagsVSExtension
                             var newPath = newItemsNamesMap[item];
 
                             var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
-                            if (tagsManager.IsInToTagsFolder(newPath) && !tagsManager.IsInToTagsFolder(oldPath))
+                            if (tagsManager.IsInTagsFolder(newPath) && !tagsManager.IsInTagsFolder(oldPath))
                             {
                                 var targetProjectFile = ProjectUtils.GetProjectFilePath(newPath);
                                 var sourceProjectFile = ProjectUtils.GetProjectFilePath(oldPath);
@@ -79,7 +79,7 @@ namespace TagsVSExtension
                                 if (string.Compare(targetProjectFile, sourceProjectFile, StringComparison.OrdinalIgnoreCase) != 0)
                                 {
                                     File.Delete(newPath);
-                                    ProjectUtils.CreateLink(targetProjectFile, oldPath, newPath);
+                                    tagsManager.CreateLink(targetProjectFile, oldPath, newPath);
                                 }
                             }
                         }

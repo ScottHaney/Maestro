@@ -36,12 +36,21 @@ namespace Maestro.Core
             return new Tag(tagName);
         }
 
+        public void CreateLink(string targetProjectFile, string oldPath, string newPath)
+        {
+            var project = new Project(targetProjectFile);
+            var projectItem = new ProjectItem(oldPath, project);
+
+            var tagsManager = new TagsManager(new FileSystem());
+            tagsManager.AddItem(projectItem, GetTagFromCopiedToPath(newPath));
+        }
+
         public TagsFolder GetTagsFolder(IProject project)
         {
             return new TagsFolder(Path.Combine(project.FolderPath, TagsManager.TAGS_FOLDER_NAME));
         }
 
-        public bool IsInToTagsFolder(string filePath)
+        public bool IsInTagsFolder(string filePath)
         {
             return _tagsFolderPathPartRegex.IsMatch(filePath);
         }

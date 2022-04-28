@@ -11,8 +11,6 @@ namespace TagsVSExtension
 {
     public static class ProjectUtils
     {
-        private static readonly Regex _tagsFolderPathPartRegex = new Regex(@"[/\\]__Tags", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
         public static string GetProjectFilePath(string filePath)
         {
             var directory = Path.GetDirectoryName(filePath);
@@ -26,26 +24,6 @@ namespace TagsVSExtension
             }
 
             return string.Empty;
-        }
-
-        
-
-        public static void CreateLink(string targetProjectFile, string oldPath, string newPath)
-        {
-            var project = new Maestro.Core.Project(targetProjectFile);
-            var projectItem = new Maestro.Core.ProjectItem(oldPath, project);
-
-            var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
-            tagsManager.AddItem(projectItem, GetTagFromCopiedToPath(newPath));
-        }
-
-        private static Maestro.Core.Tag GetTagFromCopiedToPath(string copiedToPath)
-        {
-            var tagName = Path.GetFileName(Path.GetDirectoryName(copiedToPath));
-            if (string.Compare(tagName, "__Tags", StringComparison.OrdinalIgnoreCase) == 0)
-                tagName = "";
-
-            return new Maestro.Core.Tag(tagName);
         }
     }
 }

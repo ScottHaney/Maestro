@@ -74,12 +74,12 @@ namespace TagsVSExtension
                 var result = VSQUERYRENAMEFILERESULTS.VSQUERYRENAMEFILERESULTS_RenameOK;
                 var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
 
-                if (tagsManager.IsInToTagsFolder(newName) && !tagsManager.IsInToTagsFolder(oldName))
+                if (tagsManager.IsInTagsFolder(newName) && !tagsManager.IsInTagsFolder(oldName))
                 {
                     result = VSQUERYRENAMEFILERESULTS.VSQUERYRENAMEFILERESULTS_RenameNotOK;
 
                     var targetProjectFile = ProjectUtils.GetProjectFilePath(newName);
-                    ProjectUtils.CreateLink(targetProjectFile, oldName, newName);
+                    tagsManager.CreateLink(targetProjectFile, oldName, newName);
                 }
 
                 pSummaryResult[i] = result;

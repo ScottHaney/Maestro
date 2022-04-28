@@ -28,22 +28,24 @@ namespace TagsVSExtension
             return string.Empty;
         }
 
-        public static bool IsInToTagsFolder(string filePath)
-        {
-            return _tagsFolderPathPartRegex.IsMatch(filePath);
-        }
+        
 
         public static void CreateLink(string targetProjectFile, string oldPath, string newPath)
         {
             var project = new Maestro.Core.Project(targetProjectFile);
             var projectItem = new Maestro.Core.ProjectItem(oldPath, project);
 
-            var tagName = Path.GetFileName(Path.GetDirectoryName(newPath));
+            var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
+            tagsManager.AddItem(projectItem, GetTagFromCopiedToPath(newPath));
+        }
+
+        private static Maestro.Core.Tag GetTagFromCopiedToPath(string copiedToPath)
+        {
+            var tagName = Path.GetFileName(Path.GetDirectoryName(copiedToPath));
             if (string.Compare(tagName, "__Tags", StringComparison.OrdinalIgnoreCase) == 0)
                 tagName = "";
 
-            var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
-            tagsManager.AddItem(projectItem, new Maestro.Core.Tag(tagName));
+            return new Maestro.Core.Tag(tagName);
         }
     }
 }

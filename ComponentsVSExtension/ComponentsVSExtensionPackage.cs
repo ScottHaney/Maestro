@@ -70,7 +70,8 @@ namespace TagsVSExtension
                             var oldPath = selectionsNamesMap[item];
                             var newPath = newItemsNamesMap[item];
 
-                            if (ProjectUtils.IsInToTagsFolder(newPath) && !ProjectUtils.IsInToTagsFolder(oldPath))
+                            var tagsManager = new Maestro.Core.TagsManager(new FileSystem());
+                            if (tagsManager.IsInToTagsFolder(newPath) && !tagsManager.IsInToTagsFolder(oldPath))
                             {
                                 var targetProjectFile = ProjectUtils.GetProjectFilePath(newPath);
                                 var sourceProjectFile = ProjectUtils.GetProjectFilePath(oldPath);

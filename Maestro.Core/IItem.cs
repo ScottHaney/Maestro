@@ -34,7 +34,6 @@ namespace Maestro.Core
     public interface IProject
     {
         string FolderPath { get; }
-        TagsFolder GetTagsFolder();
         string GetRelativeItemPath(IItem item);
     }
 
@@ -47,11 +46,6 @@ namespace Maestro.Core
         {
             FolderPath = Path.GetDirectoryName(projectFilePath);
             ProjectFilePath = projectFilePath;
-        }
-
-        public TagsFolder GetTagsFolder()
-        {
-            return new TagsFolder(Path.Combine(FolderPath, "__Tags"));
         }
 
         public string GetRelativeItemPath(IItem item)

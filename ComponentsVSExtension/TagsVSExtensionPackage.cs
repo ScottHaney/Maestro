@@ -30,7 +30,7 @@ namespace TagsVSExtension
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuids.TagsVSExtensionString)]
-    public sealed class ComponentsVSExtensionPackage : ToolkitPackage
+    public sealed class TagsVSExtensionPackage : ToolkitPackage
     {
         public static VisualStudioWorkspace CurrentWorkspace { get; set; }
 

@@ -49,7 +49,7 @@
     <Compile Include="ProjectsItemsEventsCopy.cs" />
     <Compile Include="ProjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ComponentsVSExtensionPackage.cs" />
+    <Compile Include="TagsVSExtensionPackage.cs" />
     <Compile Include="source.extension.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

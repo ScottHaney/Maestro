@@ -72,7 +72,7 @@ namespace TagsVSExtension
                 var newName = rgszMkNewNames[i];
 
                 var result = VSQUERYRENAMEFILERESULTS.VSQUERYRENAMEFILERESULTS_RenameOK;
-                var tagsManager = new Maestro.Core.TagsManager(new FileSystem(), ComponentsVSExtensionPackage.CurrentWorkspace.CurrentSolution.FilePath);
+                var tagsManager = new Maestro.Core.TagsManager(new FileSystem(), TagsVSExtensionPackage.CurrentWorkspace.CurrentSolution.FilePath);
 
                 if (tagsManager.IsInTagsFolder(newName) && !tagsManager.IsInTagsFolder(oldName))
                 {

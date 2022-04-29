@@ -1,5 +1,9 @@
-Maestro
-=========
-[![Nuget](https://img.shields.io/nuget/v/ScottHaney.Maestro)](https://www.nuget.org/packages/ScottHaney.Maestro)
+#Maestro
+Software architecture tools that simplify changing code that "wasn't designed to do that"
 
-A set of code analysis tools for managing software design problems
+##Short overview of architecture and definition of terms
+
+We consider architecture to consist of three high level areas:
+	1. Components: The basic building blocks, usually individual classes/interfaces
+	2. Composition: How components are used together and how they are created/destroyed
+	3. Organization: How you find your components, this is almost always a file system explorer like solution explorer in Visual Studio

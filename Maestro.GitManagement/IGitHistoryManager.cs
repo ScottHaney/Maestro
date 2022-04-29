@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.IO;
+using System.Collections.ObjectModel;
 
-namespace Maestro.Core
+namespace Maestro.GitManagement
 {
     public interface IGitHistoryManager
     {
@@ -13,16 +14,26 @@ namespace Maestro.Core
 
     public class GitHistoryManager : IGitHistoryManager
     {
-        private readonly string _gitRepoPath;
+        private readonly string _gitRepoBasePath;
 
-        public GitHistoryManager(string gitRepoPath)
+        public GitHistoryManager(string solutionFilePath)
         {
-            _gitRepoPath = gitRepoPath;
+            _gitRepoBasePath = Path.GetDirectoryName(solutionFilePath);
         }
 
         public IEnumerable<GitCommit> GetHistoryForFile(string filePath)
         {
-            throw new NotImplementedException();
+            /*using (PowerShell powershell = PowerShell.Create())
+            {
+                // this changes from the user folder that PowerShell starts up with to your git repository
+                powershell.AddScript($"cd {_gitRepoBasePath}");
+
+                powershell.AddScript($@"git log {filePath}");
+
+                var results = powershell.Invoke().ToList();
+            }*/
+
+            return Enumerable.Empty<GitCommit>();
         }
     }
 

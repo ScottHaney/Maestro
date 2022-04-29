@@ -103,6 +103,10 @@
       <Project>{6e775475-793c-4207-be63-df66bf6255ec}</Project>
       <Name>Maestro.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Maestro.GitManagement\Maestro.GitManagement.csproj">
+      <Project>{1a24a635-7623-4b10-a91c-c5f616e004a4}</Project>
+      <Name>Maestro.GitManagement</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RelativeFilePathUtils\RelativeFilePathUtils.csproj">
       <Project>{1763a61b-b101-4b5f-b100-5e2571cba754}</Project>
       <Name>RelativeFilePathUtils</Name>

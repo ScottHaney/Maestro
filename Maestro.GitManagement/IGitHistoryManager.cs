@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Management.Automation;
 
 namespace Maestro.GitManagement
 {
@@ -23,7 +24,7 @@ namespace Maestro.GitManagement
 
         public IEnumerable<GitCommit> GetHistoryForFile(string filePath)
         {
-            /*using (PowerShell powershell = PowerShell.Create())
+            using (PowerShell powershell = PowerShell.Create())
             {
                 // this changes from the user folder that PowerShell starts up with to your git repository
                 powershell.AddScript($"cd {_gitRepoBasePath}");
@@ -31,7 +32,7 @@ namespace Maestro.GitManagement
                 powershell.AddScript($@"git log {filePath}");
 
                 var results = powershell.Invoke().ToList();
-            }*/
+            }
 
             return Enumerable.Empty<GitCommit>();
         }

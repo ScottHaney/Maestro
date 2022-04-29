@@ -40,6 +40,9 @@ namespace TagsVSExtension
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
             VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
+
+            var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
+            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
         }
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)

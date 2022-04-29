@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagsVSExtension", "ComponentsVSExtension\TagsVSExtension.csproj", "{11AB2153-64A4-4ADC-9E3C-05F1E768D441}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagsVSExtension", "TagsVSExtension\TagsVSExtension.csproj", "{11AB2153-64A4-4ADC-9E3C-05F1E768D441}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RelativeFilePathUtils", "RelativeFilePathUtils\RelativeFilePathUtils.csproj", "{1763A61B-B101-4B5F-B100-5E2571CBA754}"
 EndProject

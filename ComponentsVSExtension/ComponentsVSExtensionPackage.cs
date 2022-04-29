@@ -19,6 +19,8 @@ using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.IO.Abstractions;
+using Maestro.Core;
+using LibGit2Sharp;
 
 namespace TagsVSExtension
 {
@@ -32,6 +34,8 @@ namespace TagsVSExtension
     {
         public static VisualStudioWorkspace CurrentWorkspace { get; set; }
 
+        private IGitHistoryManager _gitHistoryManager;
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
@@ -41,8 +45,23 @@ namespace TagsVSExtension
 
             VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
 
+            VS.Events.SelectionEvents.SelectionChanged += SelectionEvents_SelectionChanged;
+
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
+
+            var repoPath = Repository.Discover(CurrentWorkspace.CurrentSolution.FilePath);
+            _gitHistoryManager = new GitHistoryManager(repoPath);
+        }
+
+        private void SelectionEvents_SelectionChanged(object sender, SelectionChangedEventArgs args)
+        {
+            var newSelection = args.To;
+            if (newSelection != null && _gitHistoryManager != null)
+            {
+                var historyItems = _gitHistoryManager.GetHistoryForFile(newSelection.FullPath);
+                var distinctItems = historyItems.SelectMany(x => x.Files.Select(y => y.FilePath)).Distinct();
+            }
         }
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)

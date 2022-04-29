@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
 
 namespace Maestro.Core
 {
@@ -13,18 +14,18 @@ namespace Maestro.Core
 
     public class GitHistoryManager : IGitHistoryManager
     {
-        private readonly string _solutionFilePath;
+        private readonly string _gitRepoPath;
 
-        public GitHistoryManager(string solutionFilePath)
+        public GitHistoryManager(string gitRepoPath)
         {
-            _solutionFilePath = solutionFilePath;
+            _gitRepoPath = gitRepoPath;
         }
 
         public IEnumerable<GitCommit> GetHistoryForFile(string filePath)
         {
-            using (var repo = new Repository(_solutionFilePath))
+            using (var repo = new Repository(_gitRepoPath))
             {
-                foreach (var commit in repo.Commits.QueryBy(filePath))
+                foreach (var commit in repo.Commits.QueryBy(PathNetCore.GetRelativePath(_gitRepoPath, filePath)))
                     yield return new GitCommit(commit.Commit.Tree.Select(x => new GitHistoryFile(x.Path)).ToList());
             }
         }

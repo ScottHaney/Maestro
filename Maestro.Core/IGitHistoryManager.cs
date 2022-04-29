@@ -1,5 +1,4 @@
-﻿using LibGit2Sharp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -23,11 +22,7 @@ namespace Maestro.Core
 
         public IEnumerable<GitCommit> GetHistoryForFile(string filePath)
         {
-            using (var repo = new Repository(_gitRepoPath))
-            {
-                foreach (var commit in repo.Commits.QueryBy(PathNetCore.GetRelativePath(_gitRepoPath, filePath)))
-                    yield return new GitCommit(commit.Commit.Tree.Select(x => new GitHistoryFile(x.Path)).ToList());
-            }
+            throw new NotImplementedException();
         }
     }
 

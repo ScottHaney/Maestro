@@ -22,6 +22,7 @@ using System.IO.Abstractions;
 using Maestro.Core;
 using Maestro.GitManagement;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace TagsVSExtension
 {
@@ -177,7 +178,10 @@ namespace TagsVSExtension
                 {
                     await args.Frame.HideAsync();
 
-                    var fileToOpenPath = Path.Combine(Path.GetDirectoryName(ProjectUtils.GetProjectFilePath(docView.FilePath)), File.ReadAllText(docView.FilePath));
+                    var contents = JsonConvert.DeserializeObject<LinkFileContent>(File.ReadAllText(docView.FilePath));
+
+                    var solutionFolderPath = Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath);
+                    var fileToOpenPath = Path.Combine(solutionFolderPath, Path.GetDirectoryName(contents.ProjectIdentifier.ProjectFileName), contents.LinkedFilePath);
                     await VS.Documents.OpenAsync(fileToOpenPath);
                 }
             }

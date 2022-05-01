@@ -65,7 +65,7 @@ namespace TagsVSExtension
             if (selections.Count == 1)
             {
                 var selectedItem = selections.Cast<SelectedItem>().Single();
-                if (selectedItem.ProjectItem != null && CurrentWorkspace != null)
+                if (selectedItem.ProjectItem != null && CurrentWorkspace != null && !LinkFile.TryParse(selectedItem.ProjectItem.FileNames[0], out var _))
                 {
                     var linkFilePath = await CreateLinkFileAsync(selectedItem);
 

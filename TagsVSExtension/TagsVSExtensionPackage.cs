@@ -68,6 +68,8 @@ namespace TagsVSExtension
                 if (selectedItem.ProjectItem != null && CurrentWorkspace != null)
                 {
                     var linkFilePath = await CreateLinkFileAsync(selectedItem);
+
+                    var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
                 }
             }
         }

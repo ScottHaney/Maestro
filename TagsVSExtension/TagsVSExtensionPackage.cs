@@ -70,9 +70,19 @@ namespace TagsVSExtension
                 {
                     var linkFilePath = await CreateLinkFileAsync(selectedItem);
 
-                    var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
+                    if (!ProjectAlreadyHasLink(selectedItem, linkFilePath))
+                    {
+                        var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
+                    }
                 }
             }
+        }
+
+        private bool ProjectAlreadyHasLink(SelectedItem selectedItem, string linkFilePath)
+        {
+            return selectedItem.ProjectItem.ProjectItems
+                        .OfType<EnvDTE.ProjectItem>()
+                        .Any(x => string.Compare(x.FileNames[0], linkFilePath, StringComparison.OrdinalIgnoreCase) == 0)
         }
 
         private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)

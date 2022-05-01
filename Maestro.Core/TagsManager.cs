@@ -28,7 +28,7 @@ namespace Maestro.Core
             var tagsFolder = GetTagsFolder(item.Project);
             var linkFile = tagsFolder.GetLinkFile(item, tag);
 
-            var linkFileContents = new LinkFileContent(item.GetRelativeFilePath(), item.Project.GetProjectIdentifier(_solutionFilePath));
+            var linkFileContents = new LinkFileContent(item, _solutionFilePath);
             linkFile.Save(_fileSystem, linkFileContents);
         }
 

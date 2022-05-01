@@ -50,13 +50,16 @@ namespace Maestro.Core
         }
 
         public string GetRelativeItemPath(IItem item)
+            => GetRelativeItemPath(item.FilePath);
+
+        public string GetRelativeItemPath(string filePath)
         {
-            return PathNetCore.GetRelativePath(FolderPath, item.FilePath);
+            return PathNetCore.GetRelativePath(FolderPath, filePath);
         }
 
         public ProjectIdentifier GetProjectIdentifier(string solutionFilePath)
         {
-            return new ProjectIdentifier(PathNetCore.GetRelativePath(solutionFilePath, ProjectFilePath), Guid.NewGuid());
+            return new ProjectIdentifier(PathNetCore.GetRelativePath(Path.GetDirectoryName(solutionFilePath), ProjectFilePath), Guid.NewGuid());
         }
     }
 }

@@ -21,6 +21,7 @@ using System.Text.RegularExpressions;
 using System.IO.Abstractions;
 using Maestro.Core;
 using Maestro.GitManagement;
+using System.Threading.Tasks;
 
 namespace TagsVSExtension
 {
@@ -34,8 +35,15 @@ namespace TagsVSExtension
     {
         public static VisualStudioWorkspace CurrentWorkspace { get; set; }
 
+        private DTE2 _dte;
+        private List<object> _eventRefs = new List<object>();
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
+            _eventRefs.Add(_dte.Events.SelectionEvents);
+            _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
+
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
             var itemsEvents = new ProjectItemsEventsCopy();
@@ -46,14 +54,61 @@ namespace TagsVSExtension
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
-            VS.Events.SelectionEvents.SelectionChanged += SelectionEvents_SelectionChanged;
+            //VS.Events.SelectionEvents.SelectionChanged += SelectionEvents_SelectionChanged;
         }
 
-        private void SelectionEvents_SelectionChanged(object sender, SelectionChangedEventArgs args)
+        private async void SelectionEvents_OnChange()
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var selections = _dte.SelectedItems;
+            if (selections.Count == 1)
+            {
+                var selectedItem = selections.Cast<SelectedItem>().Single();
+                if (selectedItem.ProjectItem != null && CurrentWorkspace != null)
+                {
+                    var linkFilePath = await CreateLinkFileAsync(selectedItem);
+                }
+            }
+        }
+
+        private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)
+        {
+            var projectItem = await SelectedItemToProjectItemAsync(selectedItem);
+            var pathToLinkFile = GetPathToSaveLinkFileTo(projectItem);
+
+            var linkFile = new LinkFile(pathToLinkFile);
+            linkFile.Save(new FileSystem(),
+                new LinkFileContent(projectItem, CurrentWorkspace.CurrentSolution.FilePath));
+
+            return pathToLinkFile;
+        }
+
+        private async Task<IProjectItem> SelectedItemToProjectItemAsync(SelectedItem selectedItem)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var fileName = selectedItem.ProjectItem.FileNames[0];
+            var project = new Maestro.Core.Project(selectedItem.ProjectItem.ContainingProject.FileName);
+
+            return new Maestro.Core.ProjectItem(fileName, project);
+        }
+
+        private string GetPathToSaveLinkFileTo(IProjectItem projectItem)
+        {
+            var solutionFilePath = CurrentWorkspace.CurrentSolution.FilePath;
+            var directory = Path.Combine(Path.GetDirectoryName(solutionFilePath), "__Links");
+
+            return Path.Combine(directory, Path.GetFileName(projectItem.FilePath) + ".link");
+        }
+
+        /*private void SelectionEvents_SelectionChanged(object sender, SelectionChangedEventArgs args)
         {
             var newSelection = args.To;
             if (newSelection != null)
             {
+                
+
                 var relativePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath), newSelection.FullPath);
 
                 var historyManager = new GitHistoryManager(CurrentWorkspace.CurrentSolution.FilePath);
@@ -61,7 +116,7 @@ namespace TagsVSExtension
                 var historyItems = historyManager.GetHistoryForFile(relativePath);
                 var distinctItems = historyItems.SelectMany(x => x.Files.Select(y => y.FilePath)).Distinct();
             }
-        }
+        }*/
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)
         {

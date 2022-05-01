@@ -31,7 +31,7 @@ namespace Maestro.Core.Tests
 
             var linkFileContents = JsonConvert.DeserializeObject<LinkFileContent>(fileSystem.File.ReadAllText(linkFilePath));
             Assert.AreEqual("Class1.cs", linkFileContents.LinkedFilePath);
-            Assert.AreEqual(@"..\Project1\Project1.csproj", linkFileContents.ProjectIdentifier.ProjectFileName);
+            Assert.AreEqual(@"Project1\Project1.csproj", linkFileContents.ProjectIdentifier.ProjectFileName);
         }
     }
 }

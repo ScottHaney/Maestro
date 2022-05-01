@@ -45,6 +45,21 @@ namespace Maestro.Core
 
             fileSystem.File.WriteAllText(FullPath, JsonConvert.SerializeObject(contents));
         }
+
+        public static bool TryParse(string filePath, out LinkFile linkFile)
+        {
+            if (string.Compare(Path.GetExtension(filePath), ".link", StringComparison.OrdinalIgnoreCase) == 0)
+            {
+                linkFile = new LinkFile(filePath);
+                return true;
+            }
+            else
+            {
+                linkFile = null;
+                return false;
+            }
+
+        }
     }
 
     public class LinkFileContent
@@ -52,8 +67,14 @@ namespace Maestro.Core
         public readonly string LinkedFilePath;
         public readonly ProjectIdentifier ProjectIdentifier;
 
-        public LinkFileContent(string linkedFilePath,
-            ProjectIdentifier projectIdentifier)
+        public LinkFileContent(IProjectItem projectItem, string solutionFilePath)
+        {
+            LinkedFilePath = projectItem.Project.GetRelativeItemPath(projectItem);
+            ProjectIdentifier = projectItem.Project.GetProjectIdentifier(solutionFilePath);
+        }
+
+        [JsonConstructor]
+        public LinkFileContent(string linkedFilePath, ProjectIdentifier projectIdentifier)
         {
             LinkedFilePath = linkedFilePath;
             ProjectIdentifier = projectIdentifier;

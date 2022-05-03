@@ -54,15 +54,24 @@ namespace TagsVSExtension
 
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
-
-            //VS.Events.SelectionEvents.SelectionChanged += SelectionEvents_SelectionChanged;
         }
+
+        private SelectedItems _previouslySelectedItems = null;
 
         private async void SelectionEvents_OnChange()
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
+            if (_previouslySelectedItems != null && _previouslySelectedItems.Count == 1)
+            {
+                var previous = _previouslySelectedItems.Cast<SelectedItem>().Single();
+                if (previous != null)
+                    RemoveLinkFiles(previous);
+            }
+
             var selections = _dte.SelectedItems;
+            _previouslySelectedItems = selections;
+
             if (selections.Count == 1)
             {
                 var selectedItem = selections.Cast<SelectedItem>().Single();
@@ -73,6 +82,29 @@ namespace TagsVSExtension
                     if (!ProjectAlreadyHasLink(selectedItem, linkFilePath))
                     {
                         var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
+                    }
+                }
+            }
+        }
+
+        private void RemoveLinkFiles(SelectedItem selectedItem)
+        {
+            if (selectedItem.ProjectItem == null)
+                return;
+
+            var collectionItems = selectedItem.ProjectItem.Collection;
+
+            for (int i = collectionItems.Count - 1; i >= 0; i++)
+            {
+                var collectionItem = collectionItems.Item(i);
+                if (collectionItem != null)
+                {
+                    var dynamicItem = (dynamic)collectionItem;
+                    var name = dynamicItem?.Name;
+
+                    if (string.Compare(".link", Path.GetExtension(name), StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        collectionItem.Remove();
                     }
                 }
             }
@@ -126,22 +158,6 @@ namespace TagsVSExtension
 
             return Path.Combine(directory, Path.GetFileName(projectItem.FileName) + ".link");
         }
-
-        /*private void SelectionEvents_SelectionChanged(object sender, SelectionChangedEventArgs args)
-        {
-            var newSelection = args.To;
-            if (newSelection != null)
-            {
-                
-
-                var relativePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath), newSelection.FullPath);
-
-                var historyManager = new GitHistoryManager(CurrentWorkspace.CurrentSolution.FilePath);
-
-                var historyItems = historyManager.GetHistoryForFile(relativePath);
-                var distinctItems = historyItems.SelectMany(x => x.Files.Select(y => y.FilePath)).Distinct();
-            }
-        }*/
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)
         {

@@ -80,9 +80,20 @@ namespace TagsVSExtension
 
         private bool ProjectAlreadyHasLink(SelectedItem selectedItem, string linkFilePath)
         {
-            return selectedItem.ProjectItem.ProjectItems
-                        .OfType<EnvDTE.ProjectItem>()
-                        .Any(x => string.Compare(x.FileNames[0], linkFilePath, StringComparison.OrdinalIgnoreCase) == 0);
+            var collectionItems = selectedItem.ProjectItem.Collection
+                .OfType<object>();
+
+            var linkFileName = Path.GetFileName(linkFilePath);
+            foreach (var item in collectionItems)
+            {
+                var dynamicItem = (dynamic)item;
+                var name = dynamicItem?.Name;
+
+                if (string.Compare(linkFileName, name, StringComparison.OrdinalIgnoreCase) == 0)
+                    return true;
+            }
+
+            return false;
         }
 
         private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)

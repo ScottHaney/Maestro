@@ -5,61 +5,30 @@ using System.IO;
 
 namespace Maestro.Core
 {
-    public interface IItem
+    public class ProjectItem
     {
-        string FilePath { get; }
-    }
+        private readonly string _relativeProjectFilePath;
+        private readonly string _relativeItemFilePath;
 
-    public interface IProjectItem : IItem
-    {
-        IProject Project { get; }
-        string GetRelativeFilePath();
-    }
+        public string FileName => Path.GetFileName(_relativeItemFilePath);
 
-    public class ProjectItem : IProjectItem
-    {
-        public string FilePath { get; private set; }
-        public IProject Project { get; private set; }
-
-        public ProjectItem(string filePath, IProject project)
+        public ProjectItem(string fullItemFilePath, string fullProjectFilePath, string fullSolutionFilePath)
         {
-            FilePath = filePath;
-            Project = project;
+            _relativeProjectFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullProjectFilePath);
+            _relativeItemFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullProjectFilePath), fullItemFilePath);
         }
 
-        public string GetRelativeFilePath()
-            => Project.GetRelativeItemPath(this);
-    }
+        public LinkFileContent GetLinkFileContent()
+            => new LinkFileContent(_relativeItemFilePath, new ProjectIdentifier(_relativeProjectFilePath, Guid.NewGuid()));
 
-    public interface IProject
-    {
-        string FolderPath { get; }
-        string GetRelativeItemPath(IItem item);
-        ProjectIdentifier GetProjectIdentifier(string solutionFilePath);
-    }
-
-    public class Project : IProject
-    {
-        public string FolderPath { get; private set; }
-        public string ProjectFilePath { get; private set; }
-
-        public Project(string projectFilePath)
+        public string GetFullItemPath(string solutionFilePath)
         {
-            FolderPath = Path.GetDirectoryName(projectFilePath);
-            ProjectFilePath = projectFilePath;
+            return Path.Combine(GetFullProjectPath(solutionFilePath), _relativeItemFilePath);
         }
 
-        public string GetRelativeItemPath(IItem item)
-            => GetRelativeItemPath(item.FilePath);
-
-        public string GetRelativeItemPath(string filePath)
+        public string GetFullProjectPath(string solutionFilePath)
         {
-            return PathNetCore.GetRelativePath(FolderPath, filePath);
-        }
-
-        public ProjectIdentifier GetProjectIdentifier(string solutionFilePath)
-        {
-            return new ProjectIdentifier(PathNetCore.GetRelativePath(Path.GetDirectoryName(solutionFilePath), ProjectFilePath), Guid.NewGuid());
+            return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeProjectFilePath);
         }
     }
 }

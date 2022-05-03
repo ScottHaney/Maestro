@@ -23,12 +23,12 @@ namespace Maestro.Core
             _solutionFilePath = solutionFilePath;
         }
 
-        public void AddItem(IProjectItem item, ITag tag)
+        public void AddItem(ProjectItem item, ITag tag)
         {
-            var tagsFolder = GetTagsFolder(item.Project);
+            var tagsFolder = GetTagsFolder(item);
             var linkFile = tagsFolder.GetLinkFile(item, tag);
 
-            var linkFileContents = new LinkFileContent(item, _solutionFilePath);
+            var linkFileContents = item.GetLinkFileContent();
             linkFile.Save(_fileSystem, linkFileContents);
         }
 
@@ -43,15 +43,14 @@ namespace Maestro.Core
 
         public void CreateLink(string targetProjectFile, string oldPath, string newPath)
         {
-            var project = new Project(targetProjectFile);
-            var projectItem = new ProjectItem(oldPath, project);
-
+            var projectItem = new ProjectItem(oldPath, targetProjectFile, _solutionFilePath);
             AddItem(projectItem, GetTagFromCopiedToPath(newPath));
         }
 
-        public TagsFolder GetTagsFolder(IProject project)
+        public TagsFolder GetTagsFolder(ProjectItem project)
         {
-            return new TagsFolder(Path.Combine(project.FolderPath, TagsManager.TAGS_FOLDER_NAME));
+            var tagsFolderPath = Path.Combine(Path.GetDirectoryName(project.GetFullProjectPath(_solutionFilePath)), TAGS_FOLDER_NAME);
+            return new TagsFolder(tagsFolderPath);
         }
 
         public bool IsInTagsFolder(string filePath)

@@ -11,15 +11,15 @@ namespace Maestro.Core.Tests
         [Test]
         public void Adds_A_Tag_To_A_File()
         {
-            var project = new Project(@"c:\code\MyApp\Project1\Project1.csproj");
+            var projectFilePath = @"c:\code\MyApp\Project1\Project1.csproj";
             var solutionFilePath = @"c:\code\MyApp\MyProject.sln";
 
-            var csFilePath = Path.Combine(project.FolderPath, "Class1.cs");
-            var projectItem = new ProjectItem(csFilePath, project);
+            var csFilePath = Path.Combine(Path.GetDirectoryName(projectFilePath), "Class1.cs");
+            var projectItem = new ProjectItem(csFilePath, projectFilePath, solutionFilePath);
 
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                { project.ProjectFilePath, new MockFileData("") },
+                { projectFilePath, new MockFileData("") },
                 { csFilePath, new MockFileData("") }
             });
 
@@ -30,8 +30,8 @@ namespace Maestro.Core.Tests
             Assert.IsTrue(fileSystem.FileExists(linkFilePath));
 
             var linkFileContents = JsonConvert.DeserializeObject<LinkFileContent>(fileSystem.File.ReadAllText(linkFilePath));
-            Assert.AreEqual("Class1.cs", linkFileContents.LinkedFilePath);
-            Assert.AreEqual(@"Project1\Project1.csproj", linkFileContents.ProjectIdentifier.ProjectFileName);
+            Assert.AreEqual("Class1.cs", linkFileContents.RelativeFilePath);
+            Assert.AreEqual(@"Project1\Project1.csproj", linkFileContents.ProjectIdentifier.RelativeProjectFilePath);
         }
     }
 }

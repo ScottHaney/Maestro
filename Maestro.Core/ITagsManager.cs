@@ -9,7 +9,7 @@ namespace Maestro.Core
 {
     internal interface ITagsManager
     {
-        void AddItem(IProjectItem item, ITag tag);
+        void AddItem(ProjectItem item, ITag tag);
     }
 
     public class TagsFolder
@@ -21,9 +21,9 @@ namespace Maestro.Core
             FullPath = fullPath;
         }
 
-        public LinkFile GetLinkFile(IItem item, ITag tag)
+        public LinkFile GetLinkFile(ProjectItem item, ITag tag)
         {
-            var path = Path.Combine(FullPath, tag.Name, Path.GetFileName(item.FilePath) + ".link");
+            var path = Path.Combine(FullPath, tag.Name, item.FileName + ".link");
             return new LinkFile(path);
         }
     }
@@ -64,31 +64,32 @@ namespace Maestro.Core
 
     public class LinkFileContent
     {
-        public readonly string LinkedFilePath;
+        public readonly string RelativeFilePath;
         public readonly ProjectIdentifier ProjectIdentifier;
 
-        public LinkFileContent(IProjectItem projectItem, string solutionFilePath)
+        public LinkFileContent(string relativeFilePath, ProjectIdentifier projectIdentifier)
         {
-            LinkedFilePath = projectItem.Project.GetRelativeItemPath(projectItem);
-            ProjectIdentifier = projectItem.Project.GetProjectIdentifier(solutionFilePath);
+            RelativeFilePath = relativeFilePath;
+            ProjectIdentifier = projectIdentifier;
         }
 
-        [JsonConstructor]
-        public LinkFileContent(string linkedFilePath, ProjectIdentifier projectIdentifier)
+        public string GetFullFilePath(string solutionFilePath)
         {
-            LinkedFilePath = linkedFilePath;
-            ProjectIdentifier = projectIdentifier;
+            return Path.Combine(
+                Path.GetDirectoryName(solutionFilePath),
+                Path.GetDirectoryName(ProjectIdentifier.RelativeProjectFilePath),
+                RelativeFilePath);
         }
     }
 
     public class ProjectIdentifier
     {
-        public readonly string ProjectFileName;
+        public readonly string RelativeProjectFilePath;
         public readonly Guid Id;
 
-        public ProjectIdentifier(string projectFileName, Guid id)
+        public ProjectIdentifier(string relativeProjectFilePath, Guid id)
         {
-            ProjectFileName = projectFileName;
+            RelativeProjectFilePath = relativeProjectFilePath;
             Id = id;
         }
     }

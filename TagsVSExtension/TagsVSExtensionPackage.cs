@@ -82,7 +82,7 @@ namespace TagsVSExtension
         {
             return selectedItem.ProjectItem.ProjectItems
                         .OfType<EnvDTE.ProjectItem>()
-                        .Any(x => string.Compare(x.FileNames[0], linkFilePath, StringComparison.OrdinalIgnoreCase) == 0)
+                        .Any(x => string.Compare(x.FileNames[0], linkFilePath, StringComparison.OrdinalIgnoreCase) == 0);
         }
 
         private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)
@@ -92,27 +92,28 @@ namespace TagsVSExtension
 
             var linkFile = new LinkFile(pathToLinkFile);
             linkFile.Save(new FileSystem(),
-                new LinkFileContent(projectItem, CurrentWorkspace.CurrentSolution.FilePath));
+                projectItem.GetLinkFileContent());
 
             return pathToLinkFile;
         }
 
-        private async Task<IProjectItem> SelectedItemToProjectItemAsync(SelectedItem selectedItem)
+        private async Task<Maestro.Core.ProjectItem> SelectedItemToProjectItemAsync(SelectedItem selectedItem)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var fileName = selectedItem.ProjectItem.FileNames[0];
-            var project = new Maestro.Core.Project(selectedItem.ProjectItem.ContainingProject.FileName);
 
-            return new Maestro.Core.ProjectItem(fileName, project);
+            return new Maestro.Core.ProjectItem(fileName,
+                selectedItem.ProjectItem.ContainingProject.FileName,
+                CurrentWorkspace.CurrentSolution.FilePath);
         }
 
-        private string GetPathToSaveLinkFileTo(IProjectItem projectItem)
+        private string GetPathToSaveLinkFileTo(Maestro.Core.ProjectItem projectItem)
         {
             var solutionFilePath = CurrentWorkspace.CurrentSolution.FilePath;
             var directory = Path.Combine(Path.GetDirectoryName(solutionFilePath), "__Links");
 
-            return Path.Combine(directory, Path.GetFileName(projectItem.FilePath) + ".link");
+            return Path.Combine(directory, Path.GetFileName(projectItem.FileName) + ".link");
         }
 
         /*private void SelectionEvents_SelectionChanged(object sender, SelectionChangedEventArgs args)
@@ -190,9 +191,7 @@ namespace TagsVSExtension
 
                     var contents = JsonConvert.DeserializeObject<LinkFileContent>(File.ReadAllText(docView.FilePath));
 
-                    var solutionFolderPath = Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath);
-                    var fileToOpenPath = Path.Combine(solutionFolderPath, Path.GetDirectoryName(contents.ProjectIdentifier.ProjectFileName), contents.LinkedFilePath);
-                    await VS.Documents.OpenAsync(fileToOpenPath);
+                    await VS.Documents.OpenAsync(contents.GetFullFilePath(CurrentWorkspace.CurrentSolution.FilePath));
                 }
             }
         }

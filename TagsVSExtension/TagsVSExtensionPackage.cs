@@ -39,8 +39,12 @@ namespace TagsVSExtension
         private DTE2 _dte;
         private List<object> _eventRefs = new List<object>();
 
+        private SelectionManager _selectionManager;
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            _selectionManager = new SelectionManager();
+
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
             _eventRefs.Add(_dte.Events.SelectionEvents);
             _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
@@ -62,6 +66,8 @@ namespace TagsVSExtension
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
+            _selectionManager.ItemsDeselected(ToSelectedFiles(_previouslySelectedItems));
+
             if (_previouslySelectedItems != null && _previouslySelectedItems.Count == 1)
             {
                 var previous = _previouslySelectedItems.Cast<SelectedItem>().Single();
@@ -71,6 +77,8 @@ namespace TagsVSExtension
 
             var selections = _dte.SelectedItems;
             _previouslySelectedItems = selections;
+
+            _selectionManager.ItemsSelected(ToSelectedFiles(selections));
 
             if (selections.Count == 1)
             {
@@ -85,6 +93,18 @@ namespace TagsVSExtension
                     }
                 }
             }
+        }
+
+        private IEnumerable<SelectedFile> ToSelectedFiles(SelectedItems selectedItems)
+        {
+            return selectedItems == null
+                ? Enumerable.Empty<SelectedFile>()
+                : selectedItems.Cast<SelectedItem>().Select(x => ToSelectedFile(x));
+        }
+
+        private SelectedFile ToSelectedFile(SelectedItem selectedItem)
+        {
+            return new SelectedFile(selectedItem.Name);
         }
 
         private void RemoveLinkFiles(SelectedItem selectedItem)

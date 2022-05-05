@@ -6,9 +6,9 @@ namespace Maestro.Core
 {
     public class LinksManager
     {
-        public void GetLinksForFile()
+        public IEnumerable<ProjectItem> GetItemsToLinkTo(ProjectItem file)
         {
-
+            return new[] { file };
         }
     }
 }

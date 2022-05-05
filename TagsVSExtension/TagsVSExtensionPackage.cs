@@ -66,7 +66,7 @@ namespace TagsVSExtension
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            _selectionManager.ItemsDeselected(ToSelectedFiles(_previouslySelectedItems));
+            _selectionManager.ItemsDeselected(SelectedItemsToProjectItems(_previouslySelectedItems.Cast<SelectedItem>().ToArray()));
 
             if (_previouslySelectedItems != null && _previouslySelectedItems.Count == 1)
             {
@@ -78,7 +78,7 @@ namespace TagsVSExtension
             var selections = _dte.SelectedItems;
             _previouslySelectedItems = selections;
 
-            _selectionManager.ItemsSelected(ToSelectedFiles(selections));
+            _selectionManager.ItemsSelected(SelectedItemsToProjectItems(selections.Cast<SelectedItem>().ToArray()));
 
             if (selections.Count == 1)
             {
@@ -93,18 +93,6 @@ namespace TagsVSExtension
                     }
                 }
             }
-        }
-
-        private IEnumerable<SelectedFile> ToSelectedFiles(SelectedItems selectedItems)
-        {
-            return selectedItems == null
-                ? Enumerable.Empty<SelectedFile>()
-                : selectedItems.Cast<SelectedItem>().Select(x => ToSelectedFile(x));
-        }
-
-        private SelectedFile ToSelectedFile(SelectedItem selectedItem)
-        {
-            return new SelectedFile(selectedItem.Name);
         }
 
         private void RemoveLinkFiles(SelectedItem selectedItem)
@@ -150,7 +138,7 @@ namespace TagsVSExtension
 
         private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)
         {
-            var projectItem = await SelectedItemToProjectItemAsync(selectedItem);
+            var projectItem = SelectedItemsToProjectItems(selectedItem).Single();
             var pathToLinkFile = GetPathToSaveLinkFileTo(projectItem);
 
             var linkFile = new LinkFile(pathToLinkFile);
@@ -160,15 +148,23 @@ namespace TagsVSExtension
             return pathToLinkFile;
         }
 
-        private async Task<Maestro.Core.ProjectItem> SelectedItemToProjectItemAsync(SelectedItem selectedItem)
+
+
+        private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(params SelectedItem[] selectedItems)
         {
-            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            var results = new List<Maestro.Core.ProjectItem>();
+            foreach (var selectedItem in selectedItems)
+            {
+                var fileName = selectedItem.ProjectItem.FileNames[0];
 
-            var fileName = selectedItem.ProjectItem.FileNames[0];
+                var item = new Maestro.Core.ProjectItem(fileName,
+                    selectedItem.ProjectItem.ContainingProject.FileName,
+                    CurrentWorkspace.CurrentSolution.FilePath);
 
-            return new Maestro.Core.ProjectItem(fileName,
-                selectedItem.ProjectItem.ContainingProject.FileName,
-                CurrentWorkspace.CurrentSolution.FilePath);
+                results.Add(item);
+            }
+
+            return results;
         }
 
         private string GetPathToSaveLinkFileTo(Maestro.Core.ProjectItem projectItem)

@@ -30,5 +30,10 @@ namespace Maestro.Core
         {
             return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeProjectFilePath);
         }
+
+        public bool IsLinkFile()
+        {
+            return LinkFile.TryParse(_relativeItemFilePath, out var _);
+        }
     }
 }

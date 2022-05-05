@@ -43,7 +43,6 @@ namespace TagsVSExtension
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            _selectionManager = new SelectionManager();
 
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
             _eventRefs.Add(_dte.Events.SelectionEvents);
@@ -51,13 +50,16 @@ namespace TagsVSExtension
 
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
+            var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
+            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
+
+            _selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace));
+
             var itemsEvents = new ProjectItemsEventsCopy();
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
             VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
 
-            var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
-            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
         }
 
         private SelectedItems _previouslySelectedItems = null;
@@ -78,9 +80,9 @@ namespace TagsVSExtension
             var selections = _dte.SelectedItems;
             _previouslySelectedItems = selections;
 
-            _selectionManager.ItemsSelected(SelectedItemsToProjectItems(selections.Cast<SelectedItem>().ToArray()));
+            await _selectionManager.ItemsSelectedAsync(SelectedItemsToProjectItems(selections.Cast<SelectedItem>().ToArray()).ToList());
 
-            if (selections.Count == 1)
+            /*if (selections.Count == 1)
             {
                 var selectedItem = selections.Cast<SelectedItem>().Single();
                 if (selectedItem.ProjectItem != null && CurrentWorkspace != null && !LinkFile.TryParse(selectedItem.ProjectItem.FileNames[0], out var _))
@@ -92,7 +94,7 @@ namespace TagsVSExtension
                         var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
                     }
                 }
-            }
+            }*/
         }
 
         private void RemoveLinkFiles(SelectedItem selectedItem)
@@ -242,6 +244,83 @@ namespace TagsVSExtension
         private bool IsFile(string path)
         {
             return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        }
+    }
+
+    public class VisualStudioSolution : IVisualStudioSolution
+    {
+        private readonly Workspace _workspace;
+
+        public VisualStudioSolution(Workspace workspace)
+        {
+            _workspace = workspace;
+        }
+
+        public void AddProjectItem(Maestro.Core.ProjectItem projectItem, string linkFilePath)
+        {
+            ToProjectItem(projectItem).ProjectItems.AddFromFile(linkFilePath);
+        }
+
+        public async Task<string> CreateLinkFileAsync(Maestro.Core.ProjectItem coreProjectItem)
+        {
+            var projectItem = SelectedItemsToProjectItems(coreProjectItem).Single();
+            var pathToLinkFile = GetPathToSaveLinkFileTo(projectItem);
+
+            var linkFile = new LinkFile(pathToLinkFile);
+            linkFile.Save(new FileSystem(),
+                projectItem.GetLinkFileContent());
+
+            return pathToLinkFile;
+        }
+
+        public bool ProjectAlreadyHasLink(Maestro.Core.ProjectItem coreProjectItem, string linkFilePath)
+        {
+            var projectItem = ToProjectItem(coreProjectItem);
+            var collectionItems = projectItem.Collection
+                .OfType<object>();
+
+            var linkFileName = Path.GetFileName(linkFilePath);
+            foreach (var item in collectionItems)
+            {
+                var dynamicItem = (dynamic)item;
+                var name = dynamicItem?.Name;
+
+                if (string.Compare(linkFileName, name, StringComparison.OrdinalIgnoreCase) == 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(params Maestro.Core.ProjectItem[] selectedItems)
+        {
+            var results = new List<Maestro.Core.ProjectItem>();
+            foreach (var selectedItem in selectedItems)
+            {
+                var projectItem = ToProjectItem(selectedItem);
+                var fileName = projectItem.FileNames[0];
+
+                var item = new Maestro.Core.ProjectItem(fileName,
+                    projectItem.ContainingProject.FileName,
+                    _workspace.CurrentSolution.FilePath);
+
+                results.Add(item);
+            }
+
+            return results;
+        }
+
+        private string GetPathToSaveLinkFileTo(Maestro.Core.ProjectItem projectItem)
+        {
+            var solutionFilePath = _workspace.CurrentSolution.FilePath;
+            var directory = Path.Combine(Path.GetDirectoryName(solutionFilePath), "__Links");
+
+            return Path.Combine(directory, Path.GetFileName(projectItem.FileName) + ".link");
+        }
+
+        private EnvDTE.ProjectItem ToProjectItem(Maestro.Core.ProjectItem projectItem)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -21,14 +21,11 @@ namespace Maestro.Core
             if (files.Count == 1)
             {
                 var selectedItem = files.Single();
-                if (selectedItem.IsLinkFile())
+                if (!selectedItem.IsLinkFile())
                 {
                     var linkFilePath = await _vsSolution.CreateLinkFileAsync(selectedItem);
-
                     if (!_vsSolution.ProjectAlreadyHasLink(selectedItem, linkFilePath))
-                    {
                         _vsSolution.AddProjectItem(selectedItem, linkFilePath);
-                    }
                 }
             }
         }

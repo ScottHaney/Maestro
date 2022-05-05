@@ -53,7 +53,7 @@ namespace TagsVSExtension
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
-            _selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace));
+            _selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
 
             var itemsEvents = new ProjectItemsEventsCopy();
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
@@ -66,9 +66,12 @@ namespace TagsVSExtension
 
         private async void SelectionEvents_OnChange()
         {
+            if (_selectionManager == null)
+                return;
+
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            _selectionManager.ItemsDeselected(SelectedItemsToProjectItems(_previouslySelectedItems.Cast<SelectedItem>().ToArray()));
+            _selectionManager.ItemsDeselected(SelectedItemsToProjectItems(_previouslySelectedItems));
 
             if (_previouslySelectedItems != null && _previouslySelectedItems.Count == 1)
             {
@@ -80,7 +83,7 @@ namespace TagsVSExtension
             var selections = _dte.SelectedItems;
             _previouslySelectedItems = selections;
 
-            await _selectionManager.ItemsSelectedAsync(SelectedItemsToProjectItems(selections.Cast<SelectedItem>().ToArray()).ToList());
+            await _selectionManager.ItemsSelectedAsync(SelectedItemsToProjectItems(selections).ToList());
 
             /*if (selections.Count == 1)
             {
@@ -138,7 +141,7 @@ namespace TagsVSExtension
             return false;
         }
 
-        private async Task<string> CreateLinkFileAsync(SelectedItem selectedItem)
+        private async Task<string> CreateLinkFileAsync(SelectedItems selectedItem)
         {
             var projectItem = SelectedItemsToProjectItems(selectedItem).Single();
             var pathToLinkFile = GetPathToSaveLinkFileTo(projectItem);
@@ -152,11 +155,17 @@ namespace TagsVSExtension
 
 
 
-        private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(params SelectedItem[] selectedItems)
+        private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(SelectedItems selectedItems)
         {
+            if (selectedItems == null)
+                return Enumerable.Empty<Maestro.Core.ProjectItem>();
+
             var results = new List<Maestro.Core.ProjectItem>();
-            foreach (var selectedItem in selectedItems)
+            foreach (SelectedItem selectedItem in selectedItems)
             {
+                if (selectedItem.ProjectItem == null)
+                    continue;
+
                 var fileName = selectedItem.ProjectItem.FileNames[0];
 
                 var item = new Maestro.Core.ProjectItem(fileName,
@@ -250,10 +259,13 @@ namespace TagsVSExtension
     public class VisualStudioSolution : IVisualStudioSolution
     {
         private readonly Workspace _workspace;
+        private readonly DTE2 _dte;
 
-        public VisualStudioSolution(Workspace workspace)
+        public VisualStudioSolution(Workspace workspace,
+            DTE2 dte)
         {
             _workspace = workspace;
+            _dte = dte;
         }
 
         public void AddProjectItem(Maestro.Core.ProjectItem projectItem, string linkFilePath)
@@ -320,7 +332,7 @@ namespace TagsVSExtension
 
         private EnvDTE.ProjectItem ToProjectItem(Maestro.Core.ProjectItem projectItem)
         {
-            throw new NotImplementedException();
+            return _dte.Solution.FindProjectItem(projectItem.GetFullItemPath(_workspace.CurrentSolution.FilePath));
         }
     }
 }

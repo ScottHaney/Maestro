@@ -23,7 +23,7 @@ namespace Maestro.Core
 
         public string GetFullItemPath(string solutionFilePath)
         {
-            return Path.Combine(GetFullProjectPath(solutionFilePath), _relativeItemFilePath);
+            return Path.Combine(Path.GetDirectoryName(GetFullProjectPath(solutionFilePath)), _relativeItemFilePath);
         }
 
         public string GetFullProjectPath(string solutionFilePath)

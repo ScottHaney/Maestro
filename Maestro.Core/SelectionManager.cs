@@ -30,9 +30,14 @@ namespace Maestro.Core
             }
         }
 
-        public void ItemsDeselected(IEnumerable<ProjectItem> files)
+        public void ItemsDeselected(IList<ProjectItem> files)
         {
-
+            if (files.Count == 1)
+            {
+                var file = files.Single();
+                if (file != null)
+                    _vsSolution.RemoveLinkFiles(file);
+            }
         }
     }
 
@@ -41,5 +46,6 @@ namespace Maestro.Core
         Task<string> CreateLinkFileAsync(ProjectItem projectItem);
         bool ProjectAlreadyHasLink(ProjectItem projectItem, string linkFilePath);
         void AddProjectItem(ProjectItem projectItem, string linkFilePath);
+        void RemoveLinkFiles(ProjectItem projectItem);
     }
 }

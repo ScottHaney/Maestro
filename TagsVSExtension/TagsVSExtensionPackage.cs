@@ -40,6 +40,7 @@ namespace TagsVSExtension
         private List<object> _eventRefs = new List<object>();
 
         private SelectionManager _selectionManager;
+        private SelectedItems _previouslySelectedItems = null;
 
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
@@ -59,10 +60,7 @@ namespace TagsVSExtension
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
             VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
-
         }
-
-        private SelectedItems _previouslySelectedItems = null;
 
         private async void SelectionEvents_OnChange()
         {
@@ -71,89 +69,13 @@ namespace TagsVSExtension
 
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            _selectionManager.ItemsDeselected(SelectedItemsToProjectItems(_previouslySelectedItems));
-
-            if (_previouslySelectedItems != null && _previouslySelectedItems.Count == 1)
-            {
-                var previous = _previouslySelectedItems.Cast<SelectedItem>().Single();
-                if (previous != null)
-                    RemoveLinkFiles(previous);
-            }
+            _selectionManager.ItemsDeselected(SelectedItemsToProjectItems(_previouslySelectedItems).ToList());
 
             var selections = _dte.SelectedItems;
             _previouslySelectedItems = selections;
 
             await _selectionManager.ItemsSelectedAsync(SelectedItemsToProjectItems(selections).ToList());
-
-            /*if (selections.Count == 1)
-            {
-                var selectedItem = selections.Cast<SelectedItem>().Single();
-                if (selectedItem.ProjectItem != null && CurrentWorkspace != null && !LinkFile.TryParse(selectedItem.ProjectItem.FileNames[0], out var _))
-                {
-                    var linkFilePath = await CreateLinkFileAsync(selectedItem);
-
-                    if (!ProjectAlreadyHasLink(selectedItem, linkFilePath))
-                    {
-                        var newItem = selectedItem.ProjectItem.ProjectItems.AddFromFile(linkFilePath);
-                    }
-                }
-            }*/
         }
-
-        private void RemoveLinkFiles(SelectedItem selectedItem)
-        {
-            if (selectedItem.ProjectItem == null)
-                return;
-
-            var collectionItems = selectedItem.ProjectItem.Collection;
-
-            for (int i = collectionItems.Count - 1; i >= 0; i++)
-            {
-                var collectionItem = collectionItems.Item(i);
-                if (collectionItem != null)
-                {
-                    var dynamicItem = (dynamic)collectionItem;
-                    var name = dynamicItem?.Name;
-
-                    if (string.Compare(".link", Path.GetExtension(name), StringComparison.OrdinalIgnoreCase) == 0)
-                    {
-                        collectionItem.Remove();
-                    }
-                }
-            }
-        }
-
-        private bool ProjectAlreadyHasLink(SelectedItem selectedItem, string linkFilePath)
-        {
-            var collectionItems = selectedItem.ProjectItem.Collection
-                .OfType<object>();
-
-            var linkFileName = Path.GetFileName(linkFilePath);
-            foreach (var item in collectionItems)
-            {
-                var dynamicItem = (dynamic)item;
-                var name = dynamicItem?.Name;
-
-                if (string.Compare(linkFileName, name, StringComparison.OrdinalIgnoreCase) == 0)
-                    return true;
-            }
-
-            return false;
-        }
-
-        private async Task<string> CreateLinkFileAsync(SelectedItems selectedItem)
-        {
-            var projectItem = SelectedItemsToProjectItems(selectedItem).Single();
-            var pathToLinkFile = GetPathToSaveLinkFileTo(projectItem);
-
-            var linkFile = new LinkFile(pathToLinkFile);
-            linkFile.Save(new FileSystem(),
-                projectItem.GetLinkFileContent());
-
-            return pathToLinkFile;
-        }
-
-
 
         private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(SelectedItems selectedItems)
         {
@@ -176,14 +98,6 @@ namespace TagsVSExtension
             }
 
             return results;
-        }
-
-        private string GetPathToSaveLinkFileTo(Maestro.Core.ProjectItem projectItem)
-        {
-            var solutionFilePath = CurrentWorkspace.CurrentSolution.FilePath;
-            var directory = Path.Combine(Path.GetDirectoryName(solutionFilePath), "__Links");
-
-            return Path.Combine(directory, Path.GetFileName(projectItem.FileName) + ".link");
         }
 
         private async void ItemsEvents_AfterAddProjectItems(IEnumerable<SolutionItem> obj)
@@ -304,6 +218,30 @@ namespace TagsVSExtension
             return false;
         }
 
+        public void RemoveLinkFiles(Maestro.Core.ProjectItem coreProjectItem)
+        {
+            var selectedItem = ToProjectItem(coreProjectItem);
+            if (selectedItem == null)
+                return;
+
+            var collectionItems = selectedItem.Collection;
+
+            for (int i = collectionItems.Count - 1; i >= 0; i++)
+            {
+                var collectionItem = collectionItems.Item(i);
+                if (collectionItem != null)
+                {
+                    var dynamicItem = (dynamic)collectionItem;
+                    var name = dynamicItem?.Name;
+
+                    if (string.Compare(".link", Path.GetExtension(name), StringComparison.OrdinalIgnoreCase) == 0)
+                    {
+                        collectionItem.Remove();
+                    }
+                }
+            }
+        }
+
         private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(params Maestro.Core.ProjectItem[] selectedItems)
         {
             var results = new List<Maestro.Core.ProjectItem>();
@@ -332,6 +270,9 @@ namespace TagsVSExtension
 
         private EnvDTE.ProjectItem ToProjectItem(Maestro.Core.ProjectItem projectItem)
         {
+            if (projectItem == null)
+                return null;
+
             return _dte.Solution.FindProjectItem(projectItem.GetFullItemPath(_workspace.CurrentSolution.FilePath));
         }
     }

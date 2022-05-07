@@ -57,7 +57,13 @@ namespace TagsVSExtension
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
-            _visualWorkspace = null;
+            _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
+
+            //_selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
+            //_eventRefs.Add(_dte.Events.SelectionEvents);
+            //_dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
+
+            _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace);
 
             _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace);
             _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
@@ -84,14 +90,6 @@ namespace TagsVSExtension
                     _howToShowLinkFiles.HideLinks(item);
                 }
             };
-
-            _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
-            _eventRefs.Add(_dte.Events.SelectionEvents);
-            _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
-
-
-
-            _selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
 
             var itemsEvents = new ProjectItemsEventsCopy();
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;

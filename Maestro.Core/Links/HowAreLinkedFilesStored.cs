@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.CodeAnalysis;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,40 +11,56 @@ namespace Maestro.Core.Links
     public class HowAreLinkedFilesStored
     {
         private readonly IFileSystem _fileSystem;
-        private readonly string _solutionFolderPath;
-
-        private readonly string _storageFolderPath;
+        private readonly Workspace _workspace;
 
         public HowAreLinkedFilesStored(IFileSystem fileSystem,
-            string solutionFolderPath)
+            Workspace workspace)
         {
             _fileSystem = fileSystem;
-            _solutionFolderPath = solutionFolderPath;
-
-            _storageFolderPath = Path.Combine(_storageFolderPath, "__Tags");
+            _workspace = workspace;
         }
 
-        public IEnumerable<string> StoreLinkFiles(ProjectItem parentItem, IEnumerable<ProjectItem> links)
+        private string GetStorageFolderPath()
         {
-            if (!_fileSystem.Directory.Exists(_storageFolderPath))
-                _fileSystem.Directory.CreateDirectory(_storageFolderPath);
+            return Path.Combine(Path.GetDirectoryName(_workspace.CurrentSolution.FilePath), "__Tags");
+        }
+
+        public IEnumerable<StoredLinkFile> StoreLinkFiles(ProjectItem parentItem, IEnumerable<ProjectItem> links)
+        {
+            var storageFolderPath = GetStorageFolderPath();
+            if (!_fileSystem.Directory.Exists(storageFolderPath))
+                _fileSystem.Directory.CreateDirectory(storageFolderPath);
 
             foreach (var link in links)
             {
                 var linkFileContent = link.GetLinkFileContent();
 
-                var linkFilePath = Path.Combine(_storageFolderPath, link.FileName + ".link");
+                var linkFilePath = Path.Combine(storageFolderPath, link.FileName + ".link");
                 _fileSystem.File.WriteAllText(linkFilePath,
                     JsonConvert.SerializeObject(linkFileContent));
 
-                yield return linkFilePath;
+                yield return new StoredLinkFile(link, linkFilePath);
             }
         }
 
         public void DeleteLinksForItem(ProjectItem projectItem)
         {
-            if (_fileSystem.Directory.Exists(_storageFolderPath))
-                _fileSystem.Directory.Delete(_storageFolderPath, true);
+            var storageFolderPath = GetStorageFolderPath();
+            if (_fileSystem.Directory.Exists(storageFolderPath))
+                _fileSystem.Directory.Delete(storageFolderPath, true);
+        }
+    }
+
+    public class StoredLinkFile
+    {
+        public readonly ProjectItem ProjectItem;
+        public readonly string LinkFilePath;
+
+        public StoredLinkFile(ProjectItem projectItem,
+            string linkFilePath)
+        {
+            ProjectItem = projectItem;
+            LinkFilePath = linkFilePath;
         }
     }
 }

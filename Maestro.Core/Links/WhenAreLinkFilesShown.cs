@@ -31,6 +31,6 @@ namespace Maestro.Core.Links
         event EventHandler<List<ProjectItem>> ItemsSelected;
         event EventHandler<List<ProjectItem>> ItemsUnselected;
 
-        void ShowLinks(ProjectItem projectItem, IEnumerable<ProjectItem> linkedItems);
+        void ShowLinks(ProjectItem projectItem, IEnumerable<StoredLinkFile> linkedItems);
     }
 }

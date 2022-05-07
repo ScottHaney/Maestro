@@ -67,17 +67,19 @@ namespace TagsVSExtension
 
             _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace);
             _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
-                Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath));
+                CurrentWorkspace);
 
             _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace);
+            _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked();
+
             _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
             {
                 foreach (var item in args)
                 {
                     var linksToShow = _whichItemsShouldBeLinked.GetLinks(item);
-                    _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
+                    var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
 
-                    _howToShowLinkFiles.ShowLinks(item, linksToShow);
+                    _howToShowLinkFiles.ShowLinks(item, storedLinks);
                 }
             };
 
@@ -214,12 +216,15 @@ namespace TagsVSExtension
         private readonly Workspace _workspace;
         private SelectedItems _previouslySelectedItems;
 
+        private readonly List<object> _eventRefs = new List<object>();
+
         public VisualStudioVisualWorkspace(DTE2 dte,
             Workspace workspace)
         {
             _dte = dte;
             _workspace = workspace;
 
+            _eventRefs.Add(_dte.Events.SelectionEvents);
             _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
         }
 
@@ -233,7 +238,7 @@ namespace TagsVSExtension
             _previouslySelectedItems = currentSelections;
         }
 
-        public void ShowLinks(Maestro.Core.ProjectItem projectItem, IEnumerable<Maestro.Core.ProjectItem> linkedItems)
+        public void ShowLinks(Maestro.Core.ProjectItem projectItem, IEnumerable<Maestro.Core.Links.StoredLinkFile> linkedItems)
         {
             if (!projectItem.IsLinkFile())
             {
@@ -245,13 +250,13 @@ namespace TagsVSExtension
             }
         }
 
-        private bool ProjectAlreadyHasLink(Maestro.Core.ProjectItem coreProjectItem, Maestro.Core.ProjectItem link)
+        private bool ProjectAlreadyHasLink(Maestro.Core.ProjectItem coreProjectItem, Maestro.Core.Links.StoredLinkFile link)
         {
             var visualProjectItem = ToProjectItem(coreProjectItem);
             var collectionItems = visualProjectItem.Collection
                 .OfType<object>();
 
-            var linkFileName = Path.GetFileName(link.GetFullItemPath(_workspace.CurrentSolution.FilePath));
+            var linkFileName = Path.GetFileName(link.ProjectItem.GetFullItemPath(_workspace.CurrentSolution.FilePath) + ".link");
             foreach (var item in collectionItems)
             {
                 var dynamicItem = (dynamic)item;
@@ -263,9 +268,9 @@ namespace TagsVSExtension
 
             return false;
         }
-        private void AddProjectItem(Maestro.Core.ProjectItem projectItem, Maestro.Core.ProjectItem linkedItem)
+        private void AddProjectItem(Maestro.Core.ProjectItem projectItem, Maestro.Core.Links.StoredLinkFile linkedItem)
         {
-            var linkFilePath = linkedItem.GetFullItemPath(_workspace.CurrentSolution.FilePath);
+            var linkFilePath = linkedItem.LinkFilePath;
             ToProjectItem(projectItem).ProjectItems.AddFromFile(linkFilePath);
         }
 

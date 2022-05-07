@@ -23,6 +23,7 @@ using Maestro.Core;
 using Maestro.GitManagement;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Maestro.Core.Links;
 
 namespace TagsVSExtension
 {
@@ -42,17 +43,53 @@ namespace TagsVSExtension
         private SelectionManager _selectionManager;
         private SelectedItems _previouslySelectedItems = null;
 
+        private WhenAreLinkFilesShown _whenAreLinkFilesShown;
+        private WhichItemsShouldBeLinked _whichItemsShouldBeLinked;
+        private HowToShowLinkFiles _howToShowLinkFiles;
+        private HowAreLinkedFilesStored _howAreLinkedFilesStored;
+
+        private IVisualWorkspace _visualWorkspace;
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
+            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
+
+            _visualWorkspace = null;
+
+            _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace);
+            _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
+                Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath));
+
+            _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace);
+            _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
+            {
+                foreach (var item in args)
+                {
+                    var linksToShow = _whichItemsShouldBeLinked.GetLinks(item);
+                    _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
+
+                    _howToShowLinkFiles.ShowLinks(item, linksToShow);
+                }
+            };
+
+            _whenAreLinkFilesShown.HideLinks += (sender, args) =>
+            {
+                foreach (var item in args)
+                {
+                    _howAreLinkedFilesStored.DeleteLinksForItem(item);
+
+                    _howToShowLinkFiles.HideLinks(item);
+                }
+            };
 
             _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
             _eventRefs.Add(_dte.Events.SelectionEvents);
             _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
 
-            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-            var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
-            CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
             _selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
 
@@ -167,6 +204,102 @@ namespace TagsVSExtension
         private bool IsFile(string path)
         {
             return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
+        }
+    }
+
+    public class VisualStudioVisualWorkspace : IVisualWorkspace
+    {
+        public event EventHandler<List<Maestro.Core.ProjectItem>> ItemsSelected;
+        public event EventHandler<List<Maestro.Core.ProjectItem>> ItemsUnselected;
+
+        private readonly DTE2 _dte;
+        private readonly Workspace _workspace;
+        private SelectedItems _previouslySelectedItems;
+
+        public VisualStudioVisualWorkspace(DTE2 dte,
+            Workspace workspace)
+        {
+            _dte = dte;
+            _workspace = workspace;
+
+            _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
+        }
+
+        private void SelectionEvents_OnChange()
+        {
+            ItemsUnselected?.Invoke(this, SelectedItemsToProjectItems(_previouslySelectedItems).ToList());
+
+            var currentSelections = _dte.SelectedItems;
+            ItemsSelected?.Invoke(this, SelectedItemsToProjectItems(currentSelections).ToList());
+
+            _previouslySelectedItems = currentSelections;
+        }
+
+        public void ShowLinks(Maestro.Core.ProjectItem projectItem, IEnumerable<Maestro.Core.ProjectItem> linkedItems)
+        {
+            if (!projectItem.IsLinkFile())
+            {
+                foreach (var linkedItem in linkedItems)
+                {
+                    if (!ProjectAlreadyHasLink(projectItem, linkedItem))
+                        AddProjectItem(projectItem, linkedItem);
+                }
+            }
+        }
+
+        private bool ProjectAlreadyHasLink(Maestro.Core.ProjectItem coreProjectItem, Maestro.Core.ProjectItem link)
+        {
+            var visualProjectItem = ToProjectItem(coreProjectItem);
+            var collectionItems = visualProjectItem.Collection
+                .OfType<object>();
+
+            var linkFileName = Path.GetFileName(link.GetFullItemPath(_workspace.CurrentSolution.FilePath));
+            foreach (var item in collectionItems)
+            {
+                var dynamicItem = (dynamic)item;
+                var name = dynamicItem?.Name;
+
+                if (string.Compare(linkFileName, name, StringComparison.OrdinalIgnoreCase) == 0)
+                    return true;
+            }
+
+            return false;
+        }
+        private void AddProjectItem(Maestro.Core.ProjectItem projectItem, Maestro.Core.ProjectItem linkedItem)
+        {
+            var linkFilePath = linkedItem.GetFullItemPath(_workspace.CurrentSolution.FilePath);
+            ToProjectItem(projectItem).ProjectItems.AddFromFile(linkFilePath);
+        }
+
+        private EnvDTE.ProjectItem ToProjectItem(Maestro.Core.ProjectItem projectItem)
+        {
+            if (projectItem == null)
+                return null;
+
+            return _dte.Solution.FindProjectItem(projectItem.GetFullItemPath(_workspace.CurrentSolution.FilePath));
+        }
+
+        private IEnumerable<Maestro.Core.ProjectItem> SelectedItemsToProjectItems(SelectedItems selectedItems)
+        {
+            if (selectedItems == null)
+                return Enumerable.Empty<Maestro.Core.ProjectItem>();
+
+            var results = new List<Maestro.Core.ProjectItem>();
+            foreach (SelectedItem selectedItem in selectedItems)
+            {
+                if (selectedItem.ProjectItem == null)
+                    continue;
+
+                var fileName = selectedItem.ProjectItem.FileNames[0];
+
+                var item = new Maestro.Core.ProjectItem(fileName,
+                    selectedItem.ProjectItem.ContainingProject.FileName,
+                    _workspace.CurrentSolution.FilePath);
+
+                results.Add(item);
+            }
+
+            return results;
         }
     }
 

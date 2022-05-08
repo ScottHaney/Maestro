@@ -24,6 +24,7 @@ using Maestro.GitManagement;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Maestro.Core.Links;
+using Microsoft.VisualStudio.Threading;
 
 namespace TagsVSExtension
 {
@@ -63,7 +64,7 @@ namespace TagsVSExtension
             //_eventRefs.Add(_dte.Events.SelectionEvents);
             //_dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
 
-            _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace);
+            _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace, JoinableTaskFactory);
 
             _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace);
             _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
@@ -210,22 +211,27 @@ namespace TagsVSExtension
 
         private readonly DTE2 _dte;
         private readonly Workspace _workspace;
-        private SelectedItems _previouslySelectedItems;
+        private readonly JoinableTaskFactory _joinableTaskFactory;
 
+        private SelectedItems _previouslySelectedItems;
         private readonly List<object> _eventRefs = new List<object>();
 
         public VisualStudioVisualWorkspace(DTE2 dte,
-            Workspace workspace)
+            Workspace workspace,
+            JoinableTaskFactory joinableTaskFactory)
         {
             _dte = dte;
             _workspace = workspace;
+            _joinableTaskFactory = joinableTaskFactory;
 
             _eventRefs.Add(_dte.Events.SelectionEvents);
             _dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
         }
 
-        private void SelectionEvents_OnChange()
+        private async void SelectionEvents_OnChange()
         {
+            await _joinableTaskFactory.SwitchToMainThreadAsync();
+
             ItemsUnselected?.Invoke(this, SelectedItemsToProjectItems(_previouslySelectedItems).ToList());
 
             var currentSelections = _dte.SelectedItems;
@@ -256,7 +262,7 @@ namespace TagsVSExtension
 
                 var collectionItems = selectedItem.Collection;
 
-                for (int i = collectionItems.Count - 1; i >= 0; i++)
+                for (int i = collectionItems.Count - 1; i >= 0; i--)
                 {
                     var collectionItem = collectionItems.Item(i);
                     if (collectionItem != null)

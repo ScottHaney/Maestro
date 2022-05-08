@@ -77,8 +77,8 @@ namespace TagsVSExtension
             {
                 foreach (var item in args)
                 {
-                    //PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
-                    //    item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath));
+                    PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
+                        item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath));
 
                     var linksToShow = _whichItemsShouldBeLinked.GetLinks(item);
                     var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);

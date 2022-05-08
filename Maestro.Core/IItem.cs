@@ -31,6 +31,12 @@ namespace Maestro.Core
             return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeProjectFilePath);
         }
 
+        public string GetRelativePathForGit(string solutionFilePath)
+        {
+            var solutionDir = Path.GetDirectoryName(solutionFilePath);
+            return PathNetCore.GetRelativePath(solutionDir, GetFullItemPath(solutionFilePath));
+        }
+
         public bool IsLinkFile()
         {
             return LinkFile.TryParse(_relativeItemFilePath, out var _);

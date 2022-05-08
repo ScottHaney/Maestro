@@ -71,12 +71,15 @@ namespace TagsVSExtension
                 CurrentWorkspace);
 
             _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace);
-            _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked();
+            _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked(CurrentWorkspace);
 
             _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
             {
                 foreach (var item in args)
                 {
+                    //PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
+                    //    item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath));
+
                     var linksToShow = _whichItemsShouldBeLinked.GetLinks(item);
                     var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
 
@@ -262,7 +265,8 @@ namespace TagsVSExtension
 
                 var collectionItems = selectedItem.Collection;
 
-                for (int i = collectionItems.Count - 1; i >= 0; i--)
+                //This is a 1 based indexing system...
+                for (int i = collectionItems.Count; i > 0; i--)
                 {
                     var collectionItem = collectionItems.Item(i);
                     if (collectionItem != null)

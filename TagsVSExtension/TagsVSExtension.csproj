@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="PowershellAutomation.cs" />
     <Compile Include="ProjectsItemsEventsCopy.cs" />
     <Compile Include="ProjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,6 +83,7 @@
     <Reference Include="System" />
     <Reference Include="System.Design" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />

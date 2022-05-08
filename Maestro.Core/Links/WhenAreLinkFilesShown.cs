@@ -22,7 +22,8 @@ namespace Maestro.Core.Links
 
         private void VisualWorkspace_ItemsSelected(object sender, List<ProjectItem> e)
         {
-            ShowLinks?.Invoke(this, e);
+            if (e.Count == 1)
+                ShowLinks?.Invoke(this, e);
         }
     }
 
@@ -32,5 +33,6 @@ namespace Maestro.Core.Links
         event EventHandler<List<ProjectItem>> ItemsUnselected;
 
         void ShowLinks(ProjectItem projectItem, IEnumerable<StoredLinkFile> linkedItems);
+        void HideLinks(IEnumerable<ProjectItem> projectItems);
     }
 }

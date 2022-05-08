@@ -43,7 +43,7 @@ namespace Maestro.Core.Links
             }
         }
 
-        public void DeleteLinksForItem(ProjectItem projectItem)
+        public void DeleteLinksForItems(IEnumerable<ProjectItem> projectItems)
         {
             var storageFolderPath = GetStorageFolderPath();
             if (_fileSystem.Directory.Exists(storageFolderPath))

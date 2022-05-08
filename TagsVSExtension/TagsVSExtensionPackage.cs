@@ -85,9 +85,10 @@ namespace TagsVSExtension
 
             _whenAreLinkFilesShown.HideLinks += (sender, args) =>
             {
+                _howAreLinkedFilesStored.DeleteLinksForItems(args);
                 foreach (var item in args)
                 {
-                    _howAreLinkedFilesStored.DeleteLinksForItem(item);
+                    
 
                     _howToShowLinkFiles.HideLinks(item);
                 }
@@ -246,6 +247,33 @@ namespace TagsVSExtension
                 {
                     if (!ProjectAlreadyHasLink(projectItem, linkedItem))
                         AddProjectItem(projectItem, linkedItem);
+                }
+            }
+        }
+
+        public void HideLinks(IEnumerable<Maestro.Core.ProjectItem> projectItems)
+        {
+            foreach (var projectItem in projectItems)
+            {
+                var selectedItem = ToProjectItem(projectItem);
+                if (selectedItem == null)
+                    return;
+
+                var collectionItems = selectedItem.Collection;
+
+                for (int i = collectionItems.Count - 1; i >= 0; i++)
+                {
+                    var collectionItem = collectionItems.Item(i);
+                    if (collectionItem != null)
+                    {
+                        var dynamicItem = (dynamic)collectionItem;
+                        var name = dynamicItem?.Name;
+
+                        if (string.Compare(".link", Path.GetExtension(name), StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            collectionItem.Remove();
+                        }
+                    }
                 }
             }
         }

@@ -18,9 +18,9 @@ namespace Maestro.Core.Links
             _visualWorkspace.ShowLinks(projectItem, linkedItems);
         }
 
-        public void HideLinks(ProjectItem projectItem)
+        public void HideLinks(IEnumerable<ProjectItem> projectItems)
         {
-
+            _visualWorkspace.HideLinks(projectItems);
         }
     }
 }

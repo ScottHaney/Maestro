@@ -86,12 +86,7 @@ namespace TagsVSExtension
             _whenAreLinkFilesShown.HideLinks += (sender, args) =>
             {
                 _howAreLinkedFilesStored.DeleteLinksForItems(args);
-                foreach (var item in args)
-                {
-                    
-
-                    _howToShowLinkFiles.HideLinks(item);
-                }
+                _howToShowLinkFiles.HideLinks(args);
             };
 
             var itemsEvents = new ProjectItemsEventsCopy();

@@ -77,10 +77,13 @@ namespace TagsVSExtension
             {
                 foreach (var item in args)
                 {
-                    PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
-                        item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath));
+                    var topLinks = PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
+                        item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath))
+                    .Select(x => new Maestro.Core.ProjectItem(x))
+                    .Take(5)
+                    .ToList();
 
-                    var linksToShow = _whichItemsShouldBeLinked.GetLinks(item);
+                    var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
                     var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
 
                     _howToShowLinkFiles.ShowLinks(item, storedLinks);
@@ -97,6 +100,20 @@ namespace TagsVSExtension
             itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
 
             VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
+        }
+
+        private Maestro.Core.ProjectItem ToProjectItem(EnvDTE.ProjectItem projectItem)
+        {
+            var fileName = projectItem.FileNames[1];
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                return new Maestro.Core.ProjectItem(fileName,
+                        projectItem.ContainingProject.FileName,
+                        CurrentWorkspace.CurrentSolution.FilePath);
+            }
+            else
+                return null;
         }
 
         private async void SelectionEvents_OnChange()

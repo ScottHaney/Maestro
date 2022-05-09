@@ -14,8 +14,14 @@ namespace Maestro.Core
 
         public ProjectItem(string fullItemFilePath, string fullProjectFilePath, string fullSolutionFilePath)
         {
-            _relativeProjectFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullProjectFilePath);
-            _relativeItemFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullProjectFilePath), fullItemFilePath);
+            _relativeProjectFilePath = string.IsNullOrEmpty(fullProjectFilePath) ? "" : PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullProjectFilePath);
+            _relativeItemFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullItemFilePath);
+        }
+
+        public ProjectItem(string relativeItemPath)
+        {
+            _relativeProjectFilePath = "";
+            _relativeItemFilePath = relativeItemPath;
         }
 
         public LinkFileContent GetLinkFileContent()
@@ -23,7 +29,7 @@ namespace Maestro.Core
 
         public string GetFullItemPath(string solutionFilePath)
         {
-            return Path.Combine(Path.GetDirectoryName(GetFullProjectPath(solutionFilePath)), _relativeItemFilePath);
+            return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeItemFilePath);
         }
 
         public string GetFullProjectPath(string solutionFilePath)

@@ -11,7 +11,7 @@ namespace TagsVSExtension
 {
     public static class PowershellAutomation
     {
-        public static void GetHistoryFromGit(string solutionFilePath, string filePath)
+        public static IEnumerable<string> GetHistoryFromGit(string solutionFilePath, string filePath)
         {
             var ps = PowerShell.Create();
             string script = ChangedFilesHistory(filePath, solutionFilePath);
@@ -21,12 +21,11 @@ namespace TagsVSExtension
             var settings = new PSInvocationSettings();
             var results = ps.Invoke();
 
-            var top5 = results.Select(x => x.ToString())
+            return results.Select(x => x.ToString())
                 .GroupBy(x => x)
                 .OrderBy(x => x.Count())
-                .Take(5)
                 .Select(x => x.Key)
-                .ToList();
+                .Where(x => File.Exists(Path.Combine(Path.GetDirectoryName(solutionFilePath), x)));
         }
 
         private static string ChangedFilesHistory(string itemPath, string solutionFilePath)

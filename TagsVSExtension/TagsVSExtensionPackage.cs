@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Maestro.Core.Links;
 using Microsoft.VisualStudio.Threading;
+using ProjectItem = EnvDTE.ProjectItem;
+using Project = EnvDTE.Project;
 
 namespace TagsVSExtension
 {
@@ -70,13 +72,16 @@ namespace TagsVSExtension
             _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
                 CurrentWorkspace);
 
-            _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace);
+            _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace, _howAreLinkedFilesStored);
             _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked(CurrentWorkspace);
 
             _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
             {
                 foreach (var item in args)
                 {
+                    if (item.IsLinkFile() || item.IsProjectOrSolutionFile())
+                        continue;
+
                     var topLinks = PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
                         item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath))
                     .Select(x => new Maestro.Core.ProjectItem(x))
@@ -84,7 +89,7 @@ namespace TagsVSExtension
                     .ToList();
 
                     var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
-                    var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow);
+                    var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow).ToList();
 
                     _howToShowLinkFiles.ShowLinks(item, storedLinks);
                 }
@@ -280,7 +285,7 @@ namespace TagsVSExtension
                 if (selectedItem == null)
                     return;
 
-                var collectionItems = selectedItem.Collection;
+                var collectionItems = selectedItem.ProjectItems;
 
                 //This is a 1 based indexing system...
                 for (int i = collectionItems.Count; i > 0; i--)
@@ -320,8 +325,34 @@ namespace TagsVSExtension
         }
         private void AddProjectItem(Maestro.Core.ProjectItem projectItem, Maestro.Core.Links.StoredLinkFile linkedItem)
         {
-            var linkFilePath = linkedItem.LinkFilePath;
-            ToProjectItem(projectItem).ProjectItems.AddFromFile(linkFilePath);
+            var vsProjectItem = ToProjectItem(projectItem);
+            if (vsProjectItem == null)
+                return;
+
+            var vsLinkedItem = vsProjectItem.ProjectItems.AddFromFile(linkedItem.LinkFilePath);
+
+            bool mayNeedAttributeSet = vsLinkedItem.ContainingProject.IsKind(
+                    ProjectTypes.DOTNET_Core,
+                    ProjectTypes.UNIVERSAL_APP,
+                    ProjectTypes.SHARED_PROJECT,
+                    ProjectTypes.NETSTANDARD);
+
+            if (!(mayNeedAttributeSet && SetDependentUpon(vsLinkedItem, vsProjectItem.Name)))
+            {
+                vsLinkedItem.Remove();
+                vsProjectItem.ProjectItems.AddFromFile(linkedItem.LinkFilePath);
+            }
+        }
+
+        private static bool SetDependentUpon(ProjectItem item, string value)
+        {
+            if (item.ContainsProperty("DependentUpon"))
+            {
+                item.Properties.Item("DependentUpon").Value = value;
+                return true;
+            }
+
+            return false;
         }
 
         private EnvDTE.ProjectItem ToProjectItem(Maestro.Core.ProjectItem projectItem)
@@ -354,6 +385,174 @@ namespace TagsVSExtension
 
             return results;
         }
+
+        public void ClearLinks(IEnumerable<ExistingLinkFile> existingLinks)
+        {
+            foreach (var existingLink in existingLinks)
+            {
+                var projectItem = _dte.Solution.FindProjectItem(existingLink.FilePath);
+                if (projectItem != null)
+                    projectItem.Remove();
+            }
+        }
+    }
+
+    static class ManualNester
+    {
+        private const string CordovaKind = "{262852C6-CD72-467D-83FE-5EEB1973A190}";
+        public static void Nest(ProjectItem parent, IEnumerable<ProjectItem> items)
+        {
+            if (parent == null)
+                return;
+
+            foreach (ProjectItem item in items)
+            {
+                string path = item.FileNames[0];
+
+                bool mayNeedAttributeSet = item.ContainingProject.IsKind(
+                    ProjectTypes.DOTNET_Core,
+                    ProjectTypes.UNIVERSAL_APP,
+                    ProjectTypes.SHARED_PROJECT,
+                    ProjectTypes.NETSTANDARD);
+
+                if (!(mayNeedAttributeSet && SetDependentUpon(item, parent.Name)))
+                {
+                    item.Remove();
+                    parent.ProjectItems.AddFromFile(path);
+                }
+            }
+        }
+
+        public static void UnNest(ProjectItem item)
+        {
+            foreach (ProjectItem child in item.ProjectItems)
+            {
+                UnNest(child);
+            }
+
+            UnNestItem(item);
+        }
+
+        private static void UnNestItem(ProjectItem item)
+        {
+            string path = item.FileNames[0];
+            object parent = item.Collection.Parent;
+
+            bool shouldAddToParentItem = item.ContainingProject.Kind == CordovaKind;
+
+            while (parent != null)
+            {
+                var pi = parent as ProjectItem;
+
+                if (pi != null)
+                {
+                    if (!Path.HasExtension(pi.FileNames[0]))
+                    {
+                        object itemType = item.Properties.Item("ItemType").Value;
+
+                        DeleteAndAdd(item, path);
+
+                        ProjectItem newItem;
+                        if (shouldAddToParentItem)
+                        {
+                            newItem = pi.ProjectItems.AddFromFile(path);
+                        }
+                        else
+                        {
+                            newItem = pi.ContainingProject.ProjectItems.AddFromFile(path);
+                        }
+                        newItem.Properties.Item("ItemType").Value = itemType;
+                        break;
+                    }
+
+                    parent = pi.Collection.Parent;
+                }
+                else
+                {
+                    var pj = parent as Project;
+                    if (pj != null)
+                    {
+                        object itemType = item.Properties.Item("ItemType").Value;
+
+                        DeleteAndAdd(item, path);
+
+                        ProjectItem newItem = pj.ProjectItems.AddFromFile(path);
+                        newItem.Properties.Item("ItemType").Value = itemType;
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static void DeleteAndAdd(ProjectItem item, string path)
+        {
+            if (!File.Exists(path))
+                return;
+
+            string temp = Path.GetTempFileName();
+            File.Copy(path, temp, true);
+            item.Delete();
+            File.Copy(temp, path);
+            File.Delete(temp);
+        }
+
+        private static void RemoveDependentUpon(ProjectItem item)
+        {
+            SetDependentUpon(item, null);
+        }
+
+        private static bool SetDependentUpon(ProjectItem item, string value)
+        {
+            if (item.ContainsProperty("DependentUpon"))
+            {
+                item.Properties.Item("DependentUpon").Value = value;
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    static class Helpers
+    {
+        public static bool ContainsProperty(this ProjectItem projectItem, string propertyName)
+        {
+            if (projectItem.Properties != null)
+            {
+                foreach (Property item in projectItem.Properties)
+                {
+                    if (item != null && item.Name == propertyName)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsKind(this Project project, params string[] kindGuids)
+        {
+            foreach (var guid in kindGuids)
+            {
+                if (project.Kind.Equals(guid, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+    }
+
+    public static class ProjectTypes
+    {
+        public const string ASPNET_5 = "{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}";
+        public const string DOTNET_Core = "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}";
+        public const string WEBSITE_PROJECT = "{E24C65DC-7377-472B-9ABA-BC803B73C61A}";
+        public const string UNIVERSAL_APP = "{262852C6-CD72-467D-83FE-5EEB1973A190}";
+        public const string NODE_JS = "{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}";
+        public const string SSDT = "{00d1a9c2-b5f0-4af3-8072-f6c62b433612}";
+        public const string SHARED_PROJECT = "{D954291E-2A0B-460D-934E-DC6B0785DB48}";
+        public const string NETSTANDARD = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}";
     }
 
     public class VisualStudioSolution : IVisualStudioSolution

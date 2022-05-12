@@ -9,8 +9,15 @@ namespace Maestro.Core.Links
         public event EventHandler<List<ProjectItem>> ShowLinks;
         public event EventHandler<List<ProjectItem>> HideLinks;
 
-        public WhenAreLinkFilesShown(IVisualWorkspace visualWorkspace)
+        private readonly IVisualWorkspace _visualWorkspace;
+        private readonly HowAreLinkedFilesStored _howAreLinkedFilesStored;
+
+        public WhenAreLinkFilesShown(IVisualWorkspace visualWorkspace,
+            HowAreLinkedFilesStored howAreLinkedFilesStored)
         {
+            _visualWorkspace = visualWorkspace;
+            _howAreLinkedFilesStored = howAreLinkedFilesStored;
+
             visualWorkspace.ItemsSelected += VisualWorkspace_ItemsSelected;
             visualWorkspace.ItemsUnselected += VisualWorkspace_ItemsUnselected;
         }
@@ -23,7 +30,9 @@ namespace Maestro.Core.Links
         private void VisualWorkspace_ItemsSelected(object sender, List<ProjectItem> e)
         {
             if (e.Count == 1)
+            {
                 ShowLinks?.Invoke(this, e);
+            }
         }
     }
 
@@ -34,5 +43,6 @@ namespace Maestro.Core.Links
 
         void ShowLinks(ProjectItem projectItem, IEnumerable<StoredLinkFile> linkedItems);
         void HideLinks(IEnumerable<ProjectItem> projectItems);
+        void ClearLinks(IEnumerable<ExistingLinkFile> existingLinks);
     }
 }

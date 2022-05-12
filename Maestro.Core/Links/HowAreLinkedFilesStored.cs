@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text;
+using System.Linq;
 
 namespace Maestro.Core.Links
 {
@@ -20,16 +21,14 @@ namespace Maestro.Core.Links
             _workspace = workspace;
         }
 
-        private string GetStorageFolderPath()
+        private string GetStorageFolderPath(ProjectItem parentItem)
         {
-            return Path.Combine(Path.GetDirectoryName(_workspace.CurrentSolution.FilePath), "__Tags");
+            return Path.GetDirectoryName(parentItem.GetFullItemPath(_workspace.CurrentSolution.FilePath));
         }
 
         public IEnumerable<StoredLinkFile> StoreLinkFiles(ProjectItem parentItem, IEnumerable<ProjectItem> links)
         {
-            var storageFolderPath = GetStorageFolderPath();
-            if (!_fileSystem.Directory.Exists(storageFolderPath))
-                _fileSystem.Directory.CreateDirectory(storageFolderPath);
+            var storageFolderPath = GetStorageFolderPath(parentItem);
 
             foreach (var link in links)
             {
@@ -45,9 +44,17 @@ namespace Maestro.Core.Links
 
         public void DeleteLinksForItems(IEnumerable<ProjectItem> projectItems)
         {
-            var storageFolderPath = GetStorageFolderPath();
-            if (_fileSystem.Directory.Exists(storageFolderPath))
-                _fileSystem.Directory.Delete(storageFolderPath, true);
+            foreach (var projectItem in projectItems)
+            {
+                var storageFolderPath = GetStorageFolderPath(projectItem);
+                if (_fileSystem.Directory.Exists(storageFolderPath))
+                {
+                    foreach (var linkFile in _fileSystem.Directory.GetFiles(storageFolderPath, "*.link"))
+                    {
+                        _fileSystem.File.Delete(linkFile);
+                    }
+                }
+            }
         }
     }
 
@@ -61,6 +68,19 @@ namespace Maestro.Core.Links
         {
             ProjectItem = projectItem;
             LinkFilePath = linkFilePath;
+        }
+    }
+
+    public class ExistingLinkFile
+    {
+        public readonly string FilePath;
+        public readonly LinkFileContent Content;
+
+        public ExistingLinkFile(string filePath,
+            LinkFileContent content)
+        {
+            FilePath = filePath;
+            Content = content;
         }
     }
 }

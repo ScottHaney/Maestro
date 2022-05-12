@@ -47,5 +47,12 @@ namespace Maestro.Core
         {
             return LinkFile.TryParse(_relativeItemFilePath, out var _);
         }
+
+        public bool IsProjectOrSolutionFile()
+        {
+            var extension = Path.GetExtension(FileName);
+            return string.Compare(extension, ".csproj", StringComparison.OrdinalIgnoreCase) == 0
+                || string.Compare(extension, ".sln", StringComparison.OrdinalIgnoreCase) == 0;
+        }
     }
 }

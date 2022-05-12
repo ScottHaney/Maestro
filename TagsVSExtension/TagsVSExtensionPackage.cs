@@ -225,6 +225,9 @@ namespace TagsVSExtension
 
         private bool IsFile(string path)
         {
+            if (!File.Exists(path))
+                return false;
+
             return !File.GetAttributes(path).HasFlag(FileAttributes.Directory);
         }
     }
@@ -337,11 +340,11 @@ namespace TagsVSExtension
                     ProjectTypes.SHARED_PROJECT,
                     ProjectTypes.NETSTANDARD);
 
-            if (!(mayNeedAttributeSet && SetDependentUpon(vsLinkedItem, vsProjectItem.Name)))
-            {
-                vsLinkedItem.Remove();
-                vsProjectItem.ProjectItems.AddFromFile(linkedItem.LinkFilePath);
-            }
+            //if (!(mayNeedAttributeSet && SetDependentUpon(vsLinkedItem, vsProjectItem.Name)))
+            //{
+                //vsLinkedItem.Remove();
+                //vsProjectItem.ProjectItems.AddFromFile(linkedItem.LinkFilePath);
+            //}
         }
 
         private static bool SetDependentUpon(ProjectItem item, string value)

@@ -8,41 +8,45 @@ namespace Maestro.Core
 {
     public class ProjectItem
     {
-        private readonly string _relativeProjectFilePath;
-        private readonly string _relativeItemFilePath;
+        [JsonProperty]
+        private string RelativeProjectFilePath { get; set; }
 
-        public string FileName => Path.GetFileName(_relativeItemFilePath);
+        [JsonProperty]
+        private string RelativeItemFilePath { get; set; }
+
+        [JsonIgnore]
+        public string FileName => Path.GetFileName(RelativeItemFilePath);
 
         public ProjectItem(string fullItemFilePath, string fullProjectFilePath, string fullSolutionFilePath)
         {
-            _relativeProjectFilePath = string.IsNullOrEmpty(fullProjectFilePath) ? "" : PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullProjectFilePath);
-            _relativeItemFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullItemFilePath);
+            RelativeProjectFilePath = string.IsNullOrEmpty(fullProjectFilePath) ? "" : PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullProjectFilePath);
+            RelativeItemFilePath = PathNetCore.GetRelativePath(Path.GetDirectoryName(fullSolutionFilePath), fullItemFilePath);
         }
 
         public ProjectItem(string relativeItemPath)
         {
-            _relativeProjectFilePath = "";
-            _relativeItemFilePath = relativeItemPath;
+            RelativeProjectFilePath = "";
+            RelativeItemFilePath = relativeItemPath;
         }
 
         [JsonConstructor]
         public ProjectItem(string relativeProjectFilePath, string relativeItemFilePath)
         {
-            _relativeProjectFilePath = relativeProjectFilePath;
-            _relativeItemFilePath = relativeItemFilePath;
+            RelativeProjectFilePath = relativeProjectFilePath;
+            RelativeItemFilePath = relativeItemFilePath;
         }
 
         public LinkFileContent GetLinkFileContent()
-            => new LinkFileContent(_relativeItemFilePath, new ProjectIdentifier(_relativeProjectFilePath, Guid.NewGuid()));
+            => new LinkFileContent(RelativeItemFilePath, new ProjectIdentifier(RelativeProjectFilePath, Guid.NewGuid()));
 
         public string GetFullItemPath(string solutionFilePath)
         {
-            return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeItemFilePath);
+            return Path.Combine(Path.GetDirectoryName(solutionFilePath), RelativeItemFilePath);
         }
 
         public string GetFullProjectPath(string solutionFilePath)
         {
-            return Path.Combine(Path.GetDirectoryName(solutionFilePath), _relativeProjectFilePath);
+            return Path.Combine(Path.GetDirectoryName(solutionFilePath), RelativeProjectFilePath);
         }
 
         public string GetRelativePathForGit(string solutionFilePath)
@@ -53,7 +57,7 @@ namespace Maestro.Core
 
         public bool IsLinkFile()
         {
-            return LinkFile.TryParse(_relativeItemFilePath, out var _);
+            return LinkFile.TryParse(RelativeItemFilePath, out var _);
         }
 
         public bool IsProjectOrSolutionFile()

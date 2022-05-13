@@ -68,7 +68,9 @@ namespace TagsVSExtension
 
             _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace, JoinableTaskFactory);
 
-            _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace);
+            _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace,
+                CurrentWorkspace,
+                new FileSystem());
             _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
                 CurrentWorkspace);
 
@@ -260,7 +262,7 @@ namespace TagsVSExtension
         {
             await _joinableTaskFactory.SwitchToMainThreadAsync();
 
-            ItemsUnselected?.Invoke(this, SelectedItemsToProjectItems(_previouslySelectedItems).ToList());
+            //ItemsUnselected?.Invoke(this, SelectedItemsToProjectItems(_previouslySelectedItems).ToList());
 
             var currentSelections = _dte.SelectedItems;
             ItemsSelected?.Invoke(this, SelectedItemsToProjectItems(currentSelections).ToList());

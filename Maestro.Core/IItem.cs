@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Maestro.Core
 {
@@ -22,6 +23,13 @@ namespace Maestro.Core
         {
             _relativeProjectFilePath = "";
             _relativeItemFilePath = relativeItemPath;
+        }
+
+        [JsonConstructor]
+        public ProjectItem(string relativeProjectFilePath, string relativeItemFilePath)
+        {
+            _relativeProjectFilePath = relativeProjectFilePath;
+            _relativeItemFilePath = relativeItemFilePath;
         }
 
         public LinkFileContent GetLinkFileContent()

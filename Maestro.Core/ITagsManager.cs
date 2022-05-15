@@ -77,7 +77,6 @@ namespace Maestro.Core
         {
             return Path.Combine(
                 Path.GetDirectoryName(solutionFilePath),
-                Path.GetDirectoryName(ProjectIdentifier.RelativeProjectFilePath),
                 RelativeFilePath);
         }
     }

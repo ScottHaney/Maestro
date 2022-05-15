@@ -25,7 +25,15 @@ namespace TagsVSExtension
                 .GroupBy(x => x)
                 .OrderBy(x => x.Count())
                 .Select(x => x.Key)
+                .Where(x => !IsProjectOrSolutionFile(x))
                 .Where(x => File.Exists(Path.Combine(Path.GetDirectoryName(solutionFilePath), x)));
+        }
+
+        private static bool IsProjectOrSolutionFile(string relativeFilePath)
+        {
+            var extension = Path.GetExtension(relativeFilePath);
+            return string.Compare(extension, ".csproj", StringComparison.OrdinalIgnoreCase) == 0
+                || string.Compare(extension, ".sln", StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         private static string ChangedFilesHistory(string itemPath, string solutionFilePath)

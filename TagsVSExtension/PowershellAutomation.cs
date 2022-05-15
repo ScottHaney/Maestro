@@ -32,7 +32,7 @@ namespace TagsVSExtension
         private static bool IsProjectOrSolutionFile(string relativeFilePath)
         {
             var extension = Path.GetExtension(relativeFilePath);
-            return string.Compare(extension, ".csproj", StringComparison.OrdinalIgnoreCase) == 0
+            return extension?.EndsWith("proj", StringComparison.OrdinalIgnoreCase) == true
                 || string.Compare(extension, ".sln", StringComparison.OrdinalIgnoreCase) == 0;
         }
 

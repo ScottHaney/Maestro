@@ -30,7 +30,7 @@ namespace Maestro.Core.Tests
             Assert.IsTrue(fileSystem.FileExists(linkFilePath));
 
             var linkFileContents = JsonConvert.DeserializeObject<LinkFileContent>(fileSystem.File.ReadAllText(linkFilePath));
-            Assert.AreEqual("Class1.cs", linkFileContents.RelativeFilePath);
+            Assert.AreEqual(@"Project1\Class1.cs", linkFileContents.RelativeFilePath);
             Assert.AreEqual(@"Project1\Project1.csproj", linkFileContents.ProjectIdentifier.RelativeProjectFilePath);
         }
     }

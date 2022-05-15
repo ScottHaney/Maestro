@@ -90,6 +90,11 @@ namespace TagsVSExtension
                     .Take(5)
                     .ToList();
 
+                    //Only choose distinct file names since they have to be saved in the same folder
+                    topLinks.GroupBy(x => x.FileName, StringComparer.OrdinalIgnoreCase)
+                        .Select(x => x.First())
+                        .ToList();
+
                     var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
                     var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow).ToList();
 

@@ -60,58 +60,62 @@ namespace TagsVSExtension
             var componentModel = (IComponentModel)(await GetServiceAsync(typeof(SComponentModel)));
             CurrentWorkspace = componentModel.GetService<VisualStudioWorkspace>();
 
-            _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
-
-            //_selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
-            //_eventRefs.Add(_dte.Events.SelectionEvents);
-            //_dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
-
-            _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace, JoinableTaskFactory);
-
-            _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace,
-                CurrentWorkspace,
-                new FileSystem());
-            _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
-                CurrentWorkspace);
-
-            _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace, _howAreLinkedFilesStored);
-            _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked(CurrentWorkspace);
-
-            _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
+            var isUnderGitSourceControl = Directory.Exists(Path.Combine(Path.GetDirectoryName(CurrentWorkspace.CurrentSolution.FilePath), ".git"));
+            if (isUnderGitSourceControl)
             {
-                foreach (var item in args)
+                _dte = await GetServiceAsync(typeof(DTE)) as DTE2;
+
+                //_selectionManager = new SelectionManager(new VisualStudioSolution(CurrentWorkspace, _dte));
+                //_eventRefs.Add(_dte.Events.SelectionEvents);
+                //_dte.Events.SelectionEvents.OnChange += SelectionEvents_OnChange;
+
+                _visualWorkspace = new VisualStudioVisualWorkspace(_dte, CurrentWorkspace, JoinableTaskFactory);
+
+                _howToShowLinkFiles = new HowToShowLinkFiles(_visualWorkspace,
+                    CurrentWorkspace,
+                    new FileSystem());
+                _howAreLinkedFilesStored = new HowAreLinkedFilesStored(new FileSystem(),
+                    CurrentWorkspace);
+
+                _whenAreLinkFilesShown = new WhenAreLinkFilesShown(_visualWorkspace, _howAreLinkedFilesStored);
+                _whichItemsShouldBeLinked = new WhichItemsShouldBeLinked(CurrentWorkspace);
+
+                _whenAreLinkFilesShown.ShowLinks += (sender, args) =>
                 {
-                    if (item.IsLinkFile() || item.IsProjectOrSolutionFile())
-                        continue;
+                    foreach (var item in args)
+                    {
+                        if (item.IsLinkFile() || item.IsProjectOrSolutionFile())
+                            continue;
 
-                    var topLinks = PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
-                        item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath))
-                    .Select(x => new Maestro.Core.ProjectItem(x))
-                    .Take(5)
-                    .ToList();
-
-                    //Only choose distinct file names since they have to be saved in the same folder
-                    topLinks.GroupBy(x => x.FileName, StringComparer.OrdinalIgnoreCase)
-                        .Select(x => x.First())
+                        var topLinks = PowershellAutomation.GetHistoryFromGit(CurrentWorkspace.CurrentSolution.FilePath,
+                            item.GetFullItemPath(CurrentWorkspace.CurrentSolution.FilePath))
+                        .Select(x => new Maestro.Core.ProjectItem(x))
+                        .Take(5)
                         .ToList();
 
-                    var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
-                    var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow).ToList();
+                        //Only choose distinct file names since they have to be saved in the same folder
+                        topLinks.GroupBy(x => x.FileName, StringComparer.OrdinalIgnoreCase)
+                            .Select(x => x.First())
+                            .ToList();
 
-                    _howToShowLinkFiles.ShowLinks(item, storedLinks);
-                }
-            };
+                        var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
+                        var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow).ToList();
 
-            _whenAreLinkFilesShown.HideLinks += (sender, args) =>
-            {
-                _howAreLinkedFilesStored.DeleteLinksForItems(args);
-                _howToShowLinkFiles.HideLinks(args);
-            };
+                        _howToShowLinkFiles.ShowLinks(item, storedLinks);
+                    }
+                };
 
-            var itemsEvents = new ProjectItemsEventsCopy();
-            itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
+                _whenAreLinkFilesShown.HideLinks += (sender, args) =>
+                {
+                    _howAreLinkedFilesStored.DeleteLinksForItems(args);
+                    _howToShowLinkFiles.HideLinks(args);
+                };
 
-            VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
+                var itemsEvents = new ProjectItemsEventsCopy();
+                itemsEvents.AfterAddProjectItems += ItemsEvents_AfterAddProjectItems;
+
+                VS.Events.WindowEvents.FrameIsOnScreenChanged += WindowEvents_FrameIsOnScreenChanged;
+            }
         }
 
         private Maestro.Core.ProjectItem ToProjectItem(EnvDTE.ProjectItem projectItem)

@@ -48,6 +48,9 @@ namespace Maestro.Core
 
         public string GetFullProjectPath(string solutionFilePath)
         {
+            if (string.IsNullOrEmpty(RelativeProjectFilePath))
+                return string.Empty;
+
             return Path.Combine(Path.GetDirectoryName(solutionFilePath), RelativeProjectFilePath);
         }
 

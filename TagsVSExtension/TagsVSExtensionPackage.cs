@@ -98,7 +98,8 @@ namespace TagsVSExtension
                             .Select(x => x.First())
                             .ToList();
 
-                        var linksToShow = topLinks;// _whichItemsShouldBeLinked.GetLinks(item);
+                        var suggestedLinks = _whichItemsShouldBeLinked.GetLinks(item);
+                        var linksToShow = topLinks.Concat(suggestedLinks).Distinct();
                         var storedLinks = _howAreLinkedFilesStored.StoreLinkFiles(item, linksToShow).ToList();
 
                         _howToShowLinkFiles.ShowLinks(item, storedLinks);

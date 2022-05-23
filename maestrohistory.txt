@@ -1,1 +1,0 @@
-{"RelativeProjectFilePath":"TagsVSExtension\\TagsVSExtension.csproj","RelativeItemFilePath":"TagsVSExtension\\TagsVSExtensionPackage.cs"}

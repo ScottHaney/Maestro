@@ -230,7 +230,9 @@ namespace TagsVSExtension
 
                     var contents = JsonConvert.DeserializeObject<LinkFileContent>(File.ReadAllText(docView.FilePath));
 
-                    await VS.Documents.OpenAsync(contents.GetFullFilePath(CurrentWorkspace.CurrentSolution.FilePath));
+                    var filePath = contents.GetFullFilePath(CurrentWorkspace.CurrentSolution.FilePath);
+                    if (File.Exists(filePath))
+                        await VS.Documents.OpenAsync(filePath);
                 }
             }
         }

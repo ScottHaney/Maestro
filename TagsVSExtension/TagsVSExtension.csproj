@@ -62,15 +62,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HowAreLinkedFilesStored.cs.link.link">
-      <DependentUpon>TagsVSExtensionPackage.cs</DependentUpon>
-    </None>
-    <None Include="IItem.cs.link.link">
-      <DependentUpon>TagsVSExtensionPackage.cs</DependentUpon>
-    </None>
-    <None Include="LinksManager.cs.link.link">
-      <DependentUpon>TagsVSExtensionPackage.cs</DependentUpon>
-    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
@@ -80,12 +71,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="WhenAreLinkFilesShown.cs.link.link">
-      <DependentUpon>TagsVSExtensionPackage.cs</DependentUpon>
-    </None>
-    <None Include="WhichItemsShouldBeLinked.cs.link.link">
-      <DependentUpon>TagsVSExtensionPackage.cs</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="VSCommandTable.vsct">

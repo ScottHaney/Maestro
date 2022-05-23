@@ -26,8 +26,6 @@ namespace Maestro.Core.Links
 
         public void ShowLinks(ProjectItem projectItem, IEnumerable<StoredLinkFile> linkedItems)
         {
-            HideLinksForPreviousSelection();
-
             _visualWorkspace.ShowLinks(projectItem, linkedItems);
 
             SaveSelectionHistory(projectItem);
@@ -35,6 +33,7 @@ namespace Maestro.Core.Links
 
         public void HideLinks(IEnumerable<ProjectItem> projectItems)
         {
+            HideLinksForPreviousSelection();
         }
 
         private void SaveSelectionHistory(ProjectItem projectItem)

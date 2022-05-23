@@ -319,6 +319,8 @@ namespace TagsVSExtension
                         }
                     }
                 }
+
+                selectedItem.Save();
             }
         }
 

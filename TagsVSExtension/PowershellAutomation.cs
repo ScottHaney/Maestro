@@ -25,7 +25,7 @@ namespace TagsVSExtension
                 .GroupBy(x => x)
                 .OrderBy(x => x.Count())
                 .Select(x => x.Key)
-                .Where(x => !IsProjectOrSolutionFile(x))
+                .Where(x => !IsProjectOrSolutionFile(x) && !IsLinkFile(x))
                 .Where(x => File.Exists(Path.Combine(Path.GetDirectoryName(solutionFilePath), x)));
         }
 
@@ -34,6 +34,11 @@ namespace TagsVSExtension
             var extension = Path.GetExtension(relativeFilePath);
             return extension?.EndsWith("proj", StringComparison.OrdinalIgnoreCase) == true
                 || string.Compare(extension, ".sln", StringComparison.OrdinalIgnoreCase) == 0;
+        }
+
+        private static bool IsLinkFile(string relativeFilePath)
+        {
+            return string.Compare(Path.GetExtension(relativeFilePath), ".link", StringComparison.OrdinalIgnoreCase) == 0;
         }
 
         private static string ChangedFilesHistory(string itemPath, string solutionFilePath)

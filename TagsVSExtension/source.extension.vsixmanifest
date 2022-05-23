@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="Maestro.TagsVSExtension" Version="1.0" Language="en-US" Publisher="Scott Haney" />
-        <DisplayName>Maestro.TagsVSExtension</DisplayName>
-        <Description xml:space="preserve">Tool that creates links to files when they are dragged and dropped under any subfolder of a folder named '__Tags'. This allows for a tag based organization of files in solution explorer rather than the hierarchy based organization that is typically used.</Description>
+        <Identity Id="Maestro.SolutionExplorer++" Version="0.1" Language="en-US" Publisher="Scott Haney" />
+        <DisplayName>SolutionExplorer++</DisplayName>
+        <Description xml:space="preserve">Puts files that are frequently modified together near each other in solution explorerPuts files that are frequently modified together near each other in solution explorer</Description>
         <Icon>Resources\Icon.png</Icon>
         <PreviewImage>Resources\Icon.png</PreviewImage>
         <Tags>Software Design</Tags>
+        <Preview>true</Preview>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">

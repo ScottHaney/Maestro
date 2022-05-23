@@ -7,11 +7,11 @@ namespace TagsVSExtension
 {
     internal sealed partial class Vsix
     {
-        public const string Id = "Maestro.TagsVSExtension";
-        public const string Name = "Maestro.TagsVSExtension";
-        public const string Description = @"Tool that creates links to files when they are dragged and dropped under any subfolder of a folder named '__Tags'. This allows for a tag based organization of files in solution explorer rather than the hierarchy based organization that is typically used.";
+        public const string Id = "Maestro.SolutionExplorer++";
+        public const string Name = "SolutionExplorer++";
+        public const string Description = @"Puts files that are frequently modified together near each other in solution explorerPuts files that are frequently modified together near each other in solution explorer";
         public const string Language = "en-US";
-        public const string Version = "1.0";
+        public const string Version = "0.1";
         public const string Author = "Scott Haney";
         public const string Tags = "Software Design";
     }
